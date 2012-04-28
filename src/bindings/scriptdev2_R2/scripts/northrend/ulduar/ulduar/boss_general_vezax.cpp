@@ -228,13 +228,17 @@ struct MANGOS_DLL_DECL boss_general_vezaxAI : public ScriptedAI
                 m_uiSaroniteVaporTimer -= uiDiff;
         }
 
-        if (m_uiFlamesTimer < uiDiff)
+        // Searing flames only while animus is not around
+        if (m_pInstance && m_pInstance->GetData(TYPE_VEZAX_HARD) != IN_PROGRESS)
         {
-            if (DoCastSpellIfCan(m_creature, SPELL_SEARING_FLAMES) == CAST_OK)
-                m_uiFlamesTimer = urand(5000, 10000);
+            if (m_uiFlamesTimer < uiDiff)
+            {
+                if (DoCastSpellIfCan(m_creature, SPELL_SEARING_FLAMES) == CAST_OK)
+                    m_uiFlamesTimer = urand(9000, 16000);
+            }
+            else
+                m_uiFlamesTimer -= uiDiff;
         }
-        else
-            m_uiFlamesTimer -= uiDiff;
 
         if (m_uiSurgeTimer < uiDiff)
         {

@@ -77,7 +77,10 @@ EndScriptData */
 #define SPELL_RESTORE_MANA              32848
 #define SPELL_RESTORE_HEALTH            25329
 
-#define CREATURE_ENSLAVED_SOUL          23469
+#define NPC_ENSLAVED_SOUL               23469
+#define NPC_ESSENCE_OF_SUFFERING        23418
+#define NPC_ESSENCE_OF_DESIRE           23419
+#define NPC_ESSENCE_OF_ANGER            23420
 
 struct ReliquaryPosition
 {
@@ -234,7 +237,7 @@ struct MANGOS_DLL_DECL boss_reliquary_of_soulsAI : public ScriptedAI
         float x = Coords[random].x;
         float y = Coords[random].y;
 
-        Creature* Soul = m_creature->SummonCreature(CREATURE_ENSLAVED_SOUL, x, y, m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 45000);
+        Creature* Soul = m_creature->SummonCreature(NPC_ENSLAVED_SOUL, x, y, m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 45000);
         Unit* target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0);
         if (target && Soul)
         {
@@ -294,7 +297,7 @@ struct MANGOS_DLL_DECL boss_reliquary_of_soulsAI : public ScriptedAI
                 // Ribs: open
                 m_creature->HandleEmote(EMOTE_STATE_SUBMERGED);
 
-                Creature* EssenceSuffering = m_creature->SummonCreature(23418, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), 1.57f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10000);
+                Creature* EssenceSuffering = m_creature->SummonCreature(NPC_ESSENCE_OF_SUFFERING, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), 1.57f, TEMPSUMMON_MANUAL_DESPAWN, 0);
 
                 if (EssenceSuffering)
                 {
@@ -359,6 +362,7 @@ struct MANGOS_DLL_DECL boss_reliquary_of_soulsAI : public ScriptedAI
                         EssenceSuffering->SetDisplayId(11686);
                         EssenceSuffering->setFaction(35);
                         m_creature->HandleEmote(EMOTE_ONESHOT_NONE);
+                        EssenceSuffering->ForcedDespawn(5000);
                         SummonEssenceTimer = 20000;         //60000;
                         AnimationTimer = 18200;             //58100;
                         SoulDeathCount = 0;
@@ -397,7 +401,7 @@ struct MANGOS_DLL_DECL boss_reliquary_of_soulsAI : public ScriptedAI
                     // Ribs: open
                     m_creature->HandleEmote(EMOTE_STATE_SUBMERGED);
 
-                    Creature* EssenceDesire = m_creature->SummonCreature(23419, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), 1.57f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10000);
+                    Creature* EssenceDesire = m_creature->SummonCreature(NPC_ESSENCE_OF_DESIRE, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), 1.57f, TEMPSUMMON_MANUAL_DESPAWN, 0);
 
                     if (EssenceDesire)
                     {
@@ -465,6 +469,7 @@ struct MANGOS_DLL_DECL boss_reliquary_of_soulsAI : public ScriptedAI
 
                             EssenceDesire->SetDisplayId(11686);
                             m_creature->HandleEmote(EMOTE_ONESHOT_NONE);
+                            EssenceDesire->ForcedDespawn(5000);
                             SummonEssenceTimer = 20000;
                             AnimationTimer = 18200;
                             SoulDeathCount = 0;
@@ -504,7 +509,7 @@ struct MANGOS_DLL_DECL boss_reliquary_of_soulsAI : public ScriptedAI
                     // Ribs: open
                     m_creature->HandleEmote(EMOTE_STATE_SUBMERGED);
 
-                    Creature* EssenceAnger = m_creature->SummonCreature(23420, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), 1.57f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 45000);
+                    Creature* EssenceAnger = m_creature->SummonCreature(NPC_ESSENCE_OF_ANGER, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), 1.57f, TEMPSUMMON_DEAD_DESPAWN, 0);
 
                     if (EssenceAnger)
                     {

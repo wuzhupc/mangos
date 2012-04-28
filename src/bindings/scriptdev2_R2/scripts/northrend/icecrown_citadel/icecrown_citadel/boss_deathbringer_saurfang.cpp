@@ -719,7 +719,7 @@ struct MANGOS_DLL_DECL boss_deathbringer_saurfangAI : public base_icc_bossAI
                     m_creature->CastCustomSpell(m_creature, SPELL_BLOOD_POWER, &power, &power, NULL, true);
                     DoScriptText(SAY_FALLENCHAMPION, m_creature);
                     // count mark for achievement
-                    m_uiMarkOfFallenCount;
+                    ++m_uiMarkOfFallenCount;
                 }
             }
         }

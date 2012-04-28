@@ -6696,23 +6696,16 @@ int32 Player::CalculateReputationGain(ReputationSource source, int32 rep, int32 
 	//wuzhu start 修改获取的声望
 	if(rep>0)
 	{
-		if(sWorld.getConfig(CONFIG_FLOAT_RATE_REPUTATION_GAIN)*rep>sWorld.getWUZHUConfig(WUZHU_MaxReputation))
-		{
-			return sWorld.getWUZHUConfig(WUZHU_MaxReputation);
-		}
+		rep=int32(sWorld.getConfig(CONFIG_FLOAT_RATE_REPUTATION_GAIN)*rep*percent/100.0f);
+		int32 maxrep=int32(sWorld.getWUZHUConfig(WUZHU_MaxReputation));
+		if(rep>maxrep)
+			return maxrep;
 		else
-		{
-			return int32(sWorld.getConfig(CONFIG_FLOAT_RATE_REPUTATION_GAIN)*rep*percent/100.0f);
-		}
+			return rep;
 	}
 	else
 	{
-		if(sWorld.getConfig(CONFIG_FLOAT_RATE_REPUTATION_GAIN)*rep<-sWorld.getWUZHUConfig(WUZHU_MaxReputation))
-		{
-			return -sWorld.getWUZHUConfig(WUZHU_MaxReputation);
-		}
-		else
-			return int32(sWorld.getConfig(CONFIG_FLOAT_RATE_REPUTATION_GAIN)*rep*percent/100.0f);
+		return int32(rep*percent/100.0f);
 	}
 	//wuzhu end
 }
@@ -11990,7 +11983,7 @@ Item* Player::_StoreItem( uint16 pos, Item *pItem, uint32 count, bool clone, boo
         else if (Bag *pBag = (Bag*)GetItemByPos( INVENTORY_SLOT_BAG_0, bag ))
         {
             pBag->StoreItem( slot, pItem, update );
-            if ( IsInWorld() && update )
+            if (IsInWorld() && update)
             {
                 pItem->AddToWorld();
                 pItem->SendCreateUpdateToPlayer( this );
@@ -12109,7 +12102,7 @@ Item* Player::EquipItem( uint16 pos, Item *pItem, bool update )
             }
         }
 
-        if ( IsInWorld() && update )
+        if (IsInWorld() && update)
         {
             pItem->AddToWorld();
             pItem->SendCreateUpdateToPlayer( this );
@@ -12131,12 +12124,12 @@ Item* Player::EquipItem( uint16 pos, Item *pItem, bool update )
     else
     {
         pItem2->SetCount( pItem2->GetCount() + pItem->GetCount() );
-        if ( IsInWorld() && update )
+        if (IsInWorld() && update)
             pItem2->SendCreateUpdateToPlayer( this );
 
         // delete item (it not in any slot currently)
         //pItem->DeleteFromDB();
-        if ( IsInWorld() && update )
+        if (IsInWorld() && update)
         {
             pItem->RemoveFromWorld();
             pItem->DestroyForPlayer( this );
@@ -12442,7 +12435,7 @@ void Player::DestroyItem( uint8 bag, uint8 slot, bool update )
         else if (Bag *pBag = (Bag*)GetItemByPos( INVENTORY_SLOT_BAG_0, bag ))
             pBag->RemoveItem(slot, update);
 
-        if ( IsInWorld() && update )
+        if (IsInWorld() && update)
         {
             pItem->RemoveFromWorld();
             pItem->DestroyForPlayer(this);
@@ -12455,15 +12448,15 @@ void Player::DestroyItem( uint8 bag, uint8 slot, bool update )
     }
 }
 
-void Player::DestroyItemCount( uint32 item, uint32 count, bool update, bool unequip_check)
+void Player::DestroyItemCount(uint32 item, uint32 count, bool update, bool unequip_check, bool inBankAlso)
 {
-    DEBUG_LOG( "STORAGE: DestroyItemCount item = %u, count = %u", item, count);
+    DEBUG_LOG("STORAGE: DestroyItemCount item = %u, count = %u", item, count);
     uint32 remcount = 0;
 
     // in inventory
-    for(int i = INVENTORY_SLOT_ITEM_START; i < INVENTORY_SLOT_ITEM_END; ++i)
+    for (int i = INVENTORY_SLOT_ITEM_START; i < INVENTORY_SLOT_ITEM_END; ++i)
     {
-        if (Item* pItem = GetItemByPos( INVENTORY_SLOT_BAG_0, i ))
+        if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
         {
             if (pItem->GetEntry() == item && !pItem->IsInTrade())
             {
@@ -12471,17 +12464,17 @@ void Player::DestroyItemCount( uint32 item, uint32 count, bool update, bool uneq
                 {
                     // all items in inventory can unequipped
                     remcount += pItem->GetCount();
-                    DestroyItem( INVENTORY_SLOT_BAG_0, i, update);
+                    DestroyItem(INVENTORY_SLOT_BAG_0, i, update);
 
                     if (remcount >= count)
                         return;
                 }
                 else
                 {
-                    ItemRemovedQuestCheck( pItem->GetEntry(), count - remcount );
-                    pItem->SetCount( pItem->GetCount() - count + remcount );
-                    if (IsInWorld() & update)
-                        pItem->SendCreateUpdateToPlayer( this );
+                    ItemRemovedQuestCheck(pItem->GetEntry(), count - remcount);
+                    pItem->SetCount(pItem->GetCount() - count + remcount);
+                    if (IsInWorld() && update)
+                        pItem->SendCreateUpdateToPlayer(this);
                     pItem->SetState(ITEM_CHANGED, this);
                     return;
                 }
@@ -12489,9 +12482,9 @@ void Player::DestroyItemCount( uint32 item, uint32 count, bool update, bool uneq
         }
     }
 
-    for(int i = KEYRING_SLOT_START; i < CURRENCYTOKEN_SLOT_END; ++i)
+    for (int i = KEYRING_SLOT_START; i < CURRENCYTOKEN_SLOT_END; ++i)
     {
-        if (Item* pItem = GetItemByPos( INVENTORY_SLOT_BAG_0, i ))
+        if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
         {
             if (pItem->GetEntry() == item && !pItem->IsInTrade())
             {
@@ -12499,17 +12492,17 @@ void Player::DestroyItemCount( uint32 item, uint32 count, bool update, bool uneq
                 {
                     // all keys can be unequipped
                     remcount += pItem->GetCount();
-                    DestroyItem( INVENTORY_SLOT_BAG_0, i, update);
+                    DestroyItem(INVENTORY_SLOT_BAG_0, i, update);
 
                     if (remcount >= count)
                         return;
                 }
                 else
                 {
-                    ItemRemovedQuestCheck( pItem->GetEntry(), count - remcount );
-                    pItem->SetCount( pItem->GetCount() - count + remcount );
-                    if (IsInWorld() & update)
-                        pItem->SendCreateUpdateToPlayer( this );
+                    ItemRemovedQuestCheck(pItem->GetEntry(), count - remcount);
+                    pItem->SetCount(pItem->GetCount() - count + remcount);
+                    if (IsInWorld() && update)
+                        pItem->SendCreateUpdateToPlayer(this);
                     pItem->SetState(ITEM_CHANGED, this);
                     return;
                 }
@@ -12518,11 +12511,11 @@ void Player::DestroyItemCount( uint32 item, uint32 count, bool update, bool uneq
     }
 
     // in inventory bags
-    for(int i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; ++i)
+    for (int i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; ++i)
     {
-        if (Bag *pBag = (Bag*)GetItemByPos( INVENTORY_SLOT_BAG_0, i ))
+        if (Bag* pBag = (Bag*)GetItemByPos(INVENTORY_SLOT_BAG_0, i))
         {
-            for(uint32 j = 0; j < pBag->GetBagSize(); ++j)
+            for (uint32 j = 0; j < pBag->GetBagSize(); ++j)
             {
                 if (Item* pItem = pBag->GetItemByPos(j))
                 {
@@ -12532,17 +12525,17 @@ void Player::DestroyItemCount( uint32 item, uint32 count, bool update, bool uneq
                         if (pItem->GetCount() + remcount <= count)
                         {
                             remcount += pItem->GetCount();
-                            DestroyItem( i, j, update );
+                            DestroyItem(i, j, update);
 
                             if (remcount >= count)
                                 return;
                         }
                         else
                         {
-                            ItemRemovedQuestCheck( pItem->GetEntry(), count - remcount );
-                            pItem->SetCount( pItem->GetCount() - count + remcount );
+                            ItemRemovedQuestCheck(pItem->GetEntry(), count - remcount);
+                            pItem->SetCount(pItem->GetCount() - count + remcount);
                             if (IsInWorld() && update)
-                                pItem->SendCreateUpdateToPlayer( this );
+                                pItem->SendCreateUpdateToPlayer(this);
                             pItem->SetState(ITEM_CHANGED, this);
                             return;
                         }
@@ -12553,18 +12546,18 @@ void Player::DestroyItemCount( uint32 item, uint32 count, bool update, bool uneq
     }
 
     // in equipment and bag list
-    for(int i = EQUIPMENT_SLOT_START; i < INVENTORY_SLOT_BAG_END; ++i)
+    for (int i = EQUIPMENT_SLOT_START; i < INVENTORY_SLOT_BAG_END; ++i)
     {
-        if (Item* pItem = GetItemByPos( INVENTORY_SLOT_BAG_0, i ))
+        if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
         {
             if (pItem && pItem->GetEntry() == item && !pItem->IsInTrade())
             {
                 if (pItem->GetCount() + remcount <= count)
                 {
-                    if (!unequip_check || CanUnequipItem(INVENTORY_SLOT_BAG_0 << 8 | i, false) == EQUIP_ERR_OK )
+                    if (!unequip_check || CanUnequipItem(INVENTORY_SLOT_BAG_0 << 8 | i, false) == EQUIP_ERR_OK)
                     {
                         remcount += pItem->GetCount();
-                        DestroyItem( INVENTORY_SLOT_BAG_0, i, update);
+                        DestroyItem(INVENTORY_SLOT_BAG_0, i, update);
 
                         if (remcount >= count)
                             return;
@@ -12572,12 +12565,71 @@ void Player::DestroyItemCount( uint32 item, uint32 count, bool update, bool uneq
                 }
                 else
                 {
-                    ItemRemovedQuestCheck( pItem->GetEntry(), count - remcount );
-                    pItem->SetCount( pItem->GetCount() - count + remcount );
-                    if (IsInWorld() & update)
-                        pItem->SendCreateUpdateToPlayer( this );
+                    ItemRemovedQuestCheck(pItem->GetEntry(), count - remcount);
+                    pItem->SetCount(pItem->GetCount() - count + remcount);
+                    if (IsInWorld() && update)
+                        pItem->SendCreateUpdateToPlayer(this);
                     pItem->SetState(ITEM_CHANGED, this);
                     return;
+                }
+            }
+        }
+    }
+
+    if (inBankAlso)                                         // Remove items from bank as well
+    {
+        for (int i = BANK_SLOT_ITEM_START; i < BANK_SLOT_ITEM_END; ++i)
+        {
+            Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i);
+            if (pItem && pItem->GetEntry() == item && !pItem->IsInTrade())
+            {
+                if (pItem->GetCount() + remcount <= count)
+                {
+                    remcount += pItem->GetCount();
+                    DestroyItem(INVENTORY_SLOT_BAG_0, i, update);
+
+                    if (remcount >= count)
+                        return;
+                }
+                else
+                {
+                    ItemRemovedQuestCheck(pItem->GetEntry(), count - remcount);
+                    pItem->SetCount(pItem->GetCount() - count + remcount);
+                    if (IsInWorld() && update)
+                        pItem->SendCreateUpdateToPlayer(this);
+                    pItem->SetState(ITEM_CHANGED, this);
+                    return;
+                }
+            }
+        }
+
+        for (int i = BANK_SLOT_BAG_START; i < BANK_SLOT_BAG_END; ++i)
+        {
+            if (Bag* pBag = (Bag*)GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+            {
+                for (uint32 j = 0; j < pBag->GetBagSize(); ++j)
+                {
+                    Item* pItem = pBag->GetItemByPos(j);
+                    if (pItem && pItem->GetEntry() == item && !pItem->IsInTrade())
+                    {
+                        if (pItem->GetCount() + remcount <= count)
+                        {
+                            remcount += pItem->GetCount();
+                            DestroyItem(i, j, update);
+
+                            if (remcount >= count)
+                                return;
+                        }
+                        else
+                        {
+                            ItemRemovedQuestCheck(pItem->GetEntry(), count - remcount);
+                            pItem->SetCount(pItem->GetCount() - count + remcount);
+                            if (IsInWorld() && update)
+                                pItem->SendCreateUpdateToPlayer(this);
+                            pItem->SetState(ITEM_CHANGED, this);
+                            return;
+                        }
+                    }
                 }
             }
         }
@@ -12659,7 +12711,7 @@ void Player::DestroyItemCount( Item* pItem, uint32 &count, bool update )
         ItemRemovedQuestCheck( pItem->GetEntry(), count);
         pItem->SetCount( pItem->GetCount() - count );
         count = 0;
-        if ( IsInWorld() & update )
+        if (IsInWorld() && update)
             pItem->SendCreateUpdateToPlayer( this );
         pItem->SetState(ITEM_CHANGED, this);
     }
@@ -14879,14 +14931,23 @@ void Player::RewardQuest(Quest const *pQuest, uint32 reward, Object* questGiver,
 {
     uint32 quest_id = pQuest->GetQuestId();
 
-    // Destroy requered items
-    for (uint32 i = 0; i < QUEST_ITEM_OBJECTIVES_COUNT; ++i)
+    for (int i = 0; i < QUEST_ITEM_OBJECTIVES_COUNT; ++i)
     {
         uint32 reqItemId = pQuest->ReqItemId[i];
         uint32 reqItemCount = pQuest->ReqItemCount[i];
 
         if (reqItemId && reqItemCount)
             DestroyItemCount(reqItemId, reqItemCount, true);
+    }
+
+    for (int i = 0; i < QUEST_SOURCE_ITEM_IDS_COUNT; ++i)
+    {
+        if (pQuest->ReqSourceId[i])
+        {
+            ItemPrototype const* iProto = ObjectMgr::GetItemPrototype(pQuest->ReqSourceId[i]);
+            if (iProto && iProto->Bonding == BIND_QUEST_ITEM)
+                DestroyItemCount(pQuest->ReqSourceId[i], pQuest->ReqSourceCount[i], true, false, true);
+        }
     }
 
     RemoveTimedQuest(quest_id);

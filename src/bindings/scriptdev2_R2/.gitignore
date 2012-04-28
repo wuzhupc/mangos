@@ -17,7 +17,8 @@
 *.so.dbg
 *.bin
 *.gz
-
+*.ReSharper.*
+_ReSharper.*
 #
 # Top-level generic files
 #
