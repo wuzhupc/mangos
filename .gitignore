@@ -109,6 +109,7 @@ dep/ACE_wrappers/ace/config.h
 !dep/ACE_wrappers/configure.ac~
 !dep/ACE_wrappers/lib/.empty
 !dep/tbb/src/Makefile
+!dep/tbb/build
 
 # recastnavigation directory needs exception
 !dep/recastnavigation/RecastDemo/Build/
