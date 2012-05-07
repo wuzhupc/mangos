@@ -385,7 +385,7 @@ void instance_dire_maul::SortPylonGuards()
                 continue;
 
             // Sort all remaining (alive) NPCs to unfinished generators
-            for (GUIDList::iterator itr = m_lGeneratorGuardGUIDs.begin(); itr != m_lGeneratorGuardGUIDs.end();)
+            for (GUIDList::iterator itr = m_lGeneratorGuardGUIDs.begin(); !m_lGeneratorGuardGUIDs.empty() && itr != m_lGeneratorGuardGUIDs.end();)
             {
 
                 ObjectGuid target = *itr;
@@ -396,14 +396,15 @@ void instance_dire_maul::SortPylonGuards()
                 if (!pGuard || pGuard->isDead())    // Remove invalid guids and dead guards
                 {
                     m_lGeneratorGuardGUIDs.erase(target);
-                    continue;
                 }
-
-                if (pGuard->IsWithinDistInMap(pGenerator, 20.0f))
+                else if (pGuard->IsWithinDistInMap(pGenerator, 20.0f))
                 {
                     m_sSortedGeneratorGuards[i].insert(pGuard->GetGUIDLow());
                     m_lGeneratorGuardGUIDs.erase(target);
                 }
+
+                if (m_lGeneratorGuardGUIDs.empty() || itr == m_lGeneratorGuardGUIDs.end())
+                    break;
             }
         }
     }

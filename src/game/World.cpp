@@ -933,6 +933,8 @@ void World::LoadConfigSettings(bool reload)
 
     setConfig(CONFIG_BOOL_PET_SAVE_ALL,      "PetSaveAllInDB", false);
 
+    setConfig(CONFIG_BOOL_PET_ADVANCED_AI,      "PetAdvancedAI", false);
+
     setConfig(CONFIG_BOOL_RAID_FLAGS_UNIQUE,      "RaidFlags.Unique", false);
 
     setConfig(CONFIG_BOOL_ALLOW_FLIGHT_ON_OLD_MAPS, "AllowFlightOnOldMaps", false);
@@ -1525,6 +1527,7 @@ void World::SetInitialWorldSettings()
     sScriptMgr.LoadQuestEndScripts();                           // must be after load Creature/Gameobject(Template/Data) and QuestTemplate
     sScriptMgr.LoadSpellScripts();                              // must be after load Creature/Gameobject(Template/Data)
     sScriptMgr.LoadGameObjectScripts();                         // must be after load Creature/Gameobject(Template/Data)
+    sScriptMgr.LoadGameObjectTemplateScripts();                 // must be after load Creature/Gameobject(Template/Data)
     sScriptMgr.LoadEventScripts();                              // must be after load Creature/Gameobject(Template/Data)
     sLog.outString( ">>> Scripts loaded" );
     sLog.outString();
