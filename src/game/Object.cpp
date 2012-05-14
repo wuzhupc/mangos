@@ -285,16 +285,25 @@ void Object::BuildMovementUpdate(ByteBuffer * data, uint16 updateFlags) const
     {
         if (updateFlags & UPDATEFLAG_POSITION)
         {
-            Transport* transport = ((WorldObject*)this)->GetTransport();
-            if (transport)
-                *data << transport->GetPackGUID();
+            ObjectGuid transportGuid;
+            if (GetObjectGuid().IsUnit())
+            {
+                if (((Unit*)this)->m_movementInfo.HasMovementFlag(MOVEFLAG_ONTRANSPORT))
+                    transportGuid = ((Unit*)this)->m_movementInfo.GetTransportGuid();
+            }
+            else if (Transport* transport = ((WorldObject*)this)->GetTransport())
+                transportGuid = transport->GetObjectGuid();
+
+            if (transportGuid)
+                *data << transportGuid.WriteAsPacked();
             else
                 *data << uint8(0);
 
             *data << float(((WorldObject*)this)->GetPositionX());
             *data << float(((WorldObject*)this)->GetPositionY());
             *data << float(((WorldObject*)this)->GetPositionZ());
-            if (transport)
+
+            if (transportGuid)
             {
                 *data << float(((WorldObject*)this)->GetTransOffsetX());
                 *data << float(((WorldObject*)this)->GetTransOffsetY());
@@ -319,7 +328,7 @@ void Object::BuildMovementUpdate(ByteBuffer * data, uint16 updateFlags) const
             if (updateFlags & UPDATEFLAG_HAS_POSITION)
             {
                 // 0x02
-                if (updateFlags & UPDATEFLAG_TRANSPORT && ((GameObject*)this)->GetGoType() == GAMEOBJECT_TYPE_MO_TRANSPORT)
+                if ((updateFlags & UPDATEFLAG_TRANSPORT) && ((GameObject*)this)->GetGoType() == GAMEOBJECT_TYPE_MO_TRANSPORT)
                 {
                     *data << float(0);
                     *data << float(0);
@@ -2092,7 +2101,8 @@ void WorldObject::StopGroupLoot()
     if (!m_groupLootId)
         return;
 
-    if (Group* group = sObjectMgr.GetGroupById(m_groupLootId))
+    Group* group = sObjectMgr.GetGroupById(m_groupLootId);
+    if (group)
         group->EndRoll();
 
     m_groupLootTimer = 0;

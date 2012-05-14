@@ -318,7 +318,7 @@ enum SpellAttributesEx
 
 enum SpellAttributesEx2
 {
-    SPELL_ATTR2_ALLOW_DEAD_TARGET              = 0x00000001,            // 0
+    SPELL_ATTR_EX2_ALLOW_DEAD_TARGET           = 0x00000001,            // 0
     SPELL_ATTR_EX2_UNK1                        = 0x00000002,            // 1
     SPELL_ATTR_EX2_IGNORE_LOS                  = 0x00000004,            // 2 do not need LOS (e.g. 18220 since 3.3.3)
     SPELL_ATTR_EX2_UNK3                        = 0x00000008,            // 3 auto targeting? (e.g. fishing skill enhancement items since 3.3.3)
@@ -1292,7 +1292,7 @@ enum Targets
     TARGET_DYNAMIC_OBJECT_BEHIND            = 48,
     TARGET_DYNAMIC_OBJECT_LEFT_SIDE         = 49,
     TARGET_DYNAMIC_OBJECT_RIGHT_SIDE        = 50,
-    TARGET_OBJECT_AREA_SRC                  = 51,
+    TARGET_AREAEFFECT_GO_AROUND_SOURCE      = 51,
     TARGET_AREAEFFECT_GO_AROUND_DEST        = 52,                // gameobject around destination, select by spell_script_target
     TARGET_CURRENT_ENEMY_COORDINATES        = 53,                // set unit coordinates as dest, only 16 target B imlemented
     TARGET_LARGE_FRONTAL_CONE               = 54,
