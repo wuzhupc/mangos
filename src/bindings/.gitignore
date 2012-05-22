@@ -15,3 +15,11 @@
 */
 !universal/
 !ScriptDev2/
+!ScriptDev2/*
+!ScriptDev2/*/*
+!ScriptDev2/*/*
+!ScriptDev2/*/*/*
+!ScriptDev2/*/*/*/*
+!ScriptDev2/*/*/*/*/*
+!ScriptDev2/*/*/*/*/*/*
+!ScriptDev2/*/*/*/*/*/*/*
