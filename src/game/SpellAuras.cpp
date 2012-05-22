@@ -1219,8 +1219,8 @@ bool Aura::IsEffectStacking()
             }
             break;
         case SPELL_AURA_MOD_RESISTANCE_PCT:                                                    // Sunder Armor / Sting
-        case SPELL_AURA_HASTE_SPELLS:                                                          // Mind-Numbing Poison
-        case SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN:                                             // Ebon Plague (spell not implemented) / Earth and Moon
+        case SPELL_AURA_HASTE_SPELLS:                                                            // Mind-Numbing Poison
+        case SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN:                                              // Ebon Plague (spell not implemented) / Earth and Moon
             if (spellProto->IsFitToFamily<SPELLFAMILY_WARRIOR, CF_WARRIOR_SUNDER_ARMOR>() ||   // Sunder Armor (only spell triggering this aura has the flag)
                 spellProto->IsFitToFamily<SPELLFAMILY_HUNTER,  CF_HUNTER_PET_SPELLS>() ||      // Sting (Hunter Pet)
                 (spellProto->SpellFamilyName == SPELLFAMILY_DRUID && spellProto->SpellIconID == 2991) || // Earth and Moon
@@ -3817,16 +3817,6 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
             }
             break;
         }
-    }
-
-    // pet auras
-    if (PetAura const* petSpell = sSpellMgr.GetPetAura(GetId(), m_effIndex))
-    {
-        if (apply)
-            target->AddPetAura(petSpell);
-        else
-            target->RemovePetAura(petSpell);
-        return;
     }
 
     if (GetEffIndex() == EFFECT_INDEX_0 && target->GetTypeId() == TYPEID_PLAYER)
@@ -11149,6 +11139,19 @@ void SpellAuraHolder::HandleSpellSpecificBoosts(bool apply)
         }
     }
 
+    // pet auras add (effects not checked! must be checked at load from DB)
+    for (int32 i = 0; i < MAX_EFFECT_INDEX; ++i)
+    {
+        if (PetAura const* petSpell = sSpellMgr.GetPetAura(GetId(), SpellEffectIndex(i)))
+        {
+            if (apply)
+                m_target->AddPetAura(petSpell);
+            else
+                m_target->RemovePetAura(petSpell);
+        }
+    }
+
+    linkedSet.clear();
     if (!apply)
     {
         // Linked spells (CastOnRemove chain)
@@ -11548,8 +11551,6 @@ void SpellAuraHolder::HandleSpellSpecificBoosts(bool apply)
                 else
                     return;
             }
-            else
-                return;
             break;
         }
         case SPELLFAMILY_PRIEST:
