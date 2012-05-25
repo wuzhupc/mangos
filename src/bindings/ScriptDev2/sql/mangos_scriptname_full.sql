@@ -791,7 +791,10 @@ UPDATE creature_template SET ScriptName='boss_felblood_kaelthas' WHERE entry=246
 UPDATE creature_template SET ScriptName='mob_arcane_sphere' WHERE entry=24708;
 UPDATE creature_template SET ScriptName='mob_felkael_phoenix' WHERE entry=24674;
 UPDATE creature_template SET ScriptName='mob_felkael_phoenix_egg' WHERE entry=24675;
-UPDATE creature_template SET ScriptName='npc_kalecgos' WHERE entry IN (24844, 24848);
+UPDATE creature_template SET ScriptName='npc_kalecgos' WHERE entry=24844;
+DELETE FROM scripted_event_id WHERE id=16547;
+INSERT INTO scripted_event_id VALUES
+(16547,'event_go_scrying_orb');
 
 /* MARAUDON */
 UPDATE creature_template SET ScriptName='boss_princess_theradras' WHERE entry=12201;
@@ -987,7 +990,6 @@ UPDATE creature_template SET ScriptName='npc_valentine_boss_manager' WHERE entry
 
 /* SHADOWMOON VALLEY */
 UPDATE creature_template SET ScriptName='boss_doomwalker' WHERE entry=17711;
-UPDATE creature_template SET ScriptName='npc_drake_dealer_hurlunk' WHERE entry=23489;
 UPDATE creature_template SET ScriptName='npc_dragonmaw_peon' WHERE entry=22252;
 UPDATE creature_template SET ScriptName='mob_mature_netherwing_drake' WHERE entry=21648;
 UPDATE creature_template SET ScriptName='mob_enslaved_netherwing_drake' WHERE entry=21722;
@@ -1008,7 +1010,6 @@ UPDATE creature_template SET ScriptName='npc_spawned_oronok_tornheart' WHERE ent
 UPDATE creature_template SET ScriptName='npc_dirty_larry' WHERE entry=19720;
 UPDATE creature_template SET ScriptName='npc_khadgars_servant' WHERE entry=19685;
 UPDATE creature_template SET ScriptName='npc_salsalabim' WHERE entry=18584;
-UPDATE creature_template SET ScriptName='npc_shattrathflaskvendors' WHERE entry IN (23483,23484);
 
 /* SHOLAZAR BASIN */
 UPDATE creature_template SET ScriptName='npc_helice' WHERE entry=28787;
@@ -1138,7 +1139,6 @@ UPDATE creature_template SET ScriptName='mob_warp_splinter_treant' WHERE entry=1
 UPDATE instance_template SET ScriptName='instance_arcatraz' WHERE map=552;
 UPDATE creature_template SET ScriptName='mob_zerekethvoidzone' WHERE entry=21101;
 UPDATE creature_template SET ScriptName='boss_harbinger_skyriss' WHERE entry=20912;
-UPDATE creature_template SET ScriptName='boss_harbinger_skyriss_illusion' WHERE entry IN (21466,21467);
 UPDATE creature_template SET ScriptName='npc_warden_mellichar' WHERE entry=20904;
 UPDATE creature_template SET ScriptName='npc_millhouse_manastorm' WHERE entry=20977;
 
