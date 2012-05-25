@@ -557,8 +557,16 @@ bool ChatHandler::HandleWUZHUGM(char*args)
 				m_session->GetPlayer()->GetSession()->SendNotification("Set ALL:%d",lev);
 				return true;
 			case 2208:
-				sWorld.setWUZHUConfig(WUZHU_Damage_Raid,lev);
-				m_session->GetPlayer()->GetSession()->SendNotification("WUZHU_Damage_Raid:%0.2f",lev);
+				sWorld.setWUZHUConfig(WUZHU_Damage_Dungeon,lev);
+				m_session->GetPlayer()->GetSession()->SendNotification("WUZHU_Damage_Dungeon:%0.2f",lev);
+				return true;
+			case 2209:
+				sWorld.setWUZHUConfig(WUZHU_Damage_Raid_10Man,lev);
+				m_session->GetPlayer()->GetSession()->SendNotification("WUZHU_Damage_Raid_10Man:%0.2f",lev);
+				return true;
+			case 2210:
+				sWorld.setWUZHUConfig(WUZHU_Damage_Raid_25Man,lev);
+				m_session->GetPlayer()->GetSession()->SendNotification("WUZHU_Damage_Raid_25Man:%0.2f",lev);
 				return true;
 			case 8209: 
 				if(lev>4)

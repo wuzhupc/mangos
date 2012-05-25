@@ -8663,9 +8663,7 @@ void Aura::PeriodicTick()
 			//wuzhu start
 			if(pCaster&&pCaster->GetTypeId()==TYPEID_PLAYER)
 			{
-				float dxp=sWorld.getWUZHUConfig(WUZHU_Player_TMP_Damage);
-				if(((Player*)pCaster)->WUZHU_IsInRaid())
-					dxp=dxp*sWorld.getWUZHUConfig(WUZHU_Damage_Raid);
+				float dxp=sWorld.getWUZHUConfig(WUZHU_Player_TMP_Damage) * ((Player*)pCaster)->WUZHU_GetDamageRate();
 				//sLog.outError("WUZHU PeriodicTick pdamage start:%d",pdamage);
 				damageInfo.damage =uint32(damageInfo.damage*dxp);
 				//sLog.outError("WUZHU PeriodicTick pdamage end:%d",pdamage);
@@ -8674,9 +8672,8 @@ void Aura::PeriodicTick()
 				{
 					if(((Pet*)pCaster)->GetOwner()->GetTypeId() == TYPEID_PLAYER)
 					{
-						float dxp=sWorld.getWUZHUConfig(WUZHU_Pet_TMP_Damage);
-						if(((Player*)((Pet*)pCaster)->GetOwner())->WUZHU_IsInRaid())
-							dxp=dxp*sWorld.getWUZHUConfig(WUZHU_Damage_Raid);
+						float dxp=sWorld.getWUZHUConfig(WUZHU_Pet_TMP_Damage) *((Player*)((Pet*)pCaster)->GetOwner())->WUZHU_GetDamageRate();
+						
 						damageInfo.damage =uint32(damageInfo.damage*dxp); 
 					}
 				}

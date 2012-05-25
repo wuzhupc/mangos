@@ -1646,9 +1646,7 @@ void Unit::CalculateSpellDamage(DamageInfo* damageInfo, int32 _damage, SpellEntr
 	//wuzhu start
 	if(GetTypeId()==TYPEID_PLAYER)
 	{
-		float dxp=sWorld.getWUZHUConfig(WUZHU_Player_PDA_Damage);
-		if(((Player*)this)->WUZHU_IsInRaid())
-			dxp=dxp*sWorld.getWUZHUConfig(WUZHU_Damage_Raid);
+		float dxp=sWorld.getWUZHUConfig(WUZHU_Player_PDA_Damage) * ((Player*)this)->WUZHU_GetDamageRate();
 		//sLog.outError("WUZHU CalculateSpellDamage damage start:%d",damageInfo->damage);
 			damageInfo->damage =uint32(damageInfo->damage*dxp);
 		//sLog.outError("WUZHU CalculateSpellDamage damage end:%d",damageInfo->damage);
@@ -1659,9 +1657,7 @@ void Unit::CalculateSpellDamage(DamageInfo* damageInfo, int32 _damage, SpellEntr
 			//if(((Pet*)this)->getPetType() == HUNTER_PET||((Pet*)this)->getPetType() == GUARDIAN_PET)
 			if(((Pet*)this)->GetOwner()->GetTypeId() == TYPEID_PLAYER)
 			{
-				float dxp=sWorld.getWUZHUConfig(WUZHU_Pet_PDA_Damage);
-				if(((Player*)((Pet*)this)->GetOwner())->WUZHU_IsInRaid())
-					dxp=dxp*sWorld.getWUZHUConfig(WUZHU_Damage_Raid);
+				float dxp=sWorld.getWUZHUConfig(WUZHU_Pet_PDA_Damage) * ((Player*)(((Pet*)this)->GetOwner()))->WUZHU_GetDamageRate();
 				damageInfo->damage =uint32(damageInfo->damage*dxp); 
 			}
 		}
@@ -1972,9 +1968,7 @@ void Unit::CalculateMeleeDamage(DamageInfo* damageInfo)
 	//wuzhu start
 	if(GetTypeId()==TYPEID_PLAYER)
 	{
-		float dxp=sWorld.getWUZHUConfig(WUZHU_Player_PDA_Damage);
-		if(((Player*)this)->WUZHU_IsInRaid())
-			dxp=dxp*sWorld.getWUZHUConfig(WUZHU_Damage_Raid);
+		float dxp=sWorld.getWUZHUConfig(WUZHU_Player_PDA_Damage) * ((Player*)this)->WUZHU_GetDamageRate();
 		//sLog.outError("WUZHU CalculateMeleeDamage damage start:%d",damageInfo->damage);
 		damageInfo->damage =uint32(damageInfo->damage*dxp);
 		//sLog.outError("WUZHU CalculateMeleeDamage damage end:%d",damageInfo->damage);
@@ -1984,9 +1978,7 @@ void Unit::CalculateMeleeDamage(DamageInfo* damageInfo)
 		{
 			if(((Pet*)this)->GetOwner()->GetTypeId()==TYPEID_PLAYER)
 			{
-				float dxp=sWorld.getWUZHUConfig(WUZHU_Pet_PDA_Damage);
-				if(((Player*)((Pet*)this)->GetOwner())->WUZHU_IsInRaid())
-					dxp=dxp*sWorld.getWUZHUConfig(WUZHU_Damage_Raid);
+				float dxp=sWorld.getWUZHUConfig(WUZHU_Pet_PDA_Damage) * ((Player*)(((Pet*)this)->GetOwner()))->WUZHU_GetDamageRate();
 				damageInfo->damage =uint32(damageInfo->damage*dxp);
 			}
 		}
@@ -8434,19 +8426,9 @@ uint32 Unit::SpellHealingBonusTaken(Unit *pCaster, SpellEntry const *spellProto,
 	//wuzhu start ÖÎÁÆ¼ÆËã
 	if(this->GetTypeId()==TYPEID_PLAYER&&heal>0)
 	{
-		float dxp=sWorld.getWUZHUConfig(WUZHU_Player_AURA_Healing);
-		if(((Player*)this)->WUZHU_IsInRaid())
-			dxp=dxp*sWorld.getWUZHUConfig(WUZHU_Damage_Raid);
+		float dxp=sWorld.getWUZHUConfig(WUZHU_Player_AURA_Healing) * ((Player*)this)->WUZHU_GetDamageRate();
 		heal=heal*dxp;
 	}
-	/*
-	if(pCaster&&pCaster->GetTypeId()==TYPEID_PLAYER)
-	{
-		float dxp=sWorld.getWUZHUConfig(WUZHU_Player_AURA_Healing);
-		if(((Player*)pCaster)->WUZHU_IsInRaid())
-			dxp=dxp*sWorld.getWUZHUConfig(WUZHU_Damage_Raid);
-		heal=heal*dxp;
-	}*/
 	//wuzhu end
 
     return heal < 0 ? 0 : uint32(heal);

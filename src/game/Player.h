@@ -1532,7 +1532,7 @@ class MANGOS_DLL_SPEC Player : public Unit
 		bool WUZHU_OpenGuildBank();
 		void WUZHU_SendPointOfInterest(float X, float Y,char const * locName);
 		void WUZHU_CompletedAchievement(uint32 achId);
-		bool WUZHU_IsInRaid();
+		float WUZHU_GetDamageRate();
 		//wuzhu end
 
         /*********************************************************/

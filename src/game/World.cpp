@@ -924,7 +924,9 @@ void World::LoadConfigSettings(bool reload)
 		wuzhuconfig_values[WUZHU_SCALE_X] = 1.0f;
 	}
 	wuzhuconfig_values[WUZHU_Max_Deal]=sConfig.GetFloatDefault("WUZHU.Max.Deal", 100000.0f);
-	wuzhuconfig_values[WUZHU_Damage_Raid]=sConfig.GetFloatDefault("WUZHU.Damage.Raid", 1.0f);
+	wuzhuconfig_values[WUZHU_Damage_Dungeon]=sConfig.GetFloatDefault("WUZHU.Damage.Dungeon", 1.0f);
+	wuzhuconfig_values[WUZHU_Damage_Raid_10Man]=sConfig.GetFloatDefault("WUZHU.Damage.Raid.10m", 1.0f);
+	wuzhuconfig_values[WUZHU_Damage_Raid_25Man]=sConfig.GetFloatDefault("WUZHU.Damage.Raid.25m", 1.0f);
 	wuzhuconfig_values[WUZHU_GUILD_ID]=sConfig.GetFloatDefault("WUZHU.Guild.ID", 0.0f);
 	wuzhuconfig_values[WUZHU_ScalingStat]=sConfig.GetFloatDefault("WUZHU.ScalingStat", 1.0f);
 	//wuzhu end

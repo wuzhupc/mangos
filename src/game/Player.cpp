@@ -25705,8 +25705,16 @@ void Player::WUZHU_CompletedAchievement(uint32 achId)
 	}
 }
 
-bool Player::WUZHU_IsInRaid()
+float Player::WUZHU_GetDamageRate()
 {
-	return GetMap()->IsRaid();
+	if(GetMap()->IsDungeon())
+		return sWorld.getWUZHUConfig(WUZHU_Damage_Dungeon);
+	if(GetMap()->IsRaid())
+	{
+		if(GetMap()->GetMaxPlayers()>10)
+			return sWorld.getWUZHUConfig(WUZHU_Damage_Raid_25Man);
+		return sWorld.getWUZHUConfig(WUZHU_Damage_Raid_10Man);
+	}
+	return 1.0f;
 }
 //wuzhu end

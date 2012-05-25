@@ -447,7 +447,9 @@ enum WUZHUConfig
 	WUHZU_MoveSpeed,//移动倍数
 	WUZHU_SCALE_X,//角色大小倍数
 	WUZHU_Max_Deal,//最大伤害值
-	WUZHU_Damage_Raid,//RAID时伤害值
+	WUZHU_Damage_Dungeon,//5人本时伤害倍数
+	WUZHU_Damage_Raid_10Man,//10人本时伤害倍数
+	WUZHU_Damage_Raid_25Man,//25人本时伤害倍数
 	WUZHU_GUILD_ID,//公会银行ID
 	WUZHU_ScalingStat,//传家宝参数倍数 默认1
 	MAX_WUZHUConfig
