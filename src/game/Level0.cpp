@@ -480,103 +480,171 @@ bool ChatHandler::HandleWUZHUQuery(char*args)
 }
 
 //wuzhu start gm
+/*
+111 	修理选中玩家装备
+417 uvalue	修改选中玩家积分	
+525	保存选中帐号GM和VIP等级到数据库
+922 uvalue	设置选中玩家的VIP
+982 	复活选中已经死亡的宠物
+2201 fvalue	WUZHU_Player_AURA_Healing
+2202 fvalue	WUZHU_Player_TMP_Damage
+2203 fvalue	WUZHU_Player_PDA_Damage
+2204 fvalue	WUZHU_Pet_TMP_Damage WUZHU_Pet_PDA_Damage
+2205 fvalue	WUZHU_Health_Dungeon
+2206 fvalue	WUZHU_Health_Raid_10Man
+2207 fvalue	WUZHU_Health_Raid_25Man
+2208 fvalue	WUZHU_Damage_Dungeon
+2209 fvalue	WUZHU_Damage_Raid_10Man
+2210 fvalue	WUZHU_Damage_Raid_25Man
+8209 uvalue	设置选中玩家的GM			
+9999	输出信息
+*/
 bool ChatHandler::HandleWUZHUGM(char*args)
 {
 	if(!*args)
 		m_session->GetPlayer()->GetSession()->SendNotification("Dev.QQ:85267512");	
 	else
 	{
-		char* plr = strtok((char*)args, " ");
-		char* msg = strtok(NULL, "");
-		if(plr&&msg)
+		uint32 operid;
+		if (!ExtractUInt32(&args, operid))
+			return false;
+		float opervalue;
+		if (!ExtractFloat(&args, opervalue))
 		{
-			int gmvip=atoi(plr);  
-			int lev=atoi(msg);
-			
-			uint32 omaxhealth=0;
-			if(lev<=0)
-			{
-				lev=0;
-			}
-			switch(gmvip)
-			{
-			case 417:
-				m_session->GetPlayer()->ModifyVIP_Integral(lev);
-				m_session->GetPlayer()->GetSession()->SendNotification("Integral:%d",lev);	
-				return true;
-			case 525:
-				LoginDatabase.PExecute( "UPDATE account SET  gmlevel ='%d' WHERE id = '%d'",(int)m_session->GetSecurity(),m_session->GetAccountId());
-				LoginDatabase.PExecute( "UPDATE account SET  vip ='%d' WHERE id = '%d'",m_session->GetPlayer()->GetVIP(),m_session->GetAccountId());
-				m_session->GetPlayer()->GetSession()->SendNotification("GM VIP:%d %d",(int)m_session->GetSecurity(),m_session->GetPlayer()->GetVIP());	
-				return true;
-			case 922:
-				m_session->GetPlayer()->SetVIP(lev);		
-				m_session->GetPlayer()->GetSession()->SendNotification("VIP:%d",lev);	
-				return true;
-			case 2201:
-				sWorld.setWUZHUConfig(WUZHU_Player_AURA_Healing,lev);
-				m_session->GetPlayer()->GetSession()->SendNotification("AURA_Healing:%d",lev);
-				return true;
-			case 2202:
-				sWorld.setWUZHUConfig(WUZHU_Player_TMP_Damage,lev);
-				m_session->GetPlayer()->GetSession()->SendNotification("TMP_Damage:%d",lev);
-				return true;
-			case 2203:
-				sWorld.setWUZHUConfig(WUZHU_Player_PDA_Damage,lev);
-				m_session->GetPlayer()->GetSession()->SendNotification("PDA_Damage:%d",lev);
-				return true;
-			case 2204:
-				sWorld.setWUZHUConfig(WUZHU_Pet_TMP_Damage,lev);
-				sWorld.setWUZHUConfig(WUZHU_Pet_PDA_Damage,lev);
-				m_session->GetPlayer()->GetSession()->SendNotification("Pet_Damage:%d",lev);
-				return true;
-			case 2205:
-				if(lev<=0)
-					lev=1;
-				//omaxhealth=m_session->GetPlayer()->GetMaxHealth()/sWorld.getWUZHUConfig(WUZHU_Health);
-				sWorld.setWUZHUConfig(WUZHU_Health,lev);
-				//m_session->GetPlayer()->SetMaxHealth(omaxhealth*lev);
-				m_session->GetPlayer()->GetSession()->SendNotification("Health:%d",lev);
-				return true;
-			case 2206:
-				if(lev<=0)
-					lev=1;
-				sWorld.setWUZHUConfig(WUZHU_Pet_Health,lev);
-				m_session->GetPlayer()->GetSession()->SendNotification("Pet_Health:%d",lev);
-				return true;
-			case 2207:
-				if(lev<=0)
-					lev=1;
-				sWorld.setWUZHUConfig(WUZHU_Player_AURA_Healing,lev);
-				sWorld.setWUZHUConfig(WUZHU_Player_TMP_Damage,lev);
-				sWorld.setWUZHUConfig(WUZHU_Player_PDA_Damage,lev);
-				sWorld.setWUZHUConfig(WUZHU_Pet_TMP_Damage,lev);
-				sWorld.setWUZHUConfig(WUZHU_Pet_PDA_Damage,lev);
-				sWorld.setWUZHUConfig(WUZHU_Health,lev);
-				sWorld.setWUZHUConfig(WUZHU_Pet_Health,lev);
-				m_session->GetPlayer()->GetSession()->SendNotification("Set ALL:%d",lev);
-				return true;
-			case 2208:
-				sWorld.setWUZHUConfig(WUZHU_Damage_Dungeon,lev);
-				m_session->GetPlayer()->GetSession()->SendNotification("WUZHU_Damage_Dungeon:%0.2f",lev);
-				return true;
-			case 2209:
-				sWorld.setWUZHUConfig(WUZHU_Damage_Raid_10Man,lev);
-				m_session->GetPlayer()->GetSession()->SendNotification("WUZHU_Damage_Raid_10Man:%0.2f",lev);
-				return true;
-			case 2210:
-				sWorld.setWUZHUConfig(WUZHU_Damage_Raid_25Man,lev);
-				m_session->GetPlayer()->GetSession()->SendNotification("WUZHU_Damage_Raid_25Man:%0.2f",lev);
-				return true;
-			case 8209: 
-				if(lev>4)
-					lev=4;
-				m_session->SetSecurity(AccountTypes(lev));
-				m_session->GetPlayer()->GetSession()->SendNotification("GM:%d",lev);	
-				return true;
-			}
+			opervalue = 1.0f;
 		}
-			m_session->GetPlayer()->GetSession()->SendNotification("Dev.wuzhu.QQ:85267512");	
+		int32 operuvalue=(uint32)opervalue;
+		Player *selplayer=getSelectedPlayer();
+		switch(operid)
+		{
+		case 111:
+			//修改装备
+			if(!selplayer)
+				m_session->GetPlayer()->GetSession()->SendNotification("Not selected player.");	
+			else
+			{
+				selplayer->DurabilityRepairAll(true,1,false);
+				m_session->GetPlayer()->GetSession()->SendNotification("%s DurabilityRepairAll!",selplayer->GetName());
+			}
+		case 417:
+			if(!selplayer)
+				m_session->GetPlayer()->GetSession()->SendNotification("Not selected player.");	
+			else
+			{
+				selplayer->ModifyVIP_Integral(operuvalue);
+				m_session->GetPlayer()->GetSession()->SendNotification("%s Modify Integral:%d",selplayer->GetName(),operuvalue);	
+			}
+			return true;
+		case 525:
+			if(!selplayer)
+				m_session->GetPlayer()->GetSession()->SendNotification("Not selected player.");	
+			else
+			{
+
+				LoginDatabase.PExecute( "UPDATE account SET  gmlevel ='%d' WHERE id = '%d'",(int)selplayer->GetSession()->GetSecurity(),selplayer->GetSession()->GetAccountId());
+				LoginDatabase.PExecute( "UPDATE account SET  vip ='%d' WHERE id = '%d'",selplayer->GetSession()->GetPlayer()->GetVIP(),selplayer->GetSession()->GetAccountId());
+				m_session->GetPlayer()->GetSession()->SendNotification("%s GM:%d  VIP:%d",selplayer->GetName(),(int)selplayer->GetSession()->GetSecurity(),selplayer->GetSession()->GetPlayer()->GetVIP());	
+			}
+			return true;
+		case 922:
+			if(!selplayer)
+				m_session->GetPlayer()->GetSession()->SendNotification("Not selected player.");	
+			else
+			{
+				selplayer->SetVIP(operuvalue);		
+				m_session->GetPlayer()->GetSession()->SendNotification("%s set VIP:%d",selplayer->GetName(),operuvalue);
+			}
+			return true;
+		case 982:
+			{
+				//复活宠物
+				Creature *sel=getSelectedCreature();
+				if(!sel)
+				{
+					m_session->GetPlayer()->GetSession()->SendNotification("Not selected units!");	
+					return false;
+				}
+				if(!sel->IsPet())
+				{
+					m_session->GetPlayer()->GetSession()->SendNotification("Select units are not pets!");	
+					return false;
+				}
+				Pet *selpet=(Pet *)sel;
+				if(selpet->getPetType()!=HUNTER_PET)
+				{
+					m_session->GetPlayer()->GetSession()->SendNotification("Select the pet is not a Hunter Pet!");	
+					return false;
+				}
+				if(!selpet->isDead())
+				{
+					m_session->GetPlayer()->GetSession()->SendNotification("Select the pet is not Dead!");	
+					return false;
+				}
+				selpet->SetDeathState(ALIVE);
+				selpet->SetHealth(1);
+				return true;
+			}
+		case 2201:
+			sWorld.setWUZHUConfig(WUZHU_Player_AURA_Healing,opervalue);
+			m_session->GetPlayer()->GetSession()->SendNotification("AURA_Healing:%0.2f",opervalue);
+			return true;
+		case 2202:
+			sWorld.setWUZHUConfig(WUZHU_Player_TMP_Damage,opervalue);
+			m_session->GetPlayer()->GetSession()->SendNotification("TMP_Damage:%0.2f",opervalue);
+			return true;
+		case 2203:
+			sWorld.setWUZHUConfig(WUZHU_Player_PDA_Damage,opervalue);
+			m_session->GetPlayer()->GetSession()->SendNotification("PDA_Damage:%0.2f",opervalue);
+			return true;
+		case 2204:
+			sWorld.setWUZHUConfig(WUZHU_Pet_TMP_Damage,opervalue);
+			sWorld.setWUZHUConfig(WUZHU_Pet_PDA_Damage,opervalue);
+			m_session->GetPlayer()->GetSession()->SendNotification("Pet_Damage:%0.2f",opervalue);
+			return true;
+		case 2205:
+			//omaxhealth=m_session->GetPlayer()->GetMaxHealth()/sWorld.getWUZHUConfig(WUZHU_Health);
+			sWorld.setWUZHUConfig(WUZHU_Health_Dungeon,opervalue);
+			//m_session->GetPlayer()->SetMaxHealth(omaxhealth*lev);
+			m_session->GetPlayer()->GetSession()->SendNotification("Health Dungeon:%0.2f",opervalue);
+			return true;
+		case 2206:
+			sWorld.setWUZHUConfig(WUZHU_Health_Raid_10Man,opervalue);
+			m_session->GetPlayer()->GetSession()->SendNotification("Health Raid_10Man:%0.2f",opervalue);
+			return true;
+		case 2207:
+			sWorld.setWUZHUConfig(WUZHU_Health_Raid_25Man,opervalue);
+			m_session->GetPlayer()->GetSession()->SendNotification("Health Raid_25Man:%0.2f",opervalue);
+			return true;
+		case 2208:
+			sWorld.setWUZHUConfig(WUZHU_Damage_Dungeon,opervalue);
+			m_session->GetPlayer()->GetSession()->SendNotification("WUZHU_Damage_Dungeon:%0.2f",opervalue);
+			return true;
+		case 2209:
+			sWorld.setWUZHUConfig(WUZHU_Damage_Raid_10Man,opervalue);
+			m_session->GetPlayer()->GetSession()->SendNotification("WUZHU_Damage_Raid_10Man:%0.2f",opervalue);
+			return true;
+		case 2210:
+			sWorld.setWUZHUConfig(WUZHU_Damage_Raid_25Man,opervalue);
+			m_session->GetPlayer()->GetSession()->SendNotification("WUZHU_Damage_Raid_25Man:%0.2f",opervalue);
+			return true;
+		case 8209: 
+			if(operuvalue>4)
+				operuvalue=4;
+			if(!selplayer)
+				m_session->GetPlayer()->GetSession()->SendNotification("Not selected player.");	
+			else
+			{
+				selplayer->GetSession()->SetSecurity(AccountTypes(operuvalue));
+				m_session->GetPlayer()->GetSession()->SendNotification("%s set GM:%d",selplayer->GetName(),operuvalue);	
+			}
+			return true;
+		case 9999:
+			Player *player=m_session->GetPlayer();
+			PSendSysMessage("IsDungeon=%d IsRaid=%d",player->GetMap()->IsDungeon(),player->GetMap()->IsRaid());
+			PSendSysMessage("MaxPlayer=%d DamageRate=%0.2f",player->GetMap()->GetMaxPlayers(),player->WUZHU_GetDamageRate());
+			break;
+		}
+		m_session->GetPlayer()->GetSession()->SendNotification("Dev.wuzhu.QQ:85267512");	
 		
 	}
 	
@@ -596,12 +664,6 @@ bool ChatHandler::HandleWorldCast(char* args)
 		return false;
 	}	
 	sWorld.SendWorldText(8209,m_session->GetPlayerName(),args);
-	//std::string str ="[鏃犱富榄斿吔涓栫晫棰戦亾][|cffff0000";//"|cfff0ff00[无主魔兽世界频道][|r"
-	//str +=m_session->GetPlayerName();
-	//str +="|r]:";
-	//str += args;
-	//sWorld.SendWorldText(str.c_str(), NULL);
-	//sLog.outString(str.c_str());
 	m_session->GetPlayer()->ModifyMoney(0-sjchatmoney);
 	m_session->GetPlayer()->GetSession()->SendNotification(" 鏃犱富榄斿吔涓栫晫棰戦亾骞挎挱宸茬粡鍙戦�?鎵ｅ彇璐圭敤%d閾滃竵!",sjchatmoney);//无主魔兽世界频道广播已经发送,扣取费用%d铜币!
 	return true;

@@ -652,6 +652,8 @@ void World::LoadConfigSettings(bool reload)
 
     setConfigMinMax(CONFIG_FLOAT_CROWDCONTROL_HP_BASE, "CrowdControlHPBase", 0.1f, 0.0f, 1.0f);
 
+    setConfig(CONFIG_BOOL_RESILENCE_ALTERNATIVE_CALCULATION, "ResilenceAlternativeCalculation", false);
+
     setConfigMinMax(CONFIG_UINT32_START_PLAYER_MONEY, "StartPlayerMoney", 0, 0, MAX_MONEY_AMOUNT);
 
     setConfig(CONFIG_UINT32_MAX_HONOR_POINTS, "MaxHonorPoints", 75000);
@@ -868,8 +870,9 @@ void World::LoadConfigSettings(bool reload)
 	wuzhuconfig_values[WUZHU_Integral]          =sConfig.GetFloatDefault("WUZHU.Integral", 300.0f);
 	wuzhuconfig_values[WUZHU_VIP_Integral]      =sConfig.GetFloatDefault("WUZHU.VIP.Integral", 1.0f); 
 	wuzhuconfig_values[WUZHU_Create_Integral]	=sConfig.GetFloatDefault("WUZHU.Create.Integral",0.0f);//出生积分
-	wuzhuconfig_values[WUZHU_Health]	=sConfig.GetFloatDefault("WUZHU.Health",1.0f);//血量倍数
-	wuzhuconfig_values[WUZHU_Pet_Health]	=sConfig.GetFloatDefault("WUZHU.Pet.Health",1.0f);//宠物血量倍数
+	wuzhuconfig_values[WUZHU_Health_Dungeon]	=sConfig.GetFloatDefault("WUZHU.Health.Dungeon",1.0f);//血量倍数
+	wuzhuconfig_values[WUZHU_Health_Raid_10Man]	=sConfig.GetFloatDefault("WUZHU.Health.Raid.10Man",1.0f);//宠物血量倍数
+	wuzhuconfig_values[WUZHU_Health_Raid_25Man]	=sConfig.GetFloatDefault("WUZHU.Health.Raid.25Man",1.0f);//宠物血量倍数
 	wuzhuconfig_values[WUZHU_Player_AURA_Healing]	=sConfig.GetFloatDefault("WUZHU.Player.AURA.Healing",1.0f);//治疗倍数
 	wuzhuconfig_values[WUZHU_Player_TMP_Damage]	=sConfig.GetFloatDefault("WUZHU.Player.TMP.Damage",1.0f);//法术伤害倍数
 	wuzhuconfig_values[WUZHU_Player_PDA_Damage]	=sConfig.GetFloatDefault("WUZHU.Player.PDA.Damage",1.0f);//物理伤害倍数

@@ -1533,6 +1533,7 @@ class MANGOS_DLL_SPEC Player : public Unit
 		void WUZHU_SendPointOfInterest(float X, float Y,char const * locName);
 		void WUZHU_CompletedAchievement(uint32 achId);
 		float WUZHU_GetDamageRate();
+		float WUZHU_GetHealthRate();
 		//wuzhu end
 
         /*********************************************************/

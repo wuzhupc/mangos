@@ -396,6 +396,7 @@ enum eConfigBoolValues
     CONFIG_BOOL_MMAP_ENABLED,
     CONFIG_BOOL_RESET_DUEL_AREA_ENABLED,
     CONFIG_BOOL_PET_ADVANCED_AI,
+    CONFIG_BOOL_RESILENCE_ALTERNATIVE_CALCULATION,
     CONFIG_BOOL_VALUE_COUNT
 };
 
@@ -442,8 +443,9 @@ enum WUZHUConfig
 	WUZHU_CHEAT_COUNT,//要多少个，默认49
 	WUZHU_MOB_MAXHEA,//最多多少血
 	WUZHU_MOB_HEAADD,//增加原血量的百份之多少,当怪的血少于WUHZU_MOB_MAXHEA时，血量还是原来的，如果大于，最后怪的血为 WUHZU_MOB_MAXHEA+怪原来的血量*WUZHU_MOB_HEAADD/100
-	WUZHU_Health,//玩家血量倍数
-	WUZHU_Pet_Health,//宠物血量倍数
+	WUZHU_Health_Dungeon,//10人本时玩家血量倍数
+	WUZHU_Health_Raid_10Man,//10人本时玩家血量倍数
+	WUZHU_Health_Raid_25Man,//10人本时玩家血量倍数
 	WUHZU_MoveSpeed,//移动倍数
 	WUZHU_SCALE_X,//角色大小倍数
 	WUZHU_Max_Deal,//最大伤害值

@@ -16,7 +16,7 @@
 
 /* ScriptData
 SDName: Boss_Anubrekhan
-SD%Complete: 70
+SD%Complete: 95
 SDComment:
 SDCategory: Naxxramas
 EndScriptData */
@@ -51,6 +51,7 @@ enum
     SPELL_SELF_SPAWN_5          = 29105,                    //This spawns 5 corpse scarabs ontop of us (most likely the pPlayer casts this on death)
     SPELL_SELF_SPAWN_10         = 28864,                    //This is used by the crypt guards when they die
 
+    NPC_CORPSE_SCARAB           = 16698,
     NPC_CRYPT_GUARD             = 16573
 };
 
@@ -76,19 +77,36 @@ struct MANGOS_DLL_DECL boss_anubrekhanAI : public ScriptedAI
     {
         m_uiImpaleTimer = 15000;                            // 15 seconds
         m_uiLocustSwarmTimer = urand(80000, 120000);        // Random time between 80 seconds and 2 minutes for initial cast
-        m_uiSummonTimer = m_uiLocustSwarmTimer + 45000;     // 45 seconds after initial locust swarm
+        m_uiSummonTimer = m_bIsRegularMode ? 20000 : 0;
     }
 
     void KilledUnit(Unit* pVictim)
     {
         //Force the player to spawn corpse scarabs via spell
         if (pVictim->GetTypeId() == TYPEID_PLAYER)
-            pVictim->CastSpell(pVictim, SPELL_SELF_SPAWN_5, true);
+            m_creature->CastSpell(m_creature, SPELL_SELF_SPAWN_5, true);
 
         if (urand(0, 4))
             return;
 
         DoScriptText(SAY_SLAY, m_creature);
+    }
+
+    void SummonedCreatureDespawn(Creature* pSummoned)
+    {
+        if (pSummoned->GetEntry() == NPC_CRYPT_GUARD)
+            m_creature->CastSpell(m_creature, SPELL_SELF_SPAWN_10, true);
+    }
+
+    void JustSummoned(Creature* pSummoned)
+    {
+        switch(pSummoned->GetEntry())
+        {
+            case NPC_CRYPT_GUARD:
+            case NPC_CORPSE_SCARAB:
+                pSummoned->SetInCombatWithZone();
+                break;
+        }
     }
 
     void Aggro(Unit* pWho)
@@ -160,18 +178,23 @@ struct MANGOS_DLL_DECL boss_anubrekhanAI : public ScriptedAI
         {
             DoCastSpellIfCan(m_creature, m_bIsRegularMode ? SPELL_LOCUSTSWARM :SPELL_LOCUSTSWARM_H);
             m_uiLocustSwarmTimer = 90000;
+            m_uiSummonTimer = 45000;     // 45 seconds after initial locust swarm
         }
         else
             m_uiLocustSwarmTimer -= uiDiff;
 
-        // Summon
-        /*if (m_uiSummonTimer < uiDiff)
+        // Summon Crypt Guard
+        if (m_uiSummonTimer)
         {
-            DoCastSpellIfCan(m_creature, SPELL_SUMMONGUARD);
-            Summon_Timer = 45000;
+            if (m_uiSummonTimer <= uiDiff)
+            {
+                if (Creature* pCryptGuard = m_creature->SummonCreature(NPC_CRYPT_GUARD, 3333.5f, -3475.9f, 287.1f, 3.1f, TEMPSUMMON_DEAD_DESPAWN, 0))
+                    pCryptGuard->SetInCombatWithZone();
+                m_uiSummonTimer = 0;
+            }
+            else
+                m_uiSummonTimer -= uiDiff;
         }
-        else
-            m_uiSummonTimer -= uiDiff;*/
 
         DoMeleeAttackIfReady();
     }

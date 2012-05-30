@@ -1,0 +1,33 @@
+TODO
+复活宠物
+伤害倍数 
+生命值
+修理装备
+海山召唤
+
+WUZHU_Damage_Dungeon 		WUZHU.Damage.Dungeon,//5人本时伤害倍数
+WUZHU_Damage_Raid_10Man 	WUZHU.Damage.Raid.10m,//10人本时伤害倍数
+WUZHU_Damage_Raid_25Man 	WUZHU.Damage.Raid.25m,//25人本时伤害倍数
+WUZHU_Health_Dungeon 		WUZHU.Health.Dungeon,//10人本时玩家血量倍数
+WUZHU_Health_Raid_10Man 	WUZHU.Health.Raid.10Man,//10人本时玩家血量倍数
+WUZHU_Health_Raid_25Man		WUZHU.Health.Raid.25Man,//10人本时玩家血量倍数
+
+.whelp	
+111 	修理选中玩家装备
+417 uvalue	修改选中玩家积分	
+525	保存选中帐号GM和VIP等级到数据库
+922 uvalue	设置选中玩家的VIP
+982 	复活选中已经死亡的宠物
+2201 fvalue	WUZHU_Player_AURA_Healing
+2202 fvalue	WUZHU_Player_TMP_Damage
+2203 fvalue	WUZHU_Player_PDA_Damage
+2204 fvalue	WUZHU_Pet_TMP_Damage WUZHU_Pet_PDA_Damage
+2205 fvalue	WUZHU_Health_Dungeon
+2206 fvalue	WUZHU_Health_Raid_10Man
+2207 fvalue	WUZHU_Health_Raid_25Man
+2208 fvalue	WUZHU_Damage_Dungeon
+2209 fvalue	WUZHU_Damage_Raid_10Man
+2210 fvalue	WUZHU_Damage_Raid_25Man
+8209 uvalue	设置选中玩家的GM			
+9999	输出信息
+   		  	
