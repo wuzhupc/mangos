@@ -1034,7 +1034,10 @@ void Pet::UpdateMaxHealth()
     value  *= GetModifierValue(unitMod, BASE_PCT);
     value  += GetModifierValue(unitMod, TOTAL_VALUE);
     value  *= GetModifierValue(unitMod, TOTAL_PCT);
-
+	//wuzhu ÐÞ¸ÄÑªÁ¿
+	if(GetOwner()->GetTypeId()==TYPEID_PLAYER)
+		value *=((Player *)GetOwner())->WUZHU_GetHealthRate();
+	//wuzhu end
     SetMaxHealth((uint32)value);
 }
 

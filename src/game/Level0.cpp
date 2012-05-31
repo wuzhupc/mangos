@@ -526,6 +526,7 @@ bool ChatHandler::HandleWUZHUGM(char*args)
 				selplayer->DurabilityRepairAll(true,1,false);
 				m_session->GetPlayer()->GetSession()->SendNotification("%s DurabilityRepairAll!",selplayer->GetName());
 			}
+			return true;
 		case 417:
 			if(!selplayer)
 				m_session->GetPlayer()->GetSession()->SendNotification("Not selected player.");	
@@ -642,7 +643,7 @@ bool ChatHandler::HandleWUZHUGM(char*args)
 			Player *player=m_session->GetPlayer();
 			PSendSysMessage("IsDungeon=%d IsRaid=%d",player->GetMap()->IsDungeon(),player->GetMap()->IsRaid());
 			PSendSysMessage("MaxPlayer=%d DamageRate=%0.2f",player->GetMap()->GetMaxPlayers(),player->WUZHU_GetDamageRate());
-			break;
+			return true;
 		}
 		m_session->GetPlayer()->GetSession()->SendNotification("Dev.wuzhu.QQ:85267512");	
 		
