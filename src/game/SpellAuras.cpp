@@ -357,7 +357,7 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
     &Aura::HandleNULL,                                      //301 SPELL_AURA_HEAL_ABSORB 5 spells
     &Aura::HandleUnused,                                    //302 unused (3.2.2a)
     &Aura::HandleNoImmediateEffect,                         //303 SPELL_AURA_DAMAGE_DONE_VERSUS_AURA_STATE_PCT 17 spells implemented in Unit::*DamageBonus
-    &Aura::HandleNULL,                                      //304 2 spells (alcohol effect?)
+    &Aura::HandleAuraFakeInebriation,                       //304 SPELL_AURA_FAKE_INEBRIATE
     &Aura::HandleAuraModIncreaseSpeed,                      //305 SPELL_AURA_MOD_MINIMUM_SPEED
     &Aura::HandleNULL,                                      //306 1 spell
     &Aura::HandleNULL,                                      //307 absorb healing?
@@ -1219,7 +1219,7 @@ bool Aura::IsEffectStacking()
             }
             break;
         case SPELL_AURA_MOD_RESISTANCE_PCT:                                                    // Sunder Armor / Sting
-        case SPELL_AURA_HASTE_SPELLS:                                                            // Mind-Numbing Poison
+        case SPELL_AURA_HASTE_SPELLS:                                                          // Mind-Numbing Poison
         case SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN:                                              // Ebon Plague (spell not implemented) / Earth and Moon
             if (spellProto->IsFitToFamily<SPELLFAMILY_WARRIOR, CF_WARRIOR_SUNDER_ARMOR>() ||   // Sunder Armor (only spell triggering this aura has the flag)
                 spellProto->IsFitToFamily<SPELLFAMILY_HUNTER,  CF_HUNTER_PET_SPELLS>() ||      // Sting (Hunter Pet)
@@ -3213,6 +3213,11 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                     }
                 }
                 break;
+            }
+            case 48385:                                     // Create Spirit Fount Beam
+            {
+                target->CastSpell(target, target->GetMap()->IsRegularDifficulty() ? 48380 : 59320, true);
+                return;
             }
             case 49356:                                     // Flesh Decay - Tharonja
             {
@@ -5614,6 +5619,25 @@ void Aura::HandleModTaunt(bool apply, bool Real)
         // When taunt aura fades out, mob will switch to previous target if current has less than 1.1 * secondthreat
         target->TauntFadeOut(caster);
     }
+}
+
+void Aura::HandleAuraFakeInebriation(bool apply, bool Real)
+{
+    // all applied/removed only at real aura add/remove
+    if (!Real)
+        return;
+
+    Unit* target = GetTarget();
+
+    if (target->GetTypeId() == TYPEID_PLAYER)
+    {
+        int32 point = target->GetInt32Value(PLAYER_FAKE_INEBRIATION);
+        point += (apply ? 1 : -1) * GetBasePoints();
+
+        target->SetInt32Value(PLAYER_FAKE_INEBRIATION, point);
+    }
+
+    target->UpdateObjectVisibility();
 }
 
 /*********************************************************/
