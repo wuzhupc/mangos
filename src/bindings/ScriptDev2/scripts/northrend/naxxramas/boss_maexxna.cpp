@@ -40,8 +40,8 @@ enum
     SPELL_POISONSHOCK           = 28741,
     SPELL_POISONSHOCK_H         = 54122,
 
-    SPELL_NECROTICPOISON        = 28776,
-    SPELL_NECROTICPOISON_H      = 54121,
+    SPELL_NECROTICPOISON        = 54121,
+    SPELL_NECROTICPOISON_H      = 28776,
 
     SPELL_FRENZY                = 54123,
     SPELL_FRENZY_H              = 54124,
@@ -119,7 +119,7 @@ struct MANGOS_DLL_DECL boss_maexxnaAI : public ScriptedAI
     {
         m_uiWebWrapTimer = 20000;                           // 20 sec init, 40 sec normal
         m_uiWebSprayTimer = 40000;                          // 40 seconds
-        m_uiPoisonShockTimer = 20000;                       // 20 seconds
+        m_uiPoisonShockTimer = 10000;                       // 10 seconds
         m_uiNecroticPoisonTimer = 30000;                    // 30 seconds
         m_uiSummonSpiderlingTimer = 30000;                  // 30 sec init, 40 sec normal
         m_bEnraged = false;
@@ -245,8 +245,8 @@ struct MANGOS_DLL_DECL boss_maexxnaAI : public ScriptedAI
         // Poison Shock
         if (m_uiPoisonShockTimer < uiDiff)
         {
-            DoCastSpellIfCan(m_creature->getVictim(), m_bIsRegularMode ? SPELL_POISONSHOCK : SPELL_POISONSHOCK_H);
-            m_uiPoisonShockTimer = 20000;
+            if (DoCastSpellIfCan(m_creature->getVictim(), m_bIsRegularMode ? SPELL_POISONSHOCK : SPELL_POISONSHOCK_H) == CAST_OK)
+                m_uiPoisonShockTimer = 10000;
         }
         else
             m_uiPoisonShockTimer -= uiDiff;
@@ -254,8 +254,8 @@ struct MANGOS_DLL_DECL boss_maexxnaAI : public ScriptedAI
         // Necrotic Poison
         if (m_uiNecroticPoisonTimer < uiDiff)
         {
-            DoCastSpellIfCan(m_creature->getVictim(), m_bIsRegularMode ? SPELL_NECROTICPOISON : SPELL_NECROTICPOISON_H);
-            m_uiNecroticPoisonTimer = 30000;
+            if (DoCastSpellIfCan(m_creature->getVictim(), m_bIsRegularMode ? SPELL_NECROTICPOISON : SPELL_NECROTICPOISON_H) == CAST_OK)
+                m_uiNecroticPoisonTimer = 30000;
         }
         else
             m_uiNecroticPoisonTimer -= uiDiff;
