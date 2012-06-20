@@ -8775,13 +8775,11 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     if (!unitTarget)
                         return;
 
-                    // Summon 4 spirits at near point positions
-                    float x, y, z;
-                    for (uint8 i = 0; i < 4; ++i)
-                    {
-                        unitTarget->GetNearPoint(unitTarget, x, y, z, 0, 3.0f, M_PI_F/2*i+M_PI_F/4);
-                        unitTarget->CastSpell(x, y, z, 48592, true);
-                    }
+                    // Summon 4 spirits summoners
+                    unitTarget->CastSpell(unitTarget, 48586, true);
+                    unitTarget->CastSpell(unitTarget, 48587, true);
+                    unitTarget->CastSpell(unitTarget, 48588, true);
+                    unitTarget->CastSpell(unitTarget, 48589, true);
                     return;
                 }*/
                 case 48590:                                 // Avenging Spirits (summon Avenging Spirit Summoners)
@@ -9017,6 +9015,34 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                             ((Creature*)unitTarget)->ForcedDespawn(1);
                         }
                     }
+
+                    return;
+                }
+                case 51519:                                 // Death Knight Initiate Visual
+                {
+                    if (!unitTarget)
+                        return;
+
+                    uint8 gender = unitTarget->getGender();
+                    uint8 race = unitTarget->getRace();
+                    uint32 spellId = 0;
+                    switch (race)
+                    {
+                        case RACE_HUMAN:            spellId = (gender == GENDER_MALE ? 51520 : 51534); break;
+                        case RACE_DWARF:            spellId = (gender == GENDER_MALE ? 51538 : 51537); break;
+                        case RACE_NIGHTELF:         spellId = (gender == GENDER_MALE ? 51535 : 51536); break;
+                        case RACE_GNOME:            spellId = (gender == GENDER_MALE ? 51539 : 51540); break;
+                        case RACE_DRAENEI:          spellId = (gender == GENDER_MALE ? 51541 : 51542); break;
+                        case RACE_ORC:              spellId = (gender == GENDER_MALE ? 51543 : 51544); break;
+                        case RACE_UNDEAD:           spellId = (gender == GENDER_MALE ? 51549 : 51550); break;
+                        case RACE_TAUREN:           spellId = (gender == GENDER_MALE ? 51547 : 51548); break;
+                        case RACE_TROLL:            spellId = (gender == GENDER_MALE ? 51546 : 51545); break;
+                        case RACE_BLOODELF:         spellId = (gender == GENDER_MALE ? 51551 : 51552); break;
+                        default:
+                            return;
+                    }
+                    if (spellId)
+                        unitTarget->CastSpell(unitTarget, spellId, true);
 
                     return;
                 }

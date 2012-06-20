@@ -1,9 +1,3 @@
-TODO
-复活宠物
-伤害倍数 
-生命值
-修理装备
-海山召唤
 
 WUZHU_Damage_Dungeon 		WUZHU.Damage.Dungeon,//5人本时伤害倍数
 WUZHU_Damage_Raid_10Man 	WUZHU.Damage.Raid.10m,//10人本时伤害倍数
