@@ -62,8 +62,6 @@ void instance_naxxramas::Initialize()
     for (uint8 i = 0; i < MAX_SPECIAL_ACHIEV_CRITS; ++i)
         m_abAchievCriteria[i] = false;
 
-    m_uiHorsemenDead = 0;
-
     m_dialogueHelper.InitializeDialogueHelper(this, true);
 }
 

@@ -230,6 +230,10 @@ UPDATE creature_template SET ScriptName='mob_syth_frost' WHERE entry=19204;
 UPDATE creature_template SET ScriptName='mob_syth_shadow' WHERE entry=19206;
 UPDATE creature_template SET ScriptName='boss_talon_king_ikiss' WHERE entry=18473;
 UPDATE creature_template SET ScriptName='boss_darkweaver_syth' WHERE entry=18472;
+UPDATE creature_template SET ScriptName='boss_anzu' WHERE entry=23035;
+DELETE FROM scripted_event_id WHERE id=14797;
+INSERT INTO scripted_event_id VALUES
+(14797,'event_spell_summon_raven_god');
 
 /* SHADOW LABYRINTH */
 UPDATE instance_template SET ScriptName='instance_shadow_labyrinth' WHERE map=555;
@@ -560,7 +564,7 @@ UPDATE creature_template SET ScriptName='npc_deserter_agitator' WHERE entry=2360
 UPDATE creature_template SET ScriptName='npc_ogron' WHERE entry=4983;
 UPDATE creature_template SET ScriptName='npc_morokk' WHERE entry=4500;
 UPDATE creature_template SET ScriptName='npc_restless_apparition' WHERE entry=23861;
-UPDATE creature_template SET ScriptName='npc_private_hendel' WHERE entry=4966;
+8UPDATE creature_template SET ScriptName='npc_private_hendel' WHERE entry=4966;
 DELETE FROM scripted_areatrigger WHERE entry=4752;
 INSERT INTO scripted_areatrigger VALUES
 (4752,'at_nats_landing');
@@ -569,6 +573,7 @@ INSERT INTO scripted_areatrigger VALUES
 UPDATE creature_template SET ScriptName='mobs_ghoul_flayer' WHERE entry IN (8530,8531,8532);
 UPDATE creature_template SET ScriptName='npc_darrowshire_spirit' WHERE entry=11064;
 UPDATE creature_template SET ScriptName='npc_tirion_fordring' WHERE entry=1855;
+UPDATE creature_template SET ScriptName='npc_eris_havenfire' WHERE entry=14494;
 
 /* EBON HOLD */
 UPDATE creature_template SET ScriptName='npc_death_knight_initiate' WHERE entry=28406;

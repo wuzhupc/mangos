@@ -4743,7 +4743,7 @@ bool Unit::AddSpellAuraHolder(SpellAuraHolderPtr holder)
 
             // stacking of holders from different casters
             // some holders stack, but their auras dont (i.e. only strongest aura effect works)
-            if (!sSpellMgr.IsStackableSpellAuraHolder(aurSpellInfo))
+            if (!SpellMgr::IsStackableSpellAuraHolder(aurSpellInfo))
                 if (holdersToRemove.find(iter->second) == holdersToRemove.end())
                     holdersToRemove.insert(iter->second);
         }
@@ -4995,7 +4995,7 @@ bool Unit::RemoveNoStackAurasDueToAuraHolder(SpellAuraHolderPtr holder)
             }
 
             // different ranks spells with different casters should also stack
-            if (holder->GetCasterGuid() != itr->second->GetCasterGuid() && sSpellMgr.IsStackableSpellAuraHolder(spellProto))
+            if (holder->GetCasterGuid() != itr->second->GetCasterGuid() && SpellMgr::IsStackableSpellAuraHolder(spellProto))
                 continue;
 
             if (!itr->second->IsDeleted())
@@ -9888,6 +9888,14 @@ float Unit::GetSpeed( UnitMoveType mtype ) const
 	{
 		return m_speed_rate[mtype]*baseMoveSpeed[mtype]*sWorld.getWUZHUConfig(WUHZU_MoveSpeed);
 	}
+	else if(((Creature*)this)->IsPet())
+	{
+		Unit *unit=((Pet*)this)->GetOwner();
+		if(unit&&unit->GetTypeId() == TYPEID_PLAYER)
+		{
+			return m_speed_rate[mtype]*baseMoveSpeed[mtype]*sWorld.getWUZHUConfig(WUHZU_MoveSpeed);
+		}
+	}
 	//wuzhu end
     return m_speed_rate[mtype]*baseMoveSpeed[mtype];
 }
@@ -10817,6 +10825,14 @@ void Unit::SetLevel(uint32 lvl)
     // group update
     if ((GetTypeId() == TYPEID_PLAYER) && ((Player*)this)->GetGroup())
         ((Player*)this)->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_LEVEL);
+}
+
+
+uint8 Unit::getRace() const 
+{
+    return GetTypeId() == TYPEID_UNIT ?
+        GetCreatureModelRace(((Creature*)this)->GetDisplayId()) :
+        GetByteValue(UNIT_FIELD_BYTES_0, 0); 
 }
 
 void Unit::SetHealth(uint32 val)
@@ -12782,8 +12798,8 @@ void Unit::EnterVehicle(Unit* vehicleBase, int8 seatId)
 
     if (seatId == -1)
     {
-        if (vehicleBase->GetVehicleKit()->HasEmptySeat(-1))
-            seatId = vehicleBase->GetVehicleKit()->GetNextEmptySeat(0,true);
+        if (vehicleBase->GetVehicleKit()->HasEmptySeat(seatId))
+            seatId = vehicleBase->GetVehicleKit()->GetNextEmptySeatWithFlag(0);
         else
         {
             sLog.outError("Unit::EnterVehicle: unit %s try seat to  vehicle %s but no seats!", GetObjectGuid().GetString().c_str(), vehicleBase->GetObjectGuid().GetString().c_str());
@@ -12891,7 +12907,7 @@ void Unit::ChangeSeat(int8 seatId, bool next)
 
     if (seatId < 0)
     {
-        seatId = m_pVehicle->GetNextEmptySeat(m_movementInfo.GetTransportSeat(), next);
+        seatId = m_pVehicle->GetNextEmptySeatWithFlag(m_movementInfo.GetTransportSeat(), next);
         if (seatId < 0)
             return;
     }

@@ -917,36 +917,6 @@ enum
     PHASE_ACTIVATE                  = 2
 };
 
-struct DisplayToSpell
-{
-    uint32 m_uiDisplayId;
-    uint32 m_uiSpellToNewDisplay;
-};
-
-DisplayToSpell m_aDisplayToSpell[] =
-{
-    {25354, 51520},                                         // human M
-    {25355, 51534},                                         // human F
-    {25356, 51538},                                         // dwarf M
-    {25357, 51541},                                         // draenei M
-    {25358, 51535},                                         // nelf M
-    {25359, 51539},                                         // gnome M
-    {25360, 51536},                                         // nelf F
-    {25361, 51537},                                         // dwarf F
-    {25362, 51540},                                         // gnome F
-    {25363, 51542},                                         // draenei F
-    {25364, 51543},                                         // orc M
-    {25365, 51546},                                         // troll M
-    {25366, 51547},                                         // tauren M
-    {25367, 51549},                                         // forsaken M
-    {25368, 51544},                                         // orc F
-    {25369, 51552},                                         // belf F
-    {25370, 51545},                                         // troll F
-    {25371, 51548},                                         // tauren F
-    {25372, 51550},                                         // forsaken F
-    {25373, 51551}                                          // belf M
-};
-
 struct MANGOS_DLL_DECL npc_unworthy_initiate_anchorAI : public ScriptedAI
 {
     npc_unworthy_initiate_anchorAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
@@ -993,25 +963,9 @@ struct MANGOS_DLL_DECL npc_unworthy_initiateAI : public ScriptedAI
 {
     npc_unworthy_initiateAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_pToTransform = NULL;
-
-        uint32 uiDisplayCount = sizeof(m_aDisplayToSpell)/sizeof(DisplayToSpell);
-
-        for (uint8 i=0; i<uiDisplayCount; ++i)
-        {
-            // check if we find a match, if not, it's NULL and produce error when used
-            if (m_aDisplayToSpell[i].m_uiDisplayId == pCreature->GetDisplayId())
-            {
-                m_pToTransform = &m_aDisplayToSpell[i];
-                break;
-            }
-        }
-
         m_uiNormFaction = pCreature->getFaction();
         Reset();
     }
-
-    DisplayToSpell* m_pToTransform;
 
     ObjectGuid m_myAnchorGuid;
     uint32 m_uiNormFaction;
@@ -1158,13 +1112,7 @@ struct MANGOS_DLL_DECL npc_unworthy_initiateAI : public ScriptedAI
             {
                 if (m_uiPhase == PHASE_DRESSUP)
                 {
-                    if (m_pToTransform)
-                    {
-                        m_creature->CastSpell(m_creature, m_pToTransform->m_uiSpellToNewDisplay, true);
-                        m_creature->CastSpell(m_creature, SPELL_INITIATE_VISUAL, false);
-                    }
-                    else
-                        error_log("SD2: npc_unworthy_initiate does not have any spell associated with model");
+                    m_creature->CastSpell(m_creature, SPELL_INITIATE_VISUAL, false);
 
                     m_uiPhase = PHASE_ACTIVATE;
                 }
