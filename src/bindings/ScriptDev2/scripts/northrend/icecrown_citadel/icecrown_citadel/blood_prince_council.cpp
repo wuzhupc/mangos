@@ -810,6 +810,7 @@ struct MANGOS_DLL_DECL mob_dark_nucleusAI : public base_icc_bossAI
     {
         DoResetThreat();
         m_creature->AddThreat(pDealer, 100000.0f);
+        m_creature->InterruptNonMeleeSpells(true);
     }
 
     void UpdateAI(const uint32 uiDiff)

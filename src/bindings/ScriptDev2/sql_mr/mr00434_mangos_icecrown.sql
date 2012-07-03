@@ -216,7 +216,7 @@ DELETE FROM `creature_model_info` WHERE (`modelid`=30483);
 INSERT INTO `creature_model_info` (`modelid`, `bounding_radius`, `combat_reach`, `gender`, `modelid_other_gender`, `modelid_alternative`) VALUES (30483, 5, 1, 2, 0, 0);
 
 -- make triggers not visible
-UPDATE `creature_template` SET `unit_flags` = `unit_flags` | 33554432 | 2 WHERE entry IN (37013, 37986, 38107, 38548, 37006, 38107, 38548, 38556, 36659);
+UPDATE `creature_template` SET `unit_flags` = `unit_flags` & ~33554432 & ~2 WHERE entry IN (37013, 37986, 38107, 38548, 37006, 38107, 38548, 38556, 36659);
 
 -- -------------------
 -- Professor putricide

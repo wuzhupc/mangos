@@ -760,7 +760,6 @@
     <ClInclude Include="..\include\sc_grid_searchers.h" />
     <ClInclude Include="..\include\sc_instance.h" />
     <ClInclude Include="..\scripts\custom\WUZHU.h" />
-    <ClInclude Include="..\scripts\custom\WUZHU_PetShow.h" />
     <ClInclude Include="..\scripts\eastern_kingdoms\blackrock_depths\blackrock_depths.h" />
     <ClInclude Include="..\scripts\eastern_kingdoms\blackrock_spire\blackrock_spire.h" />
     <ClInclude Include="..\scripts\eastern_kingdoms\blackwing_lair\blackwing_lair.h" />
@@ -828,8 +827,12 @@
     <ClInclude Include="..\scripts\outland\tempest_keep\arcatraz\arcatraz.h" />
     <ClInclude Include="..\scripts\outland\tempest_keep\the_eye\the_eye.h" />
     <ClInclude Include="..\scripts\outland\tempest_keep\the_mechanar\mechanar.h" />
-    <ClInclude Include="..\sd2_revision_nr.h" />
-    <ClInclude Include="..\sd2_revision_sql.h" />
+    <ClInclude Include="..\scripts\world\world_map_scripts.h" />
+    <ClInclude Include="..\include\precompiled.h" />
+    <ClInclude Include="..\include\sc_creature.h" />
+    <ClInclude Include="..\include\sc_gossip.h" />
+    <ClInclude Include="..\include\sc_grid_searchers.h" />
+    <ClInclude Include="..\include\sc_instance.h" />
     <ClInclude Include="..\system\ScriptLoader.h" />
     <ClInclude Include="..\system\system.h" />
     <CustomBuild Include="..\revision.h">

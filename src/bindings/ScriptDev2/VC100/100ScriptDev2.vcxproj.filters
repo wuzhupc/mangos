@@ -2120,6 +2120,24 @@
     <ClInclude Include="..\scripts\outland\tempest_keep\the_mechanar\mechanar.h">
       <Filter>scripts\outland\tempest_keep\the_mechanar</Filter>
     </ClInclude>
+    <ClInclude Include="..\scripts\world\world_map_scripts.h">
+      <Filter>scripts\world</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\precompiled.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sc_creature.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sc_gossip.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sc_grid_searchers.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sc_instance.h">
+      <Filter>include</Filter>
+    </ClInclude>
     <ClInclude Include="..\system\ScriptLoader.h">
       <Filter>system</Filter>
     </ClInclude>
@@ -2127,17 +2145,22 @@
       <Filter>system</Filter>
     </ClInclude>
     <ClInclude Include="..\config.h" />
-    <ClInclude Include="..\sd2_revision_nr.h" />
-    <ClInclude Include="..\sd2_revision_sql.h" />
     <ClInclude Include="..\ScriptMgr.h">
       <Filter>system</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\precompiled.h" />
+    <ClInclude Include="..\include\sc_creature.h" />
+    <ClInclude Include="..\include\sc_gossip.h" />
+    <ClInclude Include="..\include\sc_grid_searchers.h" />
+    <ClInclude Include="..\include\sc_instance.h" />
     <ClInclude Include="..\scripts\custom\WUZHU.h">
       <Filter>scripts\custom</Filter>
     </ClInclude>
-    <ClInclude Include="..\scripts\custom\WUZHU_PetShow.h">
-      <Filter>scripts\custom</Filter>
-    </ClInclude>
+    <ClInclude Include="..\include\precompiled.h" />
+    <ClInclude Include="..\include\sc_creature.h" />
+    <ClInclude Include="..\include\sc_gossip.h" />
+    <ClInclude Include="..\include\sc_grid_searchers.h" />
+    <ClInclude Include="..\include\sc_instance.h" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\revision.h" />

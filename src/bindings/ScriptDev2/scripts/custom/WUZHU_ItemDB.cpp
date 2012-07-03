@@ -666,6 +666,58 @@ bool GossipDBItemSelect(Player *pPlayer, Item *_Item, uint32 sender, uint32 acti
 					}
 					pPlayer->CLOSE_GOSSIP_MENU();
 					break;
+				case 112://宠物存储
+					if(pPlayer->getClass()==CLASS_HUNTER)
+					{
+						UNORDERED_MAP<uint32, WUZHU_Teleport_Template>::iterator i;
+						for (i = pSystemMgr.Teleport_Template_Map.begin(); i != pSystemMgr.Teleport_Template_Map.end(); ++i)
+						{
+							if ((*i).second.SpellID==baseaction&&((*i).second.Type==2||(*i).second.Type==3))
+							{
+								uint32 btelete=0;//不能传送
+								if((*i).second.Money>0)
+								{
+									if(pPlayer->GetMoney() >= (*i).second.Money)
+									{
+										btelete=1;//需要money
+									}
+									else
+									{
+										WUZHU_Common::SendMoneyError(pPlayer);
+										break;
+									}
+								}
+								else
+									if((*i).second.Integral>0)
+									{
+										if(pPlayer->GetVIP_Integral() >= (*i).second.Integral)
+										{
+											btelete=2;//需要积分
+										}
+										else
+										{
+											pPlayer->GetSession()->SendAreaTriggerMessage(pPlayer->GetWUZHUString(WUZHU_TEXT_SOURCE_RANGE-48,pPlayer));
+											break;
+										}
+									}
+									pPlayer->GetSession()->SendStablePet(pPlayer->GetObjectGuid());
+									if(btelete==1)
+									{
+										pPlayer->ModifyMoney(0-(*i).second.Money);									 
+									}
+									else
+									{
+										if(btelete==2)
+										{
+											pPlayer->ModifyVIP_Integral(0-(*i).second.Integral);
+										}
+									}
+									break;
+							}
+						}
+					}
+					pPlayer->CLOSE_GOSSIP_MENU();
+					break;
 				case 120://积分查询
 					{
 						UNORDERED_MAP<uint32, WUZHU_Teleport_Template>::iterator i;
@@ -1414,6 +1466,58 @@ bool GossipDBTeleportSelect(Player *pPlayer, Creature *_Creature, uint32 sender,
 							pPlayer->GetSession()->SendAreaTriggerMessage(pPlayer->GetWUZHUString(WUZHU_TEXT_SOURCE_RANGE-152,pPlayer));
 							break;
 						}						
+					}
+					pPlayer->CLOSE_GOSSIP_MENU();
+					break;
+				case 112://宠物存储
+					if(pPlayer->getClass()==CLASS_HUNTER)
+					{
+						UNORDERED_MAP<uint32, WUZHU_Teleport_Template>::iterator i;
+						for (i = pSystemMgr.Teleport_Template_Map.begin(); i != pSystemMgr.Teleport_Template_Map.end(); ++i)
+						{
+							if ((*i).second.SpellID==baseaction&&((*i).second.Type==1||(*i).second.Type==3))
+							{
+								uint32 btelete=0;//不能传送
+								if((*i).second.Money>0)
+								{
+									if(pPlayer->GetMoney() >= (*i).second.Money)
+									{
+										btelete=1;//需要money
+									}
+									else
+									{
+										WUZHU_Common::SendMoneyError(pPlayer);
+										break;
+									}
+								}
+								else
+									if((*i).second.Integral>0)
+									{
+										if(pPlayer->GetVIP_Integral() >= (*i).second.Integral)
+										{
+											btelete=2;//需要积分
+										}
+										else
+										{
+											pPlayer->GetSession()->SendAreaTriggerMessage(pPlayer->GetWUZHUString(WUZHU_TEXT_SOURCE_RANGE-48,pPlayer));
+											break;
+										}
+									}
+									pPlayer->GetSession()->SendStablePet(pPlayer->GetObjectGuid());
+									if(btelete==1)
+									{
+										pPlayer->ModifyMoney(0-(*i).second.Money);									 
+									}
+									else
+									{
+										if(btelete==2)
+										{
+											pPlayer->ModifyVIP_Integral(0-(*i).second.Integral);
+										}
+									}
+									break;
+							}
+						}
 					}
 					pPlayer->CLOSE_GOSSIP_MENU();
 					break;

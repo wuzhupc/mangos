@@ -690,8 +690,7 @@ bool GossipSelect_npc_death_knight_initiate(Player* pPlayer, Creature* pCreature
 
         pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
 
-        int32 uiSayId = rand()% (sizeof(m_auiRandomSay)/sizeof(int32));
-        DoScriptText(m_auiRandomSay[uiSayId], pCreature, pPlayer);
+        DoScriptText(m_auiRandomSay[urand(0, countof(m_auiRandomSay) - 1)], pCreature, pPlayer);
 
         pCreature->CastSpell(pPlayer, SPELL_DUEL, false);
         pCreature->CastSpell(pPlayer, SPELL_DUEL_FLAG, true);
@@ -917,6 +916,10 @@ enum
     PHASE_ACTIVATE                  = 2
 };
 
+/*######
+## npc_unworthy_initiate_anchor
+######*/
+
 struct MANGOS_DLL_DECL npc_unworthy_initiate_anchorAI : public ScriptedAI
 {
     npc_unworthy_initiate_anchorAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
@@ -1015,7 +1018,7 @@ struct MANGOS_DLL_DECL npc_unworthy_initiateAI : public ScriptedAI
 
     int32 GetTextId()
     {
-        return m_uiPhase == PHASE_DRESSUP ? SAY_START-rand()%8 : SAY_AGGRO-rand()%8;
+        return m_uiPhase == PHASE_DRESSUP ? SAY_START - urand(0, 7) : SAY_AGGRO - urand(0, 7);
     }
 
     Creature* GetAnchor()
@@ -1074,7 +1077,7 @@ struct MANGOS_DLL_DECL npc_unworthy_initiateAI : public ScriptedAI
 
             if (m_uiBloodStrike_Timer < uiDiff)
             {
-                DoCastSpellIfCan(m_creature->getVictim(),SPELL_BLOOD_STRIKE);
+                DoCastSpellIfCan(m_creature->getVictim(), SPELL_BLOOD_STRIKE);
                 m_uiBloodStrike_Timer = 9000;
             }
             else
@@ -1082,7 +1085,7 @@ struct MANGOS_DLL_DECL npc_unworthy_initiateAI : public ScriptedAI
 
             if (m_uiDeathCoil_Timer < uiDiff)
             {
-                DoCastSpellIfCan(m_creature->getVictim(),SPELL_DEATH_COIL);
+                DoCastSpellIfCan(m_creature->getVictim(), SPELL_DEATH_COIL);
                 m_uiDeathCoil_Timer = 8000;
             }
             else
@@ -1090,7 +1093,7 @@ struct MANGOS_DLL_DECL npc_unworthy_initiateAI : public ScriptedAI
 
             if (m_uiIcyTouch_Timer < uiDiff)
             {
-                DoCastSpellIfCan(m_creature->getVictim(),SPELL_ICY_TOUCH);
+                DoCastSpellIfCan(m_creature->getVictim(), SPELL_ICY_TOUCH);
                 m_uiIcyTouch_Timer = 8000;
             }
             else
@@ -1098,7 +1101,7 @@ struct MANGOS_DLL_DECL npc_unworthy_initiateAI : public ScriptedAI
 
             if (m_uiPlagueStrike_Timer < uiDiff)
             {
-                DoCastSpellIfCan(m_creature->getVictim(),SPELL_PLAGUE_STRIKE);
+                DoCastSpellIfCan(m_creature->getVictim(), SPELL_PLAGUE_STRIKE);
                 m_uiPlagueStrike_Timer = 8000;
             }
             else
