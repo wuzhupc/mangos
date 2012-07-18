@@ -62,6 +62,16 @@ enum InstanceZA
     NPC_AXETHROWER          = 23542,
     NPC_WARBRINGER          = 23580,
 
+    // Malacrass companions
+    NPC_ALYSON              = 24240,
+    NPC_THURG               = 24241,
+    NPC_SLITHER             = 24242,
+    NPC_RADAAN              = 24243,
+    NPC_GAZAKROTH           = 24244,
+    NPC_FENSTALKER          = 24245,
+    NPC_DARKHEART           = 24246,
+    NPC_KORAGG              = 24247,
+
     NPC_EGG                 = 23817,
     NPC_SPIRIT_LYNX         = 24143,
 
@@ -139,7 +149,7 @@ static const NalorakkBearEventInfo aBearEventInfo[MAX_BEAR_WAVES] =
 
 struct NalorakkTrashInfo
 {
-    GUIDSet sBearTrashGuidSet;
+    GuidSet sBearTrashGuidSet;
     uint8 uiTrashKilled;
 };
 
@@ -185,7 +195,7 @@ class MANGOS_DLL_DECL instance_zulaman : public ScriptedInstance
         uint8 m_uiBearEventPhase;
         bool m_bIsBearPhaseInProgress;
 
-        GUIDList m_lEggsGUIDList;
+        GuidList m_lEggsGuidList;
         uint32 m_uiEggsRemainingCount_Left;
         uint32 m_uiEggsRemainingCount_Right;
 };

@@ -386,14 +386,14 @@ class MANGOS_DLL_DECL instance_ulduar : public ScriptedInstance
         void CheckKeepers();
         void SpawnFriendlyKeeper(uint32 uiWho);
 
-        GUIDList m_lThorimMobsGuids;
-        GUIDList m_lLeftHandTriggerGuids;
-        GUIDList m_lRightHandTriggerGuids;
-        GUIDList m_lSanctumSentryGuids;
-        GUIDList m_lCLoudGuids;
+        GuidList m_lThorimMobsGuids;
+        GuidList m_lLeftHandTriggerGuids;
+        GuidList m_lRightHandTriggerGuids;
+        GuidList m_lSanctumSentryGuids;
+        GuidList m_lCLoudGuids;
 
 
-        GUIDVector m_lBreakHarpoonGUID;
+        GuidVector m_lBreakHarpoonGUID;
 
 
     protected:
@@ -418,7 +418,7 @@ class MANGOS_DLL_DECL instance_ulduar : public ScriptedInstance
     bool    m_bOneIsDeath;
 
 
-    GUIDList m_lIronConstructsGuids;
+    GuidList m_lIronConstructsGuids;
 };
 
 #endif

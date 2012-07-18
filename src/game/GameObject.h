@@ -688,6 +688,7 @@ class MANGOS_DLL_SPEC GameObject : public WorldObject
         {
             m_respawnTime = respawn > 0 ? time(NULL) + respawn : 0;
             m_respawnDelayTime = respawn > 0 ? uint32(respawn) : 0;
+            EnableCollision(CalculateCurrentCollisionState());
         }
         void Respawn();
         bool isSpawned() const
@@ -718,6 +719,7 @@ class MANGOS_DLL_SPEC GameObject : public WorldObject
         void SetDisplayId(uint32 modelId);
         void SetPhaseMask(uint32 newPhaseMask, bool update);
         void EnableCollision(bool enable);
+        bool CalculateCurrentCollisionState() const;
 
         float GetObjectBoundingRadius() const;              // overwrite WorldObject version
 
@@ -805,18 +807,17 @@ class MANGOS_DLL_SPEC GameObject : public WorldObject
         uint32      m_health;
                                                             // For traps/goober this: spell casting cooldown, for doors/buttons: reset time.
 
-        typedef std::set<ObjectGuid> GuidsSet;
         typedef std::set<Player*> PlayersSet;
 
-        ObjectGuidSet m_capturePlayers[PVP_TEAM_COUNT];     // player sets for each faction
+        GuidSet m_capturePlayers[PVP_TEAM_COUNT];           // player sets for each faction
 
-        GuidsSet m_SkillupSet;                              // players that already have skill-up at GO use
+        GuidSet m_SkillupSet;                               // players that already have skill-up at GO use
 
         uint32 m_useTimes;                                  // amount uses/charges triggered
 
         // collected only for GAMEOBJECT_TYPE_SUMMONING_RITUAL
         ObjectGuid m_firstUser;                             // first GO user, in most used cases owner, but in some cases no, for example non-summoned multi-use GAMEOBJECT_TYPE_SUMMONING_RITUAL
-        GuidsSet m_UniqueUsers;                             // all players who use item, some items activated after specific amount unique uses
+        GuidSet m_UniqueUsers;                              // all players who use item, some items activated after specific amount unique uses
 
         GameObjectInfo const* m_goInfo;
         GameObjectDisplayInfoEntry const* m_displayInfo;

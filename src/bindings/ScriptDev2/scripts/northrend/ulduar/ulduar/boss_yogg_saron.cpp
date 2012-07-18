@@ -448,7 +448,7 @@ struct MANGOS_DLL_DECL boss_yogg_saronAI : public ScriptedAI
     uint32 m_uiSummonConstrictorTentacleTimer; // ~ 10 sek
     uint32 m_uiDeafeningRoarTimer;
 
-    GUIDList m_lKeeperGUID;
+    GuidList m_lKeeperGUID;
 
     void Reset()
     {
@@ -485,7 +485,7 @@ struct MANGOS_DLL_DECL boss_yogg_saronAI : public ScriptedAI
             m_pInstance->SetData(TYPE_VISION_PHASE, PHASE_VISION_RETURN);
             m_pInstance->SetData(TYPE_YOGGSARON, FAIL);
         }
-        for (GUIDList::iterator iter = m_lKeeperGUID.begin(); iter != m_lKeeperGUID.end(); ++iter)
+        for (GuidList::iterator iter = m_lKeeperGUID.begin(); iter != m_lKeeperGUID.end(); ++iter)
         {
             if (Creature* pTemp = m_creature->GetMap()->GetCreature(*iter))
             {
@@ -625,7 +625,7 @@ struct MANGOS_DLL_DECL boss_yogg_saronAI : public ScriptedAI
         if (m_pInstance)
         {
             //remove Clouds
-            for(GUIDList::iterator iter = m_pInstance->m_lCLoudGuids.begin(); iter != m_pInstance->m_lCLoudGuids.end(); ++iter)
+            for(GuidList::iterator iter = m_pInstance->m_lCLoudGuids.begin(); iter != m_pInstance->m_lCLoudGuids.end(); ++iter)
                 if (Creature *pTmp = m_pInstance->instance->GetCreature(*iter))
                     pTmp->ForcedDespawn();
         }
@@ -889,7 +889,7 @@ struct MANGOS_DLL_DECL boss_brain_of_yogg_saronAI : public ScriptedAI
     ObjectGuid m_uiYseraGUID;
     ObjectGuid m_uiVoiceOfYoggGUID;
 
-    GUIDList m_lVisionTentacle;
+    GuidList m_lVisionTentacle;
 
     void Reset()
     {
@@ -961,7 +961,7 @@ struct MANGOS_DLL_DECL boss_brain_of_yogg_saronAI : public ScriptedAI
         m_uiMadnessTimer        = 60000;
         m_bIsVisionFinished     = false;
         m_bHasShattered         = false;
-        for(GUIDList::iterator itr = m_lVisionTentacle.begin(); itr != m_lVisionTentacle.end(); itr++)
+        for(GuidList::iterator itr = m_lVisionTentacle.begin(); itr != m_lVisionTentacle.end(); itr++)
         {
             if (Creature* pVisionTentacle = m_creature->GetMap()->GetCreature(*itr))
             {
@@ -975,7 +975,7 @@ struct MANGOS_DLL_DECL boss_brain_of_yogg_saronAI : public ScriptedAI
     // check if all the tentacles are dead
     bool IsThereAnyAdd(WorldObject *pSource)
     {
-        for(GUIDList::iterator itr = m_lVisionTentacle.begin(); itr != m_lVisionTentacle.end(); itr++)
+        for(GuidList::iterator itr = m_lVisionTentacle.begin(); itr != m_lVisionTentacle.end(); itr++)
         {
             if (Creature* pVisionTentacle = m_creature->GetMap()->GetCreature(*itr))
             {

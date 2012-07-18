@@ -147,7 +147,7 @@ struct MANGOS_DLL_DECL boss_janalaiAI : public ScriptedAI
 
     uint32 m_uiFireBreathTimer;
 
-    GUIDList m_lBombsGUIDList;
+    GuidList m_lBombsGuidList;
     std::list<Creature*> m_lEggsRemainingList;
 
     uint32 m_uiBombTimer;
@@ -205,12 +205,12 @@ struct MANGOS_DLL_DECL boss_janalaiAI : public ScriptedAI
 
     void JustReachedHome()
     {
-        for (GUIDList::const_iterator itr = m_lBombsGUIDList.begin(); itr != m_lBombsGUIDList.end(); ++itr)
+        for (GuidList::const_iterator itr = m_lBombsGuidList.begin(); itr != m_lBombsGuidList.end(); ++itr)
         {
             if (Creature* pBomb = m_creature->GetMap()->GetCreature(*itr))
                 pBomb->ForcedDespawn();
         }
-        m_lBombsGUIDList.clear();
+        m_lBombsGuidList.clear();
 
         if (m_pInstance)
             m_pInstance->SetData(TYPE_JANALAI, FAIL);
@@ -251,7 +251,7 @@ struct MANGOS_DLL_DECL boss_janalaiAI : public ScriptedAI
                 if (m_bIsBombing)
                 {
                     //store bombs in list to be used in BlowUpBombs()
-                    m_lBombsGUIDList.push_back(pSummoned->GetObjectGuid());
+                    m_lBombsGuidList.push_back(pSummoned->GetObjectGuid());
 
                     if (pSummoned->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
                         pSummoned->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -314,9 +314,9 @@ struct MANGOS_DLL_DECL boss_janalaiAI : public ScriptedAI
     //Teleport every player into the middle if more than 20 yards away (possibly what spell 43096 should do)
     void TeleportPlayersOutOfRange()
     {
-        GUIDVector vGuids;
-        m_creature->FillGuidsListFromThreatList(vGuids.getSource());
-        for (GUIDVector::const_iterator i = vGuids.begin();i != vGuids.end(); ++i)
+        GuidVector vGuids;
+        m_creature->FillGuidsListFromThreatList(vGuids);
+        for (GuidVector::const_iterator i = vGuids.begin(); i != vGuids.end(); ++i)
         {
             Unit* pTemp = m_creature->GetMap()->GetUnit(*i);
 
@@ -327,7 +327,7 @@ struct MANGOS_DLL_DECL boss_janalaiAI : public ScriptedAI
 
     void BlowUpBombs()
     {
-        for (GUIDList::const_iterator itr = m_lBombsGUIDList.begin(); itr != m_lBombsGUIDList.end(); ++itr)
+        for (GuidList::const_iterator itr = m_lBombsGuidList.begin(); itr != m_lBombsGuidList.end(); ++itr)
         {
             if (Creature* pBomb = m_creature->GetMap()->GetCreature(*itr))
             {
@@ -337,7 +337,7 @@ struct MANGOS_DLL_DECL boss_janalaiAI : public ScriptedAI
             }
         }
 
-        m_lBombsGUIDList.clear();
+        m_lBombsGuidList.clear();
     }
 
     void DoHatchRemainingEggs()
@@ -406,7 +406,7 @@ struct MANGOS_DLL_DECL boss_janalaiAI : public ScriptedAI
                 CreateFireWall();
 
                 //prepare variables for bombing sequenze
-                m_lBombsGUIDList.clear();
+                m_lBombsGuidList.clear();
 
                 m_uiBombPhase = 0;
                 m_uiBombSequenzeTimer = 500;

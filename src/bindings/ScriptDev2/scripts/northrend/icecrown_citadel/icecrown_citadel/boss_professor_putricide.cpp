@@ -244,7 +244,7 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public base_icc_bossAI
         DoRemoveBossEffects();
     }
 
-    void DoRemoveMutatedAmobination()
+    void DoRemoveMutatedAmobination(bool bRestoreTable)
     {
         Map* pMap = m_creature->GetMap();
         Map::PlayerList const& players = pMap->GetPlayers();
@@ -260,13 +260,18 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public base_icc_bossAI
         if (m_pInstance)
         {
             if (GameObject* pGOTable = m_pInstance->GetSingleGameObjectFromStorage(GO_DRINK_ME_TABLE))
-                pGOTable->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NO_INTERACT);
+            {
+                if (bRestoreTable)
+                    pGOTable->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NO_INTERACT);
+                else
+                    pGOTable->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NO_INTERACT);
+            }
         }
     }
 
     void DoRemoveBossEffects()
     {
-        DoRemoveMutatedAmobination();
+        DoRemoveMutatedAmobination(false);
 
         SummonEntryList.clear();
         GetCreatureListWithEntryInGrid(SummonEntryList, m_creature, NPC_GROWING_OOZE_PUDDLE, 100.0f);
@@ -564,7 +569,7 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public base_icc_bossAI
 
                         m_creature->GetMotionMaster()->MovePoint(POINT_PUTRICIDE_SPAWN, SpawnLoc[0].x, SpawnLoc[0].y, SpawnLoc[0].z);
                         m_uiPhase = PHASE_RUNNING_TWO;
-                        DoRemoveMutatedAmobination();
+                        DoRemoveMutatedAmobination(false);
                         if (m_pInstance)
                             if (GameObject* pGOTable = m_pInstance->GetSingleGameObjectFromStorage(GO_DRINK_ME_TABLE))
                                 pGOTable->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NO_INTERACT);
@@ -1093,6 +1098,12 @@ struct MANGOS_DLL_DECL mob_choking_gas_bombAI : public ScriptedAI
 
     void Reset(){}
     void AttackStart(Unit *pWho){}
+
+    void DamageTaken(Unit *pDealer, uint32 &uiDamage)
+    {
+        uiDamage = 0;
+    }
+
     void UpdateAI(const uint32 uiDiff)
     {
         if (m_uiExplosionTimer <= uiDiff)
@@ -1168,7 +1179,7 @@ struct MANGOS_DLL_DECL mob_mutated_amobinationAI : public ScriptedAI
 
     void JustDied(Unit* pKiller)
     {
-        if (m_pInstance)
+        if (m_pInstance && m_pInstance->GetData(TYPE_PUTRICIDE) != DONE)
         {
             // Possibly remove GO_FLAG_NO_INTERACT when amob dies is not blizz-like
             if (GameObject* pGOTable = m_pInstance->GetSingleGameObjectFromStorage(GO_DRINK_ME_TABLE))

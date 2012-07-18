@@ -292,7 +292,7 @@ void hyjalAI::JustSummoned(Creature* pSummoned)
         m_uiCheckTimer = 5000;
     }
     else
-        lWaveMobGUIDList.push_back(pSummoned->GetObjectGuid());
+        lWaveMobGuidList.push_back(pSummoned->GetObjectGuid());
 }
 
 void hyjalAI::SummonNextWave()
@@ -450,11 +450,11 @@ void hyjalAI::UpdateAI(const uint32 uiDiff)
             // Skip the master timer, and start next wave in 5. Clear the list, it should not be any here now.
             if (!m_pInstance->GetData(TYPE_TRASH_COUNT))
             {
-                lWaveMobGUIDList.clear();
+                lWaveMobGuidList.clear();
                 m_uiNextWaveTimer = std::min(m_uiNextWaveTimer, (uint32)5000);
             }
 
-            for (GUIDList::const_iterator itr = lWaveMobGUIDList.begin(); itr != lWaveMobGUIDList.end(); ++itr)
+            for (GuidList::const_iterator itr = lWaveMobGuidList.begin(); itr != lWaveMobGuidList.end(); ++itr)
             {
                 if (Creature* pTemp = m_pInstance->instance->GetCreature(*itr))
                 {

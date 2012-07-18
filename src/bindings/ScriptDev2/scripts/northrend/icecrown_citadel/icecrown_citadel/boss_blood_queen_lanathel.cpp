@@ -162,10 +162,10 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public base_icc_bossAI
     void JustDied(Unit *pKiller)
     {
         if(m_pInstance)
-	{
+	    {
             m_pInstance->SetData(TYPE_LANATHEL, DONE);
-	    RemoveAurasFromAllPlayers();
-	}
+	        RemoveAurasFromAllPlayers();
+	    }
 
         DoScriptText(SAY_DEATH, m_creature);
     }
@@ -270,8 +270,7 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public base_icc_bossAI
 
     void RemoveAurasFromAllPlayers()
     {
-         Map* pMap = m_creature->GetMap();
-         Map::PlayerList const &PlayerList = pMap->GetPlayers();
+         Map::PlayerList const &PlayerList = m_creature->GetMap()->GetPlayers();
 
          if (PlayerList.isEmpty())
             return;

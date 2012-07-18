@@ -155,14 +155,14 @@ INSERT INTO script_texts (entry,content_default,sound,type,language,emote,commen
 (-1000191,'You taste good with maybe a little salt and pepper.',0,0,0,0,' SAY_LUMP_1'),
 (-1000192,'OK, OK! Lump give up!',0,0,0,0,' SAY_LUMP_DEFEAT'),
 
-(-1000193,'REUSE ME',0,0,0,0,'REUSE ME'),
+(-1000193,'%s looks down at the discarded necklace. In her sadness, the lady incants a glamour, which beckons forth Highborne spirits. The chamber resonates with their ancient song about the Sin\'dorei...',10896,2,1,0,'lady_sylvanas EMOTE_LAMENT_START'),
 
 (-1000194,'I give up! Please don\'t kill me!',0,0,0,0,'unkor SAY_SUBMIT'),
 
 (-1000195,'Thank you again, $N. I\'ll make my way to the road now. When you can, find Terenthis and let him know we escaped.',0,0,0,1,'volcor SAY_ESCAPE'),
 
 (-1000196,'Belore...',0,0,1,0,'lady_sylvanas SAY_LAMENT_END'),
-(-1000197,'%s kneels down and pick up the amulet.',0,2,1,0,'lady_sylvanas EMOTE_LAMENT_END'),
+(-1000197,'%s kneels down and pick up the amulet.',0,2,1,16,'lady_sylvanas EMOTE_LAMENT_END'),
 
 (-1000198,'Taste blade, mongrel!',0,0,0,0,'SAY_GUARD_SIL_AGGRO1'),
 (-1000199,'Please tell me that you didn\'t just do what I think you just did. Please tell me that I\'m not going to have to hurt you...',0,0,0,0,'SAY_GUARD_SIL_AGGRO2'),
@@ -1398,8 +1398,8 @@ INSERT INTO script_texts (entry,content_default,sound,type,language,emote,commen
 
 (-1509002,'%s sets eyes on $N!',0,2,0,0,'buru EMOTE_TARGET'),
 
-(-1509003,'They come now. Try not to get yourself killed, young blood.',0,1,0,0,'andorov SAY_ANDOROV_INTRO'),
-(-1509004,'Remember, Rajaxx, when I said I\'d kill you last? I lied...',0,1,0,0,'andorov SAY_ANDOROV_ATTACK'),
+(-1509003,'They come now. Try not to get yourself killed, young blood.',0,1,0,22,'andorov SAY_ANDOROV_INTRO_3'),
+(-1509004,'Remember, Rajaxx, when I said I\'d kill you last?',0,1,0,0,'andorov SAY_ANDOROV_INTRO_1'),
 
 (-1509005,'The time of our retribution is at hand! Let darkness reign in the hearts of our enemies!',8612,1,0,0,'rajaxx SAY_WAVE3'),
 (-1509006,'No longer will we wait behind barred doors and walls of stone! No longer will our vengeance be denied! The dragons themselves will tremble before our wrath!',8610,1,0,0,'rajaxx SAY_WAVE4'),
@@ -1424,7 +1424,11 @@ INSERT INTO script_texts (entry,content_default,sound,type,language,emote,commen
 (-1509024,'Tresspassers will be terminated.',8601,1,0,0,'ossirian SAY_RAND_INTRO4'),
 (-1509025,'Sands of the desert rise and block out the sun!',8598,1,0,0,'ossirian SAY_AGGRO'),
 (-1509026,'You are terminated.',8602,1,0,0,'ossirian SAY_SLAY'),
-(-1509027,'I...have...failed.',8594,1,0,0,'ossirian SAY_DEATH');
+(-1509027,'I...have...failed.',8594,1,0,0,'ossirian SAY_DEATH'),
+-- 28 (above) = EMOTE_ENERGIZING
+(-1509029,'Come get some!',0,0,0,0,'andorov SAY_ANDOROV_INTRO_4'),
+(-1509030,'Kill first, ask questions later... Incoming!',0,1,0,0,'andorov SAY_ANDOROV_ATTACK_START'),
+(-1509031,'I lied...',0,1,0,0,'andorov SAY_ANDOROV_INTRO_2');
 
 -- -1 531 000 TEMPLE OF AHN'QIRAJ
 INSERT INTO script_texts (entry,content_default,sound,type,language,emote,comment) VALUES
@@ -1789,7 +1793,7 @@ INSERT INTO script_texts (entry,content_default,sound,type,language,emote,commen
 (-1534016,'We have played our part and done well. It is up to the others now.',11035,1,0,0,'thrall hyjal SUCCESS'),
 (-1534017,'Uraaa...',11034,1,0,0,'thrall hyjal DEATH'),
 
-(-1534018,'All of your efforts have been in vain, for the draining of the World Tree has already begun. Soon the heart of your world will beat no more.',10986,1,0,0,'archimonde SAY_PRE_EVENTS_COMPLETE'),
+(-1534018,'All of your efforts have been in vain, for the draining of the World Tree has already begun. Soon the heart of your world will beat no more.',10986,6,0,0,'archimonde SAY_PRE_EVENTS_COMPLETE'),
 (-1534019,'Your resistance is insignificant.',10987,1,0,0,'archimonde SAY_AGGRO'),
 (-1534020,'This world will burn!',10990,1,0,0,'archimonde SAY_DOOMFIRE1'),
 (-1534021,'Manach sheek-thrish!',11041,1,0,0,'archimonde SAY_DOOMFIRE2'),
@@ -2083,7 +2087,9 @@ INSERT INTO script_texts (entry,content_default,sound,type,language,emote,commen
 (-1550041,'This is not over!',11118,1,0,0,'capernian SAY_CAPERNIAN_DEATH'),
 
 (-1550042,'Anar\'alah belore!',11157,1,0,0,'telonicus SAY_TELONICUS_AGGRO'),
-(-1550043,'More perils... await',11158,1,0,0,'telonicus SAY_TELONICUS_DEATH');
+(-1550043,'More perils... await',11158,1,0,0,'telonicus SAY_TELONICUS_DEATH'),
+
+(-1550044,'%s begins to cast Pyroblast!',0,3,0,0,'kaelthas EMOTE_PYROBLAST');
 
 -- -1 552 000 THE ARCATRAZ
 INSERT INTO script_texts (entry,content_default,sound,type,language,emote,comment) VALUES
@@ -2240,8 +2246,10 @@ INSERT INTO script_texts (entry,content_default,sound,type,language,emote,commen
 (-1556016,'No! How can this be?',0,1,0,0,'anzu SAY_INTRO_1'),
 (-1556017,'Pain will be the price for your insolence! You cannot stop me from claiming the Emerald Dream as my own!',0,1,0,0,'anzu SAY_INTRO_2'),
 (-1556018,'Awaken, my children and assist your master!',0,1,0,0,'anzu SAY_BANISH'),
-(-1556019,'Your magics shall be your undoing... ak-a-ak...',0,4,0,0,'anzu SAY_WHISPER_MAGIC'),
-(-1556020,'%s returns to stone.',0,2,0,0,'anzu EMOTE_BIRD_STONE');
+(-1556019,'Your magics shall be your undoing... ak-a-ak...',0,5,0,0,'anzu SAY_WHISPER_MAGIC_1'),
+(-1556020,'%s returns to stone.',0,2,0,0,'anzu EMOTE_BIRD_STONE'),
+(-1556021,'Your powers... ak-ak... turn against you...',0,5,0,0,'anzu SAY_WHISPER_MAGIC_2'),
+(-1556022,'Your spells... ke-kaw... are weak magics... easy to turn against you...',0,5,0,0,'anzu SAY_WHISPER_MAGIC_3');
 
 -- -1 557 000 MANA TOMBS
 INSERT INTO script_texts (entry,content_default,sound,type,language,emote,comment) VALUES
@@ -2896,13 +2904,14 @@ INSERT INTO script_texts (entry,content_default,sound,type,language,emote,commen
 (-1585021,'It\'s been a kick, really.',12411,1,0,0,'delrissa PlayerDeath5'),
 (-1585022,'Not what I had... planned...',12397,1,0,0,'delrissa SAY_DEATH'),
 
-(-1585023,'Don\'t look so smug! I know what you\'re thinking, but Tempest Keep was merely a set back. Did you honestly believe I would trust the future to some blind, half-night elf mongrel? Oh no, he was merely an instrument, a stepping stone to a much larger plan! It has all led to this, and this time, you will not interfere!',12413,1,0,0,'kaelthas MT SAY_AGGRO'),
+(-1585023,'Don\'t look so smug! I know what you\'re thinking, but Tempest Keep was merely a set back. Did you honestly believe I would trust the future to some blind, half-night elf mongrel?',12413,1,0,0,'kaelthas MT SAY_INTRO_1'),
 (-1585024,'Vengeance burns!',12415,1,0,0,'kaelthas MT SAY_PHOENIX'),
 (-1585025,'Felomin ashal!',12417,1,0,0,'kaelthas MT SAY_FLAMESTRIKE'),
 (-1585026,'I\'ll turn your world... upside... down...',12418,1,0,0,'kaelthas MT SAY_GRAVITY_LAPSE'),
 (-1585027,'Master... grant me strength.',12419,1,0,0,'kaelthas MT SAY_TIRED'),
 (-1585028,'Do not... get too comfortable.',12420,1,0,0,'kaelthas MT SAY_RECAST_GRAVITY'),
-(-1585029,'My demise accomplishes nothing! The Master will have you! You will drown in your own blood! This world shall burn! Aaaghh!',12421,1,0,0,'kaelthas MT SAY_DEATH');
+(-1585029,'My demise accomplishes nothing! The Master will have you! You will drown in your own blood! This world shall burn! Aaaghh!',12421,1,0,0,'kaelthas MT SAY_DEATH'),
+(-1585030,'Oh no, he was merely an instrument, a stepping stone to a much larger plan! It has all led to this, and this time, you will not interfere!',0,1,0,0,'kaelthas MT SAY_INTRO_2');
 
 -- -1 595 000 CULLING OF STRATHOLME
 
@@ -3063,7 +3072,7 @@ INSERT INTO script_texts (entry,content_default,sound,type,language,emote,commen
 
 (-1602018,'What hope is there for you? None!',14162,1,0,0,'loken SAY_AGGRO0'),
 (-1602019,'I have witnessed the rise and fall of empires. The birth and extinction of entire species. Over countless millennia the foolishness of mortals has remained beyond a constant. Your presence here confirms this.',14160,1,0,0,'loken SAY_INTRO_1'),
-(-1602020,'My master has shown me the future, and you have no place in it. Azeroth will be reborn in darkness. Yogg-Saron shall be released! The Pantheon shall fall!',14162,1,0,0,'loken SAY_INTRO_2'),
+(-1602020,'My master has shown me the future, and you have no place in it. Azeroth will be reborn in darkness. Yogg-Saron shall be released! The Pantheon shall fall!',14161,1,0,0,'loken SAY_INTRO_2'),
 (-1602021,'Only mortal...',14166,1,0,0,'loken SAY_SLAY_1'),
 (-1602022,'I... am... FOREVER!',14167,1,0,0,'loken SAY_SLAY_2'),
 (-1602023,'What little time you had, you wasted!',14168,1,0,0,'loken SAY_SLAY_3'),
@@ -4211,6 +4220,21 @@ INSERT INTO gossip_texts (entry,content_default,comment) VALUES
 
 (-3469003,'I cannot, Vaelastrasz! Surely something can be done to heal you!','vaelastrasz GOSSIP_ITEM_VAEL_1'),
 (-3469004,'Vaelastrasz, no!!!','vaelastrasz GOSSIP_ITEM_VAEL_2');
+
+-- -3 509 000 RUINS OF AHN'QIRAJ
+INSERT INTO gossip_texts (entry,content_default,comment) VALUES
+(-3509000,'Let\'s find out.','andorov GOSSIP_ITEM_START'),
+(-3509001,'Let\'s see what you have.','andorov GOSSIP_ITEM_TRADE');
+
+-- -3 534 000 THE BATTLE OF MT. HYJAL
+INSERT INTO gossip_texts (entry,content_default,comment) VALUES
+(-3534000,'My companions and I are with you, Lady Proudmoore.','jaina GOSSIP_ITEM_JAIN_START'),
+(-3534001,'We are ready for whatever Archimonde might send our way, Lady Proudmoore.','jaina GOSSIP_ITEM_ANATHERON'),
+(-3534002,'Until we meet again, Lady Proudmoore.','jaina GOSSIP_ITEM_SUCCESS'),
+(-3534003,'I am with you, Thrall.','thrall GOSSIP_ITEM_THRALL_START'),
+(-3534004,'We have nothing to fear.','thrall GOSSIP_ITEM_AZGALOR'),
+(-3534005,'Until we meet again, Thrall.','thrall GOSSIP_ITEM_SUCCESS'),
+(-3534006,'I would be grateful for any aid you can provide, Priestess.','tyrande GOSSIP_ITEM_AID');
 
 -- -3 560 000 ESCAPE FROM DURNHOLDE (OLD HILLSBRAD)
 INSERT INTO gossip_texts (entry,content_default,comment) VALUES

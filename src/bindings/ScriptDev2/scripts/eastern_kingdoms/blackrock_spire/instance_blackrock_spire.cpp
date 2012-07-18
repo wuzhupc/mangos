@@ -126,7 +126,7 @@ void instance_blackrock_spire::OnObjectCreate(GameObject* pGo)
         case GO_ROOM_6_RUNE: m_aRoomRuneGuid[5] = pGo->GetObjectGuid(); return;
         case GO_ROOM_7_RUNE: m_aRoomRuneGuid[6] = pGo->GetObjectGuid(); return;
 
-        case GO_ROOKERY_EGG: m_lRookeryEggGUIDList.push_back(pGo->GetObjectGuid());   return;
+        case GO_ROOKERY_EGG: m_lRookeryEggGuidList.push_back(pGo->GetObjectGuid());   return;
 
         case GO_EMBERSEER_RUNE_1:
         case GO_EMBERSEER_RUNE_2:
@@ -135,7 +135,7 @@ void instance_blackrock_spire::OnObjectCreate(GameObject* pGo)
         case GO_EMBERSEER_RUNE_5:
         case GO_EMBERSEER_RUNE_6:
         case GO_EMBERSEER_RUNE_7:
-            m_lEmberseerRunesGUIDList.push_back(pGo->GetObjectGuid());
+            m_lEmberseerRunesGuidList.push_back(pGo->GetObjectGuid());
             return;
 
         default:
@@ -157,8 +157,8 @@ void instance_blackrock_spire::OnCreatureCreate(Creature* pCreature)
             break;
 
         case NPC_BLACKHAND_SUMMONER:
-        case NPC_BLACKHAND_VETERAN:      m_lRoomEventMobGUIDList.push_back(pCreature->GetObjectGuid()); break;
-        case NPC_BLACKHAND_INCARCERATOR: m_lIncarceratorGUIDList.push_back(pCreature->GetObjectGuid()); break;
+        case NPC_BLACKHAND_VETERAN:      m_lRoomEventMobGuidList.push_back(pCreature->GetObjectGuid()); break;
+        case NPC_BLACKHAND_INCARCERATOR: m_lIncarceratorGuidList.push_back(pCreature->GetObjectGuid()); break;
     }
 }
 
@@ -180,7 +180,7 @@ void instance_blackrock_spire::SetData(uint32 uiType, uint32 uiData)
             // Respawn all incarcerators and reset the runes on FAIL
             if (uiData == FAIL)
             {
-                for (GUIDList::const_iterator itr = m_lIncarceratorGUIDList.begin(); itr != m_lIncarceratorGUIDList.end(); ++itr)
+                for (GuidList::const_iterator itr = m_lIncarceratorGuidList.begin(); itr != m_lIncarceratorGuidList.end(); ++itr)
                 {
                     if (Creature* pIncarcerator = instance->GetCreature(*itr))
                     {
@@ -316,7 +316,7 @@ void instance_blackrock_spire::DoSortRoomEventMobs()
     {
         if (GameObject* pRune = instance->GetGameObject(m_aRoomRuneGuid[i]))
         {
-            for (GUIDList::const_iterator itr = m_lRoomEventMobGUIDList.begin(); itr != m_lRoomEventMobGUIDList.end(); ++itr)
+            for (GuidList::const_iterator itr = m_lRoomEventMobGuidList.begin(); itr != m_lRoomEventMobGuidList.end(); ++itr)
             {
                 Creature* pCreature = instance->GetCreature(*itr);
                 if (pCreature && pCreature->isAlive() && pCreature->GetDistance(pRune) < 10.0f)
@@ -395,7 +395,7 @@ void instance_blackrock_spire::DoProcessEmberseerEvent()
     if (GetData(TYPE_EMBERSEER) == DONE || GetData(TYPE_EMBERSEER) == IN_PROGRESS)
         return;
 
-    if (m_lIncarceratorGUIDList.empty())
+    if (m_lIncarceratorGuidList.empty())
     {
         error_log("SD2: Npc %u couldn't be found. Please check your DB content!", NPC_BLACKHAND_INCARCERATOR);
         return;
@@ -413,7 +413,7 @@ void instance_blackrock_spire::DoProcessEmberseerEvent()
     }
 
     // remove the incarcerators flags and stop casting
-    for (GUIDList::const_iterator itr = m_lIncarceratorGUIDList.begin(); itr != m_lIncarceratorGUIDList.end(); ++itr)
+    for (GuidList::const_iterator itr = m_lIncarceratorGuidList.begin(); itr != m_lIncarceratorGuidList.end(); ++itr)
     {
         if (Creature* pCreature = instance->GetCreature(*itr))
         {
@@ -428,10 +428,10 @@ void instance_blackrock_spire::DoProcessEmberseerEvent()
 
 void instance_blackrock_spire::DoUseEmberseerRunes(bool bReset)
 {
-    if (m_lEmberseerRunesGUIDList.empty())
+    if (m_lEmberseerRunesGuidList.empty())
         return;
 
-    for (GUIDList::const_iterator itr = m_lEmberseerRunesGUIDList.begin(); itr != m_lEmberseerRunesGUIDList.end(); itr++)
+    for (GuidList::const_iterator itr = m_lEmberseerRunesGuidList.begin(); itr != m_lEmberseerRunesGuidList.end(); itr++)
     {
         if (bReset)
         {

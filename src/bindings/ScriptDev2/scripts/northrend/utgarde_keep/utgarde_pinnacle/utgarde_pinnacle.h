@@ -102,10 +102,10 @@ class MANGOS_DLL_DECL instance_pinnacle : public ScriptedInstance
         uint32 m_auiEncounter[MAX_ENCOUNTER];
         std::string m_strInstData;
 
-        GUIDList m_lFlameBraziersList;
+        GuidList m_lFlameBraziersList;
 
-        GUIDList m_lFlameBreathTriggerRight;
-        GUIDList m_lFlameBreathTriggerLeft;
+        GuidList m_lFlameBreathTriggerRight;
+        GuidList m_lFlameBreathTriggerLeft;
 
         ObjectGuid m_gortokOrb;
 

@@ -732,9 +732,9 @@ bool Player::Create( uint32 guidlow, const std::string& name, uint8 race, uint8 
     LoadAccountLinkedState();
 
     if (GetAccountLinkedState() != STATE_NOT_LINKED)
-        SetByteValue(PLAYER_BYTES_2, 3, 0x06);              // rest state = refer-a-friend
+        SetByteValue(PLAYER_BYTES_2, 3, REST_STATE_NORMAL | REST_STATE_RAF_LINKED);
     else
-        SetByteValue(PLAYER_BYTES_2, 3, 0x02);              // rest state = normal
+        SetByteValue(PLAYER_BYTES_2, 3, REST_STATE_NORMAL);
 
     SetUInt16Value(PLAYER_BYTES_3, 0, gender);              // only GENDER_MALE/GENDER_FEMALE (1 bit) allowed, drunk state = 0
     SetByteValue(PLAYER_BYTES_3, 3, 0);                     // BattlefieldArenaFaction (0 or 1)
@@ -1156,7 +1156,7 @@ void Player::HandleDrowning(uint32 time_diff)
             SendMirrorTimer(FATIGUE_TIMER, DarkWaterTime, m_MirrorTimer[FATIGUE_TIMER], 10);
     }
 
-    if (m_MirrorTimerFlags & (UNDERWATER_INLAVA /*| UNDERWATER_INSLIME*/) && !(m_lastLiquid && m_lastLiquid->SpellId))
+    if ((m_MirrorTimerFlags & (UNDERWATER_INLAVA /*| UNDERWATER_INSLIME*/)) && !(m_lastLiquid && m_lastLiquid->SpellId))
     {
         // Breath timer not activated - activate it
         if (m_MirrorTimer[FIRE_TIMER] == DISABLED_MIRROR_TIMER)
@@ -1734,23 +1734,22 @@ void Player::ToggleDND()
     ToggleFlag(PLAYER_FLAGS, PLAYER_FLAGS_DND);
 }
 
-uint8 Player::chatTag() const
+uint8 Player::GetChatTag() const
 {
-    // it's bitmask
-    // 0x1 - afk
-    // 0x2 - dnd
-    // 0x4 - gm
-    // 0x8 - ??
-
-    if (isGMChat())                                         // Always show GM icons if activated
-        return 4;
+    uint8 tag = CHAT_TAG_NONE;
 
     if (isAFK())
-        return 1;
+        tag |= CHAT_TAG_AFK;
     if (isDND())
-        return 3;
+        tag |= CHAT_TAG_DND;
+    if (isGMChat())
+        tag |= CHAT_TAG_GM;
+    if (HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_COMMENTATOR))
+        tag |= CHAT_TAG_COM;
+    if (HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_DEVELOPER))
+        tag |= CHAT_TAG_DEV;
 
-    return 0;
+    return tag;
 }
 
 bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientation, uint32 options)
@@ -4766,7 +4765,7 @@ void Player::ResurrectPlayer(float restore_percent, bool applySickness)
         CastSpell(this,SPELL_ID_PASSIVE_RESURRECTION_SICKNESS,true);
 
         // not full duration
-        if (int32(getLevel()) < startLevel+9)
+        if (int32(getLevel()) < startLevel+70)
         {
             int32 delta = (int32(getLevel()) - startLevel + 1)*MINUTE/10; //wuzhu ÐÞ¸ÄËÀÍöÊ±ÐéÈõÀäÈ´Ê±¼ä
 
@@ -19679,7 +19678,7 @@ void Player::BuildPlayerChat(WorldPacket *data, uint8 msgtype, const std::string
     *data << ObjectGuid(GetObjectGuid());
     *data << uint32(text.length()+1);
     *data << text;
-    *data << uint8(chatTag());
+    *data << uint8(GetChatTag());
 }
 
 void Player::Say(const std::string& text, const uint32 language)
@@ -20130,13 +20129,13 @@ void Player::SetRestBonus (float rest_bonus_new)
 
     // update data for client
     if (GetAccountLinkedState() != STATE_NOT_LINKED)
-        SetByteValue(PLAYER_BYTES_2, 3, 0x06);                  // Set Reststate = Refer-A-Friend
+        SetByteValue(PLAYER_BYTES_2, 3, REST_STATE_NORMAL | REST_STATE_RAF_LINKED);
     else
     {
-        if (m_rest_bonus>10)
-            SetByteValue(PLAYER_BYTES_2, 3, 0x01);              // Set Reststate = Rested
-        else if (m_rest_bonus<=1)
-            SetByteValue(PLAYER_BYTES_2, 3, 0x02);              // Set Reststate = Normal
+        if (m_rest_bonus > 10)
+            SetByteValue(PLAYER_BYTES_2, 3, REST_STATE_RESTED);
+        else if (m_rest_bonus <= 1)
+            SetByteValue(PLAYER_BYTES_2, 3, REST_STATE_NORMAL);
     }
 
     //RestTickUpdate
@@ -21551,13 +21550,13 @@ void Player::UpdateVisibilityOf(WorldObject const* viewPoint, WorldObject* targe
 }
 
 template<class T>
-inline void UpdateVisibilityOf_helper(ObjectGuidSet& s64, T* target)
+inline void UpdateVisibilityOf_helper(GuidSet& s64, T* target)
 {
     s64.insert(target->GetObjectGuid());
 }
 
 template<>
-inline void UpdateVisibilityOf_helper(ObjectGuidSet& s64, GameObject* target)
+inline void UpdateVisibilityOf_helper(GuidSet& s64, GameObject* target)
 {
     if(!target->IsTransport())
         s64.insert(target->GetObjectGuid());
@@ -22241,7 +22240,7 @@ void Player::UpdateForQuestWorldObjects()
 
     UpdateData udata;
     WorldPacket packet;
-    for(ObjectGuidSet::const_iterator itr=m_clientGUIDs.begin(); itr!=m_clientGUIDs.end(); ++itr)
+    for(GuidSet::const_iterator itr=m_clientGUIDs.begin(); itr!=m_clientGUIDs.end(); ++itr)
     {
         if (itr->IsGameObject())
         {

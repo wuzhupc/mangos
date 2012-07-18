@@ -71,9 +71,9 @@ class MANGOS_DLL_DECL instance_zulgurub : public ScriptedInstance
         uint32 m_auiEncounter[MAX_ENCOUNTER];
         std::string m_strInstData;
 
-        GUIDList m_lRightPantherTriggerGUIDList;
-        GUIDList m_lLeftPantherTriggerGUIDList;
-        GUIDList m_lSpiderEggGUIDList;
+        GuidList m_lRightPantherTriggerGuidList;
+        GuidList m_lLeftPantherTriggerGuidList;
+        GuidList m_lSpiderEggGuidList;
 
         bool m_bHasIntroYelled;
         bool m_bHasAltarYelled;

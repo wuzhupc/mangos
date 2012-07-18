@@ -189,7 +189,7 @@ struct MANGOS_DLL_DECL npc_grimstoneAI : public npc_escortAI
 
     uint32 m_uiGladiatorId[MAX_THELDREN_ADDS];
 
-    GUIDList m_lSummonedGUIDList;
+    GuidList m_lSummonedGuidList;
 
     void Reset()
     {
@@ -214,7 +214,7 @@ struct MANGOS_DLL_DECL npc_grimstoneAI : public npc_escortAI
         m_creature->GetRandomPoint(fX, fY, fZ, 10.0f, fcX, fcY, fcZ);
         pSummoned->GetMotionMaster()->MovePoint(1, fcX, fcY, fcZ);
 
-        m_lSummonedGUIDList.push_back(pSummoned->GetObjectGuid());
+        m_lSummonedGuidList.push_back(pSummoned->GetObjectGuid());
     }
 
     void DoChallengeQuestCredit()
@@ -324,12 +324,12 @@ struct MANGOS_DLL_DECL npc_grimstoneAI : public npc_escortAI
             }
 
             // Despawn Summoned Mobs
-            for (GUIDList::const_iterator itr = m_lSummonedGUIDList.begin(); itr != m_lSummonedGUIDList.end(); ++itr)
+            for (GuidList::const_iterator itr = m_lSummonedGuidList.begin(); itr != m_lSummonedGuidList.end(); ++itr)
             {
                 if (Creature* pSummoned = m_creature->GetMap()->GetCreature(*itr))
                     pSummoned->ForcedDespawn();
             }
-            m_lSummonedGUIDList.clear();
+            m_lSummonedGuidList.clear();
 
             // Despawn NPC
             m_creature->ForcedDespawn();
@@ -414,7 +414,7 @@ struct MANGOS_DLL_DECL npc_grimstoneAI : public npc_escortAI
                         break;
                     case 10:
                         // Boss dead
-                        m_lSummonedGUIDList.clear();
+                        m_lSummonedGuidList.clear();
                         m_pInstance->DoUseDoorOrButton(GO_ARENA_2);
                         m_pInstance->DoUseDoorOrButton(GO_ARENA_3);
                         m_pInstance->DoUseDoorOrButton(GO_ARENA_4);

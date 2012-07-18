@@ -68,6 +68,15 @@ void instance_zulaman::OnCreatureCreate(Creature* pCreature)
         case NPC_EAGLE_SPIRIT:
         case NPC_LYNX_SPIRIT:
         case NPC_DRAGONHAWK_SPIRIT:
+        // Insert Malacrass companions here for better handling
+        case NPC_ALYSON:
+        case NPC_THURG:
+        case NPC_SLITHER:
+        case NPC_RADAAN:
+        case NPC_GAZAKROTH:
+        case NPC_FENSTALKER:
+        case NPC_DARKHEART:
+        case NPC_KORAGG:
             m_mNpcEntryGuidStore[pCreature->GetEntry()] = pCreature->GetObjectGuid();
             break;
 
@@ -78,7 +87,7 @@ void instance_zulaman::OnCreatureCreate(Creature* pCreature)
 
         case NPC_EGG:
             if (m_auiEncounter[TYPE_JANALAI] != DONE)
-                m_lEggsGUIDList.push_back(pCreature->GetObjectGuid());
+                m_lEggsGuidList.push_back(pCreature->GetObjectGuid());
             break;
 
         case NPC_MEDICINE_MAN:
@@ -135,7 +144,7 @@ void instance_zulaman::OnCreatureEvade(Creature* pCreature)
         case NPC_TRIBES_MAN:
         case NPC_WARBRINGER:
         case NPC_AXETHROWER:
-            for (GUIDSet::const_iterator itr = m_aNalorakkEvent[m_uiBearEventPhase].sBearTrashGuidSet.begin(); itr != m_aNalorakkEvent[m_uiBearEventPhase].sBearTrashGuidSet.end(); ++itr)
+            for (GuidSet::const_iterator itr = m_aNalorakkEvent[m_uiBearEventPhase].sBearTrashGuidSet.begin(); itr != m_aNalorakkEvent[m_uiBearEventPhase].sBearTrashGuidSet.end(); ++itr)
             {
                 Creature* pTemp = instance->GetCreature(*itr);
                 if (pTemp && !pTemp->isAlive())
@@ -259,7 +268,7 @@ void instance_zulaman::SetData(uint32 uiType, uint32 uiData)
                 m_uiEggsRemainingCount_Left = 20;
                 m_uiEggsRemainingCount_Right = 20;
 
-                for(GUIDList::const_iterator itr = m_lEggsGUIDList.begin(); itr != m_lEggsGUIDList.end(); ++itr)
+                for(GuidList::const_iterator itr = m_lEggsGuidList.begin(); itr != m_lEggsGuidList.end(); ++itr)
                 {
                     if (Creature* pEgg = instance->GetCreature(*itr))
                     {
@@ -270,7 +279,7 @@ void instance_zulaman::SetData(uint32 uiType, uint32 uiData)
             }
             if (uiData == DONE)
             {
-                m_lEggsGUIDList.clear();
+                m_lEggsGuidList.clear();
 
                 if (m_auiEncounter[TYPE_EVENT_RUN] == IN_PROGRESS)
                     DoChestEvent(INDEX_JANALAI);
@@ -395,7 +404,7 @@ uint32 instance_zulaman::GetData(uint32 uiType)
 
 void instance_zulaman::SendNextBearWave(Unit* pTarget)
 {
-    for (GUIDSet::const_iterator itr = m_aNalorakkEvent[m_uiBearEventPhase].sBearTrashGuidSet.begin(); itr != m_aNalorakkEvent[m_uiBearEventPhase].sBearTrashGuidSet.end(); ++itr)
+    for (GuidSet::const_iterator itr = m_aNalorakkEvent[m_uiBearEventPhase].sBearTrashGuidSet.begin(); itr != m_aNalorakkEvent[m_uiBearEventPhase].sBearTrashGuidSet.end(); ++itr)
     {
         Creature* pTemp = instance->GetCreature(*itr);
         if (pTemp && pTemp->isAlive())

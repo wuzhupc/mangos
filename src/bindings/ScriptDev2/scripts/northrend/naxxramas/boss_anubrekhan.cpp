@@ -74,7 +74,7 @@ struct MANGOS_DLL_DECL boss_anubrekhanAI : public ScriptedAI
     uint32 m_uiSummonTimer;
     bool   m_bHasTaunted;
 
-    GUIDList m_lSummonedGUIDList;
+    GuidList m_lSummonedGuidList;
 
     void Reset()
     {
@@ -85,12 +85,12 @@ struct MANGOS_DLL_DECL boss_anubrekhanAI : public ScriptedAI
 
     void DespawnSummonedCreatures()
     {
-        for (GUIDList::const_iterator itr = m_lSummonedGUIDList.begin(); itr != m_lSummonedGUIDList.end(); ++itr)
+        for (GuidList::const_iterator itr = m_lSummonedGuidList.begin(); itr != m_lSummonedGuidList.end(); ++itr)
         {
             if (Creature* pSummoned = m_creature->GetMap()->GetCreature(*itr))
                 pSummoned->ForcedDespawn();
         }
-        m_lSummonedGUIDList.clear();
+        m_lSummonedGuidList.clear();
     }
 
     void SummonCryptGuards() // Only 25Players
@@ -98,9 +98,9 @@ struct MANGOS_DLL_DECL boss_anubrekhanAI : public ScriptedAI
         if (m_bIsRegularMode)
             return;
         if (Creature* pSummoned = m_creature->SummonCreature(NPC_CRYPT_GUARD, 3301.05f, -3503.52f, 287.078f, 2.33316f, TEMPSUMMON_DEAD_DESPAWN, 0))
-            m_lSummonedGUIDList.push_back(pSummoned->GetObjectGuid());
+            m_lSummonedGuidList.push_back(pSummoned->GetObjectGuid());
         if (Creature* pSummoned = m_creature->SummonCreature(NPC_CRYPT_GUARD, 3301.42f, -3448.52f, 287.078f, 3.92752f, TEMPSUMMON_DEAD_DESPAWN, 0))
-            m_lSummonedGUIDList.push_back(pSummoned->GetObjectGuid());
+            m_lSummonedGuidList.push_back(pSummoned->GetObjectGuid());
     }
 
     void KilledUnit(Unit* pVictim)
@@ -129,7 +129,7 @@ struct MANGOS_DLL_DECL boss_anubrekhanAI : public ScriptedAI
         {
             case NPC_CRYPT_GUARD:
             case NPC_CORPSE_SCARAB:
-                m_lSummonedGUIDList.push_back(pSummoned->GetObjectGuid());
+                m_lSummonedGuidList.push_back(pSummoned->GetObjectGuid());
                 if (m_creature->isInCombat())
                     pSummoned->SetInCombatWithZone();
                 break;
@@ -148,7 +148,7 @@ struct MANGOS_DLL_DECL boss_anubrekhanAI : public ScriptedAI
         if (m_pInstance)
             m_pInstance->SetData(TYPE_ANUB_REKHAN, IN_PROGRESS);
 
-        for (GUIDList::const_iterator itr = m_lSummonedGUIDList.begin(); itr != m_lSummonedGUIDList.end(); ++itr)
+        for (GuidList::const_iterator itr = m_lSummonedGuidList.begin(); itr != m_lSummonedGuidList.end(); ++itr)
         {
             if (Creature* pSummoned = m_creature->GetMap()->GetCreature(*itr))
                 pSummoned->SetInCombatWithZone();
@@ -160,7 +160,7 @@ struct MANGOS_DLL_DECL boss_anubrekhanAI : public ScriptedAI
         if (m_pInstance)
             m_pInstance->SetData(TYPE_ANUB_REKHAN, DONE);
 
-        m_lSummonedGUIDList.clear();
+        m_lSummonedGuidList.clear();
     }
 
     void JustReachedHome()

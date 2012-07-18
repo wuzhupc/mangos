@@ -756,11 +756,17 @@ uint32 Unit::DealDamage(Unit *pVictim, DamageInfo* damageInfo, bool durabilityLo
     // Blessed Life talent of Paladin
     if ( pVictim->GetTypeId() == TYPEID_PLAYER )
     {
-        Unit::AuraList const& BlessedLife = pVictim->GetAurasByType(SPELL_AURA_PROC_TRIGGER_SPELL);
-        for(Unit::AuraList::const_iterator i = BlessedLife.begin(); i != BlessedLife.end(); ++i)
-            if((*i)->GetSpellProto()->SpellFamilyName == SPELLFAMILY_PALADIN && (*i)->GetSpellProto()->SpellIconID == 2137)
-                if ( urand(0,100) < (*i)->GetSpellProto()->procChance )
-                    damageInfo->damage *= 0.5;
+        AuraList const& BlessedLife = pVictim->GetAurasByType(SPELL_AURA_PROC_TRIGGER_SPELL);
+        for (AuraList::const_iterator i = BlessedLife.begin(); i != BlessedLife.end(); ++i)
+        {
+            Aura* aura = *i;
+            if (!aura || !aura->GetHolder() || aura->GetHolder()->IsDeleted())
+                continue;
+
+            if (aura->GetSpellProto()->SpellFamilyName == SPELLFAMILY_PALADIN && aura->GetSpellProto()->SpellIconID == 2137)
+                if ( urand(0,100) < aura->GetSpellProto()->procChance )
+                    damageInfo->damage *= 0.5f;
+        }
     }
 
     if(!damageInfo->damage)
@@ -786,26 +792,14 @@ uint32 Unit::DealDamage(Unit *pVictim, DamageInfo* damageInfo, bool durabilityLo
         // If (this) is TYPEID_PLAYER, (this) will enter combat w/victim, but after some time, automatically leave combat.
         // It is unclear how it should work for other cases.
 
-        ((Creature*)pVictim)->SetLootRecipient(this);
+        DEBUG_FILTER_LOG(LOG_FILTER_DAMAGE, "Unit::DealDamage critter, critter %s dies", pVictim->GetObjectGuid().GetString().c_str());
 
         pVictim->SetDeathState(JUST_DIED);
         pVictim->SetHealth(0);
 
-        // allow loot only if has loot_id in creature_template
-        ((Creature*)pVictim)->PrepareBodyLootState();
-        ((Creature*)pVictim)->AllLootRemovedFromCorpse();
+        ((Creature*)pVictim)->SetLootRecipient(this);
 
-        // some critters required for quests (need normal entry instead possible heroic in any cases)
-        if (GetTypeId() == TYPEID_PLAYER)
-        {
-            if (CreatureInfo const* normalInfo = ObjectMgr::GetCreatureTemplate(pVictim->GetEntry()))
-                ((Player*)this)->KilledMonster(normalInfo, pVictim->GetObjectGuid());
-        }
-
-        if (InstanceData* mapInstance = pVictim->GetInstanceData())
-            mapInstance->OnCreatureDeath(((Creature*)pVictim));
-
-        DEBUG_FILTER_LOG(LOG_FILTER_DAMAGE, "DealDamage critter, critter dies");
+        JustKilledCreature((Creature*)pVictim);
 
         return damageInfo->damage;
     }
@@ -816,12 +810,16 @@ uint32 Unit::DealDamage(Unit *pVictim, DamageInfo* damageInfo, bool durabilityLo
     AuraList const& vShareDamageAuras = pVictim->GetAurasByType(SPELL_AURA_SHARE_DAMAGE_PCT);
     for (AuraList::const_iterator itr = vShareDamageAuras.begin(); itr != vShareDamageAuras.end(); ++itr)
     {
-        if (Unit* shareTarget = (*itr)->GetCaster())
+        Aura* aura = *itr;
+        if (!aura || !aura->GetHolder() || aura->GetHolder()->IsDeleted())
+            continue;
+
+        if (Unit* shareTarget = aura->GetCaster())
         {
-            if (shareTarget != pVictim && ((*itr)->GetMiscValue() & damageInfo->SchoolMask()))
+            if (shareTarget != pVictim && (aura->GetMiscValue() & damageInfo->SchoolMask()))
             {
-                SpellEntry const * shareSpell = (*itr)->GetSpellProto();
-                uint32 shareDamage = uint32(damageInfo->damage * (*itr)->GetModifier()->m_amount / 100.0f);
+                SpellEntry const* shareSpell = aura->GetSpellProto();
+                uint32 shareDamage = uint32(damageInfo->damage * aura->GetModifier()->m_amount / 100.0f);
                 DealDamageMods(shareTarget, shareDamage, NULL);
                 DealDamage(shareTarget, shareDamage, 0, damageInfo->damageType, GetSpellSchoolMask(shareSpell), spellProto, false);
             }
@@ -925,9 +923,6 @@ uint32 Unit::DealDamage(Unit *pVictim, DamageInfo* damageInfo, bool durabilityLo
         // for loot will be sued only if group_tap==NULL
         Player *player_tap = GetCharmerOrOwnerPlayerOrPlayerItself();
         Group *group_tap = NULL;
-
-        // find owner of pVictim, used for creature cases, AI calls
-        Unit* pOwner = pVictim->GetCharmerOrOwner();
 
         // in creature kill case group/player tap stored for creature
         if (pVictim->GetTypeId() == TYPEID_UNIT)
@@ -1058,82 +1053,8 @@ uint32 Unit::DealDamage(Unit *pVictim, DamageInfo* damageInfo, bool durabilityLo
         }
         else                                                // creature died
         {
-            DEBUG_FILTER_LOG(LOG_FILTER_DAMAGE,"DealDamageNotPlayer");
-            Creature *cVictim = (Creature*)pVictim;
-
-            if(!cVictim->IsPet())
-            {
-                cVictim->DeleteThreatList();
-                // only lootable if it has loot or can drop gold
-                cVictim->PrepareBodyLootState();
-                // may have no loot, so update death timer if allowed
-                cVictim->AllLootRemovedFromCorpse();
-            }
-
-            // if vehicle and has passengers - remove his
-            if (cVictim->GetObjectGuid().IsVehicle())
-            {
-                if (cVictim->GetVehicleKit())
-                    cVictim->GetVehicleKit()->RemoveAllPassengers();
-            }
-
-            // Call creature just died function
-            if (cVictim->AI())
-                cVictim->AI()->JustDied(this);
-
-            if (cVictim->IsTemporarySummon())
-            {
-                TemporarySummon* pSummon = (TemporarySummon*)cVictim;
-                if (pSummon->GetSummonerGuid().IsCreatureOrVehicle())
-                    if(Creature* pSummoner = cVictim->GetMap()->GetCreature(pSummon->GetSummonerGuid()))
-                        if (pSummoner->AI())
-                            pSummoner->AI()->SummonedCreatureJustDied(cVictim);
-            }
-            else if (pOwner && pOwner->GetTypeId() == TYPEID_UNIT)
-            {
-                if (((Creature*)pOwner)->AI())
-                    ((Creature*)pOwner)->AI()->SummonedCreatureJustDied(cVictim);
-            }
-
-            if (InstanceData* mapInstance = cVictim->GetInstanceData())
-                mapInstance->OnCreatureDeath(cVictim);
-
-            m_zoneScript = sWorldPvPMgr.GetZoneScript(GetZoneId());
-            if (m_zoneScript)
-                m_zoneScript->OnCreatureDeath(((Creature*)cVictim));
-
-            if (cVictim->IsLinkingEventTrigger())
-                cVictim->GetMap()->GetCreatureLinkingHolder()->DoCreatureLinkingEvent(LINKING_EVENT_DIE, cVictim);
-
-            // Dungeon specific stuff, only applies to players killing creatures
-            if (cVictim->GetInstanceId())
-            {
-                Map *m = cVictim->GetMap();
-                Player* creditedPlayer = GetCharmerOrOwnerPlayerOrPlayerItself();
-                // TODO: do instance binding anyway if the charmer/owner is offline
-
-                if (m->IsDungeon() && creditedPlayer)
-                {
-                    if (m->IsRaidOrHeroicDungeon())
-                    {
-                        if (cVictim->GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_INSTANCE_BIND)
-                            ((DungeonMap *)m)->PermBindAllPlayers(creditedPlayer);
-                    }
-                    else
-                    {
-                        DungeonPersistentState* save = ((DungeonMap*)m)->GetPersistanceState();
-                        // the reset time is set but not added to the scheduler
-                        // until the players leave the instance
-                        time_t resettime = cVictim->GetRespawnTimeEx() + 2 * HOUR;
-                        if (save->GetResetTime() < resettime)
-                            save->SetResetTime(resettime);
-                    }
-
-                    // update encounter state if needed
-                    if (DungeonPersistentState* state = ((DungeonMap*)m)->GetPersistanceState())
-                        state->UpdateEncounterState(ENCOUNTER_CREDIT_KILL_CREATURE, ((Creature*)cVictim)->GetEntry());
-                }
-            }
+            DEBUG_FILTER_LOG(LOG_FILTER_DAMAGE,"Unit::DealDamage Killed NPC %s", pVictim->GetObjectGuid().GetString().c_str());
+            JustKilledCreature((Creature*)pVictim);
         }
 
         // Reward player, his pets, and group/raid members
@@ -1326,6 +1247,112 @@ struct PetOwnerKilledUnitHelper
     Unit* m_victim;
 };
 
+void Unit::JustKilledCreature(Creature* victim)
+{
+    if (!victim)
+        return;
+
+    if (victim->CanHaveThreatList())
+        victim->DeleteThreatList();
+
+    if (!victim->IsPet())                                   // Prepare loot if can
+    {
+        // only lootable if it has loot or can drop gold
+        victim->PrepareBodyLootState();
+        // may have no loot, so update death timer if allowed
+        victim->AllLootRemovedFromCorpse();
+    }
+
+    // some critters required for quests (need normal entry instead possible heroic in any cases)
+    if (victim->GetCreatureType() == CREATURE_TYPE_CRITTER && GetTypeId() == TYPEID_PLAYER)
+    {
+        if (CreatureInfo const* normalInfo =  sCreatureStorage.LookupEntry<CreatureInfo>(victim->GetEntry()))
+            ((Player*)this)->KilledMonster(normalInfo, victim->GetObjectGuid());
+    }
+
+    // if victim is vehicle and has passengers - remove his
+    if (victim->GetObjectGuid().IsVehicle())
+    {
+        if (victim->GetVehicleKit())
+            victim->GetVehicleKit()->RemoveAllPassengers();
+    }
+
+    // Interrupt channeling spell when a Possessed Summoned is killed
+    SpellEntry const* spellInfo = sSpellStore.LookupEntry(victim->GetUInt32Value(UNIT_CREATED_BY_SPELL));
+    if (spellInfo && spellInfo->HasAttribute(SPELL_ATTR_EX_FARSIGHT) && spellInfo->HasAttribute(SPELL_ATTR_EX_CHANNELED_1))
+    {
+        Unit* creator = GetMap()->GetUnit(victim->GetCreatorGuid());
+        if (creator && creator->GetCharmGuid() == victim->GetObjectGuid())
+        {
+            Spell* channeledSpell = creator->GetCurrentSpell(CURRENT_CHANNELED_SPELL);
+            if (channeledSpell && channeledSpell->m_spellInfo->Id == spellInfo->Id)
+                creator->InterruptNonMeleeSpells(false);
+        }
+    }
+
+    /* ******************************* Inform various hooks ************************************ */
+    // Inform victim's AI
+    if (victim->AI())
+        victim->AI()->JustDied(this);
+
+    // Inform Owner
+    Unit* pOwner = victim->GetCharmerOrOwner();
+    if (victim->IsTemporarySummon())
+    {
+        TemporarySummon* pSummon = (TemporarySummon*)victim;
+        if (pSummon->GetSummonerGuid().IsCreatureOrVehicle())
+            if(Creature* pSummoner = victim->GetMap()->GetCreature(pSummon->GetSummonerGuid()))
+                if (pSummoner->AI())
+                    pSummoner->AI()->SummonedCreatureJustDied(victim);
+    }
+    else if (pOwner && pOwner->GetTypeId() == TYPEID_UNIT)
+    {
+        if (((Creature*)pOwner)->AI())
+            ((Creature*)pOwner)->AI()->SummonedCreatureJustDied(victim);
+    }
+
+    // Inform Instance Data and Linking
+    if (InstanceData* mapInstance = victim->GetInstanceData())
+        mapInstance->OnCreatureDeath(victim);
+
+    m_zoneScript = sWorldPvPMgr.GetZoneScript(GetZoneId());
+    if (m_zoneScript)
+        m_zoneScript->OnCreatureDeath(victim);
+
+    if (victim->IsLinkingEventTrigger())
+        victim->GetMap()->GetCreatureLinkingHolder()->DoCreatureLinkingEvent(LINKING_EVENT_DIE, victim);
+
+    // Dungeon specific stuff
+    if (victim->GetInstanceId())
+    {
+        Map* m = victim->GetMap();
+        Player* creditedPlayer = GetCharmerOrOwnerPlayerOrPlayerItself();
+        // TODO: do instance binding anyway if the charmer/owner is offline
+
+        if (m->IsDungeon() && creditedPlayer)
+        {
+            if (m->IsRaidOrHeroicDungeon())
+            {
+                if (victim->GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_INSTANCE_BIND)
+                    ((DungeonMap*)m)->PermBindAllPlayers(creditedPlayer);
+            }
+            else
+            {
+                DungeonPersistentState* save = ((DungeonMap*)m)->GetPersistanceState();
+                // the reset time is set but not added to the scheduler
+                // until the players leave the instance
+                time_t resettime = victim->GetRespawnTimeEx() + 2 * HOUR;
+                if (save->GetResetTime() < resettime)
+                    save->SetResetTime(resettime);
+            }
+
+            // update encounter state if needed
+            if (DungeonPersistentState* state = ((DungeonMap*)m)->GetPersistanceState())
+                state->UpdateEncounterState(ENCOUNTER_CREDIT_KILL_CREATURE, victim->GetEntry());
+        }
+    }
+}
+
 void Unit::PetOwnerKilledUnit(Unit* pVictim)
 {
     // for minipet and guardians (including protector)
@@ -1410,6 +1437,13 @@ void Unit::CastSpell(Unit* Victim, SpellEntry const *spellInfo, bool triggered, 
 
     SpellCastTargets targets;
     targets.setUnitTarget( Victim );
+
+    if (spellInfo->Targets & TARGET_FLAG_DEST_LOCATION)
+        targets.setDestination(Victim->GetPositionX(), Victim->GetPositionY(), Victim->GetPositionZ());
+    if (spellInfo->Targets & TARGET_FLAG_SOURCE_LOCATION)
+        if (WorldObject* caster = spell->GetCastingObject())
+            targets.setSource(caster->GetPositionX(), caster->GetPositionY(), caster->GetPositionZ());
+
     spell->m_CastItem = castItem;
     spell->prepare(&targets, triggeredByAura);
 
@@ -1487,6 +1521,13 @@ void Unit::CastCustomSpell(Unit* Victim, SpellEntry const *spellInfo, int32 cons
     SpellCastTargets targets;
     targets.setUnitTarget( Victim );
     spell->m_CastItem = castItem;
+
+    if (spellInfo->Targets & TARGET_FLAG_DEST_LOCATION)
+        targets.setDestination(Victim->GetPositionX(), Victim->GetPositionY(), Victim->GetPositionZ());
+    if (spellInfo->Targets & TARGET_FLAG_SOURCE_LOCATION)
+        if (WorldObject* caster = spell->GetCastingObject())
+            targets.setSource(caster->GetPositionX(), caster->GetPositionY(), caster->GetPositionZ());
+
     spell->prepare(&targets, triggeredByAura);
 }
 
@@ -1536,7 +1577,16 @@ void Unit::CastSpell(float x, float y, float z, SpellEntry const *spellInfo, boo
     Spell *spell = new Spell(this, spellInfo, triggered, originalCaster, triggeredBy);
 
     SpellCastTargets targets;
-    targets.setDestination(x, y, z);
+
+    if (spellInfo->Targets & TARGET_FLAG_DEST_LOCATION)
+        targets.setDestination(x, y, z);
+    if (spellInfo->Targets & TARGET_FLAG_SOURCE_LOCATION)
+        targets.setSource(x, y, z);
+
+    // Spell cast with x,y,z but without dbc target-mask, set only destination!
+    if (!(targets.m_targetMask & (TARGET_FLAG_DEST_LOCATION | TARGET_FLAG_SOURCE_LOCATION)))
+        targets.setDestination(x, y, z);
+
     spell->m_CastItem = castItem;
     spell->prepare(&targets, triggeredByAura);
 }
@@ -5959,17 +6009,17 @@ void Unit::RemoveDynObject(uint32 spellid)
 {
     if (m_dynObjGUIDs.empty())
         return;
-    for (DynObjectGUIDs::iterator i = m_dynObjGUIDs.begin(); i != m_dynObjGUIDs.end();)
+    for (GuidList::iterator i = m_dynObjGUIDs.begin(); i != m_dynObjGUIDs.end();)
     {
         DynamicObject* dynObj = GetMap()->GetDynamicObject(*i);
         if(!dynObj)
         {
-            i = m_dynObjGUIDs.erase(i);
+            m_dynObjGUIDs.erase(i);
         }
         else if (spellid == 0 || dynObj->GetSpellId() == spellid)
         {
             dynObj->Delete();
-            i = m_dynObjGUIDs.erase(i);
+            m_dynObjGUIDs.erase(i);
         }
         else
             ++i;
@@ -5988,12 +6038,12 @@ void Unit::RemoveAllDynObjects()
 
 DynamicObject * Unit::GetDynObject(uint32 spellId, SpellEffectIndex effIndex)
 {
-    for (DynObjectGUIDs::iterator i = m_dynObjGUIDs.begin(); i != m_dynObjGUIDs.end();)
+    for (GuidList::iterator i = m_dynObjGUIDs.begin(); i != m_dynObjGUIDs.end();)
     {
         DynamicObject* dynObj = GetMap()->GetDynamicObject(*i);
         if(!dynObj)
         {
-            i = m_dynObjGUIDs.erase(i);
+            m_dynObjGUIDs.erase(i);
             continue;
         }
 
@@ -6006,12 +6056,12 @@ DynamicObject * Unit::GetDynObject(uint32 spellId, SpellEffectIndex effIndex)
 
 DynamicObject * Unit::GetDynObject(uint32 spellId)
 {
-    for (DynObjectGUIDs::iterator i = m_dynObjGUIDs.begin(); i != m_dynObjGUIDs.end();)
+    for (GuidList::iterator i = m_dynObjGUIDs.begin(); i != m_dynObjGUIDs.end();)
     {
         DynamicObject* dynObj = GetMap()->GetDynamicObject(*i);
         if(!dynObj)
         {
-            i = m_dynObjGUIDs.erase(i);
+            m_dynObjGUIDs.erase(i);
             continue;
         }
 
@@ -6648,10 +6698,10 @@ Unit* Unit::getAttackerForHelper()
     if (!IsInCombat())
         return NULL;
 
-    ObjectGuidSet attackers = GetMap()->GetAttackersFor(GetObjectGuid());
+    GuidSet attackers = GetMap()->GetAttackersFor(GetObjectGuid());
     if (!attackers.empty())
     {
-        for(ObjectGuidSet::const_iterator itr = attackers.begin(); itr != attackers.end();)
+        for(GuidSet::const_iterator itr = attackers.begin(); itr != attackers.end();)
         {
             ObjectGuid guid = *itr++;
             Unit* attacker = GetMap()->GetUnit(guid);
@@ -6885,9 +6935,9 @@ void Unit::RemoveAllAttackers()
     if (!GetMap())
         return;
 
-    ObjectGuidSet attackers = GetMap()->GetAttackersFor(GetObjectGuid());
+    GuidSet attackers = GetMap()->GetAttackersFor(GetObjectGuid());
 
-    for (ObjectGuidSet::const_iterator itr = attackers.begin(); itr != attackers.end(); ++itr)
+    for (GuidSet::const_iterator itr = attackers.begin(); itr != attackers.end(); ++itr)
     {
         Unit* attacker = GetMap()->GetUnit(*itr);
         if(!attacker || !attacker->AttackStop())
@@ -7170,7 +7220,7 @@ void Unit::RemoveGuardians()
 
 Pet* Unit::FindGuardianWithEntry(uint32 entry)
 {
-    for (GuardianPetList::const_iterator itr = m_guardianPets.begin(); itr != m_guardianPets.end(); ++itr)
+    for (GuidSet::const_iterator itr = m_guardianPets.begin(); itr != m_guardianPets.end(); ++itr)
         if (Pet* pet = GetMap()->GetPet(*itr))
             if (pet->GetEntry() == entry)
                 return pet;
@@ -7180,7 +7230,7 @@ Pet* Unit::FindGuardianWithEntry(uint32 entry)
 
 Pet* Unit::GetProtectorPet()
 {
-    for (GuardianPetList::const_iterator itr = m_guardianPets.begin(); itr != m_guardianPets.end(); ++itr)
+    for (GuidSet::const_iterator itr = m_guardianPets.begin(); itr != m_guardianPets.end(); ++itr)
         if (Pet* pet = GetMap()->GetPet(*itr))
             if (pet->getPetType() == PROTECTOR_PET)
                 return pet;
@@ -9423,7 +9473,7 @@ int32 Unit::ModifyPower(Powers power, int32 dVal)
     return gain;
 }
 
-bool Unit::isVisibleForOrDetect(Unit const* u, WorldObject const* viewPoint, bool detect, bool inVisibleList, bool is3dDistance) const
+bool Unit::isVisibleForOrDetect(Unit const* u, WorldObject const* viewPoint, bool detect, bool inVisibleList, bool is3dDistance, bool skipLOScheck) const
 {
     if(!u || !IsInMap(u))
         return false;
@@ -9634,6 +9684,9 @@ bool Unit::isVisibleForOrDetect(Unit const* u, WorldObject const* viewPoint, boo
         if (visibleDistance <= 0 || !IsWithinDist(viewPoint,visibleDistance))
             return false;
     }
+
+    if (skipLOScheck)
+        return true;
 
     // Now check is target visible with LoS
     float ox,oy,oz;
@@ -10259,9 +10312,9 @@ bool Unit::SelectHostileTarget()
     // Note: creature not have targeted movement generator but have attacker in this case
     if (GetMotionMaster()->GetCurrentMovementGeneratorType() != CHASE_MOTION_TYPE)
     {
-        ObjectGuidSet attackers = GetMap()->GetAttackersFor(GetObjectGuid());
+        GuidSet attackers = GetMap()->GetAttackersFor(GetObjectGuid());
 
-        for (ObjectGuidSet::const_iterator itr = attackers.begin(); itr != attackers.end(); ++itr)
+        for (GuidSet::const_iterator itr = attackers.begin(); itr != attackers.end(); ++itr)
         {
             Unit* attacker = GetMap()->GetUnit(*itr);
             if (attacker && attacker->IsInMap(this) && attacker->isTargetableForAttack() && attacker->isInAccessablePlaceFor(this))
@@ -11069,7 +11122,7 @@ void Unit::CleanupsBeforeDelete()
         DeleteThreatList();
         if (GetTypeId()==TYPEID_PLAYER)
             getHostileRefManager().setOnlineOfflineState(false);
-        else
+        else if (CanHaveThreatList())
             getHostileRefManager().deleteReferences();
         RemoveAllAuras(AURA_REMOVE_BY_DELETE);
         GetUnitStateMgr().InitDefaults(false);
@@ -11841,7 +11894,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, DamageInfo* damageInfo)
 
         SpellProcEventEntry const *spellProcEvent = itr->second;
         bool useCharges = itr->first->GetAuraCharges() > 0;
-        bool procSuccess = true;
+        bool procSuccess = false;
         bool anyAuraProc = false;
 
         // For players set spell cooldown if need
@@ -11894,9 +11947,9 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, DamageInfo* damageInfo)
                 case SPELL_AURA_PROC_CANT_TRIGGER:
                     continue;
                 case SPELL_AURA_PROC_FAILED:
-                    procSuccess = false;
                     break;
                 case SPELL_AURA_PROC_OK:
+                    procSuccess |= true;
                     break;
             }
             anyAuraProc = true;
@@ -11911,6 +11964,11 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, DamageInfo* damageInfo)
         // Remove charge (aura can be removed by triggers)
         if (useCharges && procSuccess && anyAuraProc && !itr->first->IsDeleted())
         {
+            DEBUG_FILTER_LOG(LOG_FILTER_SPELL_CAST,"Unit::ProcDamageAndSpellFor: %s drop charge from %s, aura %u (current charges count %u)",
+                GetObjectGuid().GetString().c_str(),
+                pTarget->GetObjectGuid().GetString().c_str(),
+                itr->first->GetId(),
+                itr->first->GetAuraCharges());
             // If last charge dropped add spell to remove list
             if (itr->first->DropAuraCharge())
                 removedSpells.insert(itr->first->GetId());
@@ -12801,9 +12859,6 @@ void Unit::EnterVehicle(Unit* vehicleBase, int8 seatId)
         }
     }
 
-    InterruptNonMeleeSpells(false);
-    RemoveSpellsCausingAura(SPELL_AURA_MOUNTED);
-
     SpellEntry const* spellInfo = NULL;
     int32 bp[MAX_EFFECT_INDEX];
     Unit* caster = NULL;
@@ -12935,6 +12990,9 @@ void Unit::_EnterVehicle(VehicleKit* vehicle, int8 seatId)
     }
     else
     {
+        InterruptNonMeleeSpells(false);
+        RemoveSpellsCausingAura(SPELL_AURA_MOUNTED);
+
         if (Pet* pet = GetPet())
         {
             if (GetTypeId() == TYPEID_PLAYER)
@@ -12981,6 +13039,8 @@ void Unit::_ExitVehicle()
     GetVehicle()->RemovePassenger(this, true);
 
     m_pVehicle = NULL;
+
+    SendHeartBeat();
 
     if (isAlive() && GetTypeId() == TYPEID_PLAYER)
         ((Player*)this)->ResummonPetTemporaryUnSummonedIfAny();
@@ -13165,9 +13225,9 @@ void Unit::StopAttackFaction(uint32 faction_id)
         }
     }
 
-    ObjectGuidSet attackers = GetMap()->GetAttackersFor(GetObjectGuid());
+    GuidSet attackers = GetMap()->GetAttackersFor(GetObjectGuid());
 
-    for (ObjectGuidSet::iterator itr = attackers.begin(); itr != attackers.end(); ++itr)
+    for (GuidSet::iterator itr = attackers.begin(); itr != attackers.end(); ++itr)
     {
         Unit* attacker = GetMap()->GetUnit(*itr);
 
@@ -13533,12 +13593,16 @@ bool Unit::IsVisibleTargetForSpell(WorldObject const* caster, SpellEntry const* 
             break;
     }
 
-    // spell can hit all targets in two cases:
-    if (VMAP::VMapFactory::checkSpellForLoS(spellInfo->Id))
+    // spell can hit all targets in some cases:
+    if (!VMAP::VMapFactory::checkSpellForLoS(spellInfo->Id))
         return true;
 
     if (spellInfo->HasAttribute(SPELL_ATTR_EX6_IGNORE_DETECTION))
         return true;
+
+    // some totem spells must ignore LOS, only visibility/detect checks applied
+    if (caster->GetTypeId() == TYPEID_UNIT && ((Creature*)caster)->IsTotem())
+        return isVisibleForOrDetect(static_cast<Unit const*>(caster), caster, true, false, true);
 
     // spell can't hit stealth/invisible targets
     if (no_stealth && caster->isType(TYPEMASK_UNIT) && !isVisibleForOrDetect(static_cast<Unit const*>(caster), caster, false))

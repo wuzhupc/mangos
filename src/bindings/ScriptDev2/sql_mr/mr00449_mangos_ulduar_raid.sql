@@ -73,7 +73,7 @@
     UPDATE creature_template SET ScriptName = 'mob_dark_rune_sentinel' WHERE entry = 33846;
     UPDATE creature_template SET ScriptName = 'mob_dark_rune_guardian' WHERE entry = 33388;
     UPDATE creature_template SET ScriptName = 'npc_expedition_commander' WHERE entry = 33210;
-    UPDATE creature_template SET ScriptName = 'mob_devouring_flame_target' WHERE entry IN (34189, 34188);
+    UPDATE creature_template SET ScriptName = 'mob_devouring_flame_target' WHERE entry = 34188;
 
 -- XT002
 UPDATE creature_template SET mechanic_immune_mask=617299803, scriptname='boss_xt_002' WHERE entry=33293;
@@ -177,7 +177,7 @@ UPDATE creature_model_info SET bounding_radius=15, combat_reach=15 WHERE modelid
 UPDATE creature_template SET mechanic_immune_mask=617299803, unit_flags = 0, scriptname='boss_kologarn' WHERE entry=32930;
 UPDATE creature_template SET mechanic_immune_mask=652951551, scriptname='boss_right_arm' WHERE entry=32934;
 UPDATE creature_template SET mechanic_immune_mask=652951551, scriptname='boss_left_arm' WHERE entry=32933;
-UPDATE creature_template SET ScriptName = 'mob_ulduar_rubble' WHERE entry IN (33768, 33809, 33908, 33942);
+UPDATE creature_template SET ScriptName = 'mob_ulduar_rubble' WHERE entry IN (33768, 33809);
 UPDATE `gameobject` SET `position_y` = -35.6824, `position_x` = 1837.59 WHERE `id` IN (195047);
 UPDATE `creature_template` SET `RegenHealth` = 1 WHERE `entry` = 33910;
 UPDATE `creature_template` SET `RegenHealth` = 1 WHERE `entry` = 33911;
@@ -267,8 +267,8 @@ UPDATE creature_template SET ScriptName = 'mob_flashFreeze' WHERE entry IN (3292
 UPDATE `creature_template` SET `modelid_1` = 15880 WHERE `entry` = 33174;
 UPDATE `creature_template` SET `modelid_2` = 28470, ScriptName = 'mob_icicle' WHERE `entry` = 33169;
 -- flash freeze that will lock the npcs IN iceblock
-UPDATE creature_template SET `modelid_1` = 25865, ScriptName = 'mob_npc_flashFreeze' WHERE entry IN (32938, 33353);
-UPDATE creature SET spawnMask = 3 WHERE id IN (32938);
+UPDATE creature_template SET `modelid_1` = 25865, ScriptName = 'mob_npc_flashFreeze' WHERE entry IN (32938);
+UPDATE creature SET spawnMask = 3 WHERE id = 32938;
 UPDATE creature SET spawnMask = 2 WHERE id IN (32901, 32900, 32950, 32946,33333, 33330, 33326);
 UPDATE creature_template SET ScriptName = 'npc_hodir_helper' WHERE entry IN (32897, 33326, 32948, 33330);
 UPDATE creature_template SET ScriptName = 'npc_hodir_helper' WHERE entry IN (33325, 32901, 32941, 33333);
@@ -428,7 +428,7 @@ REPLACE INTO `spell_script_target` (`entry`, `type`, `targetEntry`) VALUES ('625
 
 -- Vezax
 UPDATE creature_template SET unit_flags = 0, ScriptName = 'boss_general_vezax' WHERE entry = 33271;
-UPDATE creature_template SET MinHealth = 23009250, MaxHealth = 23009250, ScriptName = 'boss_general_vezax' WHERE entry = 33449;
+UPDATE creature_template SET MinHealth = 23009250, MaxHealth = 23009250 WHERE entry = 33449;
 UPDATE `creature_template` SET `mechanic_immune_mask` = 619397115 WHERE `entry` IN (33271, 33449);
 UPDATE creature_template SET ScriptName = 'mob_saronite_animus' WHERE entry = 33524;
 UPDATE creature_template SET ScriptName = 'event_spell_saronite_barrier', movementType = 1  WHERE entry = 33488;
@@ -507,6 +507,10 @@ UPDATE gameobject SET spawntimesecs = -604800 WHERE id IN (195046, 195047, 19430
 
 -- NOT SURE IF THE TRASH MOBS ARE SCRIPTED BY EVENTAI
 -- Mobs
-UPDATE creature_template SET ScriptName = 'generic_creature' WHERE entry IN (34086, 34085, 34069, 33237, 34234, 33236, 33264, 34164, 34196, 34199, 34198, 
+UPDATE `creature_template` SET `ScriptName` = 'generic_creature' WHERE 'entry' IN (34086, 34085, 34069, 33237, 34234, 33236, 33264, 34164, 34196, 34199, 34198, 
 34190, 34197, 33699, 34134, 34135, 34133, 33430, 33528, 33431, 33527, 33526, 33525, 33355, 33354, 34193, 34183, 33110, 
-32878, 33822, 33818, 33824, 33823, 33772, 33838, 33819, 33820, 32875, 33346, 34057);
+32878, 33822, 33818, 33824, 33823, 33772, 33838, 33819, 33820, 32875, 33346, 34057) AND `ScriptName` = '' AND `AIName` = '';
+
+-- some fixes (thx to mns and Reamer)
+UPDATE `creature_template` SET `ScriptName` = 'mob_eyebeam_trigger' where `entry` in (33802,33632);
+UPDATE `creature_template` SET `ScriptName` = 'mob_kologarn_pit_kill_bunny' where `entry` in (33742);

@@ -231,7 +231,7 @@ void instance_pinnacle::Load(const char* chrIn)
 
 void instance_pinnacle::DoProcessCallFlamesEvent()
 {
-    for (GUIDList::const_iterator itr = m_lFlameBraziersList.begin(); itr != m_lFlameBraziersList.end(); ++itr)
+    for (GuidList::const_iterator itr = m_lFlameBraziersList.begin(); itr != m_lFlameBraziersList.end(); ++itr)
     {
         if (Creature* pFlame = instance->GetCreature(*itr))
             pFlame->CastSpell(pFlame, SPELL_BALL_OF_FLAME, true);
@@ -242,7 +242,7 @@ void instance_pinnacle::DoMakeFreezingCloud()
 {
     if (urand(0, 1))
     {
-        for (GUIDList::const_iterator itr = m_lFlameBreathTriggerLeft.begin(); itr != m_lFlameBreathTriggerLeft.end(); ++itr)
+        for (GuidList::const_iterator itr = m_lFlameBreathTriggerLeft.begin(); itr != m_lFlameBreathTriggerLeft.end(); ++itr)
         {
             if (Creature* pFlame = instance->GetCreature(*itr))
                 pFlame->CastSpell(pFlame, SPELL_FREEZING_CLOUD, true);
@@ -250,7 +250,7 @@ void instance_pinnacle::DoMakeFreezingCloud()
     }
     else
     {
-        for (GUIDList::const_iterator itr = m_lFlameBreathTriggerRight.begin(); itr != m_lFlameBreathTriggerRight.end(); ++itr)
+        for (GuidList::const_iterator itr = m_lFlameBreathTriggerRight.begin(); itr != m_lFlameBreathTriggerRight.end(); ++itr)
         {
             if (Creature* pFlame = instance->GetCreature(*itr))
                 pFlame->CastSpell(pFlame, SPELL_FREEZING_CLOUD, true);

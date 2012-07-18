@@ -373,7 +373,7 @@ void instance_ulduar::SetData(uint32 uiType, uint32 uiData)
         // Add respawn and kill
         if (uiData == FAIL)
         {
-            for (GUIDList::iterator itr = m_lIronConstructsGuids.begin(); itr != m_lIronConstructsGuids.end(); ++itr)
+            for (GuidList::iterator itr = m_lIronConstructsGuids.begin(); itr != m_lIronConstructsGuids.end(); ++itr)
             {
                 if (Creature *pAdd = instance->GetCreature(*itr))
                     if (!pAdd->isAlive())
@@ -382,7 +382,7 @@ void instance_ulduar::SetData(uint32 uiType, uint32 uiData)
         }
         if (uiData == DONE)
         {
-            for (GUIDList::iterator itr = m_lIronConstructsGuids.begin(); itr != m_lIronConstructsGuids.end(); ++itr)
+            for (GuidList::iterator itr = m_lIronConstructsGuids.begin(); itr != m_lIronConstructsGuids.end(); ++itr)
             {
                 if (Creature *pAdd = instance->GetCreature(*itr))
                     if (pAdd->isAlive())
@@ -626,7 +626,7 @@ void instance_ulduar::SetData(uint32 uiType, uint32 uiData)
         if (uiData == FAIL)
         {
             // respawn clouds
-            for(GUIDList::iterator iter = m_lCLoudGuids.begin(); iter != m_lCLoudGuids.end(); ++iter)
+            for(GuidList::iterator iter = m_lCLoudGuids.begin(); iter != m_lCLoudGuids.end(); ++iter)
                 if (Creature *pTmp = instance->GetCreature(*iter))
                     pTmp->Respawn();
             // respawn Sara

@@ -44,7 +44,7 @@ struct MANGOS_DLL_DECL mobs_bladespire_ogreAI : public ScriptedAI
     uint8 m_uiQuestStep;
     uint32 m_uiStep2Timer;
     Player* pQuestPlayer;
-    Creature* pScoutTrigger;
+    ObjectGuid ScoutTriggerGuid;
     std::list<Creature*> StoutTriggerEntryList;
 
     void Reset()
@@ -52,6 +52,7 @@ struct MANGOS_DLL_DECL mobs_bladespire_ogreAI : public ScriptedAI
         m_bIsQuest = false;
         m_uiQuestStep = 0;
         m_uiStep2Timer = 1000;
+        ScoutTriggerGuid.Clear();
     }
 
     void Aggro(Unit* pVictim)
@@ -81,19 +82,25 @@ struct MANGOS_DLL_DECL mobs_bladespire_ogreAI : public ScriptedAI
                         if (!StoutTriggerEntryList.empty())
                         {
                             std::list<Creature*>::iterator iter = StoutTriggerEntryList.begin();
-                            pScoutTrigger = (*iter);
+                            if (*iter)
+                                ScoutTriggerGuid = (*iter)->GetObjectGuid();
                             m_uiQuestStep = 2;
                             m_uiStep2Timer = 1000;
                         }
+                        else
+                            ScoutTriggerGuid.Clear();
                     }else
                         m_uiStep2Timer -= uiDiff;
                     break;
                 case 2:
-                    m_creature->GetMotionMaster()->MoveChase(pScoutTrigger);
+                    if (Creature* pScoutTrigger = m_creature->GetMap()->GetCreature(ScoutTriggerGuid))
+                    {
+                        m_creature->GetMotionMaster()->MoveChase(pScoutTrigger);
+                        pScoutTrigger->ForcedDespawn(2000);
+                    }
                     pQuestPlayer->KilledMonsterCredit(NPC_BLOODMAUL_BRUTEBANE_STOUT_TRIGGER);
                     SetCombatMovement(false);
                     m_creature->ForcedDespawn(2000);
-                    pScoutTrigger->ForcedDespawn(2000);
                     m_uiQuestStep = 3;
                     break;
             }

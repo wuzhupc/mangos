@@ -473,15 +473,15 @@ struct MANGOS_DLL_DECL boss_thaddiusAddsAI : public ScriptedAI
     {
         Reset();                                            // Needed to reset the flags properly
 
-        GUIDList lTeslaGUIDList;
+        GuidList lTeslaGuidList;
         if (!m_pInstance)
             return;
 
-        m_pInstance->GetThadTeslaCreatures(lTeslaGUIDList);
-        if (lTeslaGUIDList.empty())
+        m_pInstance->GetThadTeslaCreatures(lTeslaGuidList);
+        if (lTeslaGuidList.empty())
             return;
 
-        for (GUIDList::const_iterator itr = lTeslaGUIDList.begin(); itr != lTeslaGUIDList.end(); ++itr)
+        for (GuidList::const_iterator itr = lTeslaGuidList.begin(); itr != lTeslaGuidList.end(); ++itr)
         {
             if (Creature* pTesla = m_pInstance->instance->GetCreature(*itr))
             {
@@ -555,9 +555,9 @@ struct MANGOS_DLL_DECL boss_thaddiusAddsAI : public ScriptedAI
                             m_bBothDead = true;             // Now both adds are counting dead
                             pOtherAI->m_bBothDead = true;
                             // Set both Teslas to overload
-                            GUIDList lTeslaGUIDList;
-                            m_pInstance->GetThadTeslaCreatures(lTeslaGUIDList);
-                            for (GUIDList::const_iterator itr = lTeslaGUIDList.begin(); itr != lTeslaGUIDList.end(); ++itr)
+                            GuidList lTeslaGuidList;
+                            m_pInstance->GetThadTeslaCreatures(lTeslaGuidList);
+                            for (GuidList::const_iterator itr = lTeslaGuidList.begin(); itr != lTeslaGuidList.end(); ++itr)
                             {
                                 if (Creature* pTesla = m_pInstance->instance->GetCreature(*itr))
                                 {
