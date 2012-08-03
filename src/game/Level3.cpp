@@ -55,6 +55,7 @@
 #include "CreatureEventAIMgr.h"
 #include "DBCEnums.h"
 #include "AuctionHouseBot/AuctionHouseBot.h"
+#include "SQLStorages.h"
 
 static uint32 ahbotQualityIds[MAX_AUCTION_QUALITY] =
 {
@@ -142,7 +143,7 @@ bool ChatHandler::HandleAHBotRebuildCommand(char* args)
     return true;
 }
 
-bool ChatHandler::HandleAHBotReloadCommand(char* args)
+bool ChatHandler::HandleAHBotReloadCommand(char* /*args*/)
 {
     if (sAuctionBot.ReloadAllConfig())
     {
@@ -6447,7 +6448,7 @@ ComeToMe command REQUIRED for 3rd party scripting library to have access to Poin
 Without this function 3rd party scripting library will get linking errors (unresolved external)
 when attempting to use the PointMovementGenerator
 */
-bool ChatHandler::HandleComeToMeCommand(char *args)
+bool ChatHandler::HandleComeToMeCommand(char* /*args*/)
 {
     Creature* caster = getSelectedCreature();
 

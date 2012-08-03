@@ -41,6 +41,7 @@
 #include "ScriptMgr.h"
 #include "vmap/GameObjectModel.h"
 #include "vmap/DynamicTree.h"
+#include "SQLStorages.h"
 #include <G3D/Quat.h>
 
 
@@ -2326,7 +2327,6 @@ bool GameObject::CalculateCurrentCollisionState() const
 
     return result;
 }
-
 
 void GameObject::UpdateModel()
 {

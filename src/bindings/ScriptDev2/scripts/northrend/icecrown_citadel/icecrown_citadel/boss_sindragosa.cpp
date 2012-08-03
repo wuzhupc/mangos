@@ -217,7 +217,6 @@ struct MANGOS_DLL_DECL boss_sindragosaAI : public base_icc_bossAI
 
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PASSIVE);
-        m_creature->GetMotionMaster()->Clear();
         m_creature->GetMotionMaster()->MovePoint(POINT_AGGRO, SindragosaLoc[0].x, SindragosaLoc[0].y, SindragosaLoc[0].z, false);
     }
 
@@ -266,7 +265,6 @@ struct MANGOS_DLL_DECL boss_sindragosaAI : public base_icc_bossAI
                 DoCastSpellIfCan(m_creature, SPELL_FROST_AURA, CAST_TRIGGERED);
                 DoCastSpellIfCan(m_creature, SPELL_PERMEATING_CHILL, CAST_TRIGGERED);
                 SetLevitate(false);
-                m_creature->GetMotionMaster()->Clear();
                 m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
                 m_uiPhase = PHASE_GROUND;
             }
@@ -743,9 +741,7 @@ struct MANGOS_DLL_DECL mob_rimefangAI : public ScriptedAI
                 {
                     m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
                     m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PASSIVE);
-                    m_creature->GetMotionMaster()->MovementExpired();
                     AttackStart(pWho);
-                    SetCombatMovement(true);
                 }
             }
         }
@@ -762,7 +758,6 @@ struct MANGOS_DLL_DECL mob_rimefangAI : public ScriptedAI
         }
 
         DoCastSpellIfCan(m_creature, SPELL_RIMEFANG_FROST_AURA, CAST_TRIGGERED);
-        m_creature->GetMotionMaster()->Clear();
         m_creature->GetMotionMaster()->MovePoint(POINT_RIMEFANG_LAND, SindragosaLoc[4].x, SindragosaLoc[4].y, SindragosaLoc[4].z, false);
     }
 
@@ -777,8 +772,7 @@ struct MANGOS_DLL_DECL mob_rimefangAI : public ScriptedAI
             {
                 SetLevitate(false);
                 m_bIsFlying = false;
-                m_creature->GetMotionMaster()->Clear();
-                m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
+                SetCombatMovement(true);
             }
             else
                 EnterEvadeMode();
@@ -896,9 +890,7 @@ struct MANGOS_DLL_DECL mob_spinestalkerAI : public ScriptedAI
                 {
                     m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
                     m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PASSIVE);
-                    m_creature->GetMotionMaster()->MovementExpired();
                     AttackStart(pWho);
-                    SetCombatMovement(true);
                 }
             }
         }
@@ -914,7 +906,6 @@ struct MANGOS_DLL_DECL mob_spinestalkerAI : public ScriptedAI
                 pBrother->SetInCombatWithZone();
         }
 
-        m_creature->GetMotionMaster()->Clear();
         m_creature->GetMotionMaster()->MovePoint(POINT_SPINESTALKER_LAND, SindragosaLoc[5].x, SindragosaLoc[5].y, SindragosaLoc[5].z, false);
     }
 
@@ -929,8 +920,7 @@ struct MANGOS_DLL_DECL mob_spinestalkerAI : public ScriptedAI
             {
                 SetLevitate(false);
                 m_bIsFlying = false;
-                m_creature->GetMotionMaster()->Clear();
-                m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
+                SetCombatMovement(true);
             }
             else
                 EnterEvadeMode();

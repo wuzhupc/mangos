@@ -179,7 +179,6 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public base_icc_bossAI
         {
             if (m_uiPhase == PHASE_RUNNING)
             {
-                m_creature->GetMotionMaster()->Clear();
                 m_uiPhase = PHASE_AIR; // start counting timer for Bloodbolt Whirl immediately
 
                 if (DoCastSpellIfCan(m_creature, SPELL_INCITE_HORROR) == CAST_OK)
