@@ -472,6 +472,8 @@ void Map::Update(const uint32 &t_diff)
             MapSessionFilter updater(pSession);
 
             pSession->Update(updater);
+            // sending WorldState updates
+            plr->SendUpdatedWorldStates(false);
         }
     }
 
@@ -569,6 +571,9 @@ void Map::Update(const uint32 &t_diff)
     // Send world objects and item update field changes
     SendObjectUpdates();
 
+    // Calculate and send map-related WorldState updates
+    sWorldStateMgr.MapUpdate(this);
+
     // Don't unload grids if it's battleground, since we may have manually added GOs,creatures, those doesn't load from DB at grid re-load !
     // This isn't really bother us, since as soon as we have instanced BG-s, the whole map unloads as the BG gets ended
     if (!IsBattleGroundOrArena())
@@ -655,7 +660,7 @@ Map::Remove(T *obj, bool remove)
     CellPair p = MaNGOS::ComputeCellPair(obj->GetPositionX(), obj->GetPositionY());
     if(p.x_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP || p.y_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP )
     {
-        sLog.outError("Map::Remove: Object (GUID: %u TypeId:%u) have invalid coordinates X:%f Y:%f grid cell [%u:%u]", obj->GetGUIDLow(), obj->GetTypeId(), obj->GetPositionX(), obj->GetPositionY(), p.x_coord, p.y_coord);
+        sLog.outError("Map::Remove: Object (%s) have invalid coordinates X:%f Y:%f grid cell [%u:%u]", obj->GetObjectGuid() ? obj->GetObjectGuid().GetString().c_str() : "<no GUID>", obj->GetTypeId(), obj->GetPositionX(), obj->GetPositionY(), p.x_coord, p.y_coord);
         return;
     }
 
@@ -667,10 +672,10 @@ Map::Remove(T *obj, bool remove)
     NGridType *grid = getNGrid(cell.GridX(), cell.GridY());
     MANGOS_ASSERT( grid != NULL );
 
-    if(obj->isActiveObject())
+    if (obj->isActiveObject())
         RemoveFromActive(obj);
 
-    if(remove)
+    if (remove)
         obj->CleanupsBeforeDelete();
     else
         obj->RemoveFromWorld();
@@ -681,12 +686,14 @@ Map::Remove(T *obj, bool remove)
     if (obj->GetTypeId() == TYPEID_UNIT)
         RemoveAttackersStorageFor(obj->GetObjectGuid());
 
-    if( remove )
+    if (remove)
     {
         // if option set then object already saved at this moment
         if(!sWorld.getConfig(CONFIG_BOOL_SAVE_RESPAWN_TIME_IMMEDIATELY))
             obj->SaveRespawnTime();
 
+        ((Object*)obj)->RemoveFromWorld();
+        obj->ResetMap();
         // Note: In case resurrectable corpse and pet its removed from global lists in own destructor
         delete obj;
     }
@@ -2032,6 +2039,11 @@ bool Map::SetZoneWeather(uint32 zoneId, WeatherType type, float grade)
     weather->SetWeather(type, grade);
 
     return true;
+}
+
+void Map::UpdateWorldState(uint32 state, uint32 value)
+{
+    sWorldStateMgr.SetWorldStateValueFor(this, state, value);
 }
 
 /**

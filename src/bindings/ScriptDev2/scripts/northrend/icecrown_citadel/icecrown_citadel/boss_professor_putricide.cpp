@@ -300,7 +300,7 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public base_icc_bossAI
         if (m_pInstance)
             m_pInstance->SetData(TYPE_PUTRICIDE, FAIL);
 
-        if (VehicleKit *pKit = m_creature->GetVehicleKit())
+        if (VehicleKitPtr pKit = m_creature->GetVehicleKit())
         {
             pKit->RemoveAllPassengers();
             pKit->Reset();

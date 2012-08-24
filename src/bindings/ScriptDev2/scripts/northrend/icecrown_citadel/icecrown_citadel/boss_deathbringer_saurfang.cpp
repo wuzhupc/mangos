@@ -141,8 +141,13 @@ enum SaurfangEvent
     SPELL_VEHICLE_HARDCODED     = 46598, // Deathbringer enters Overlord
 };
 
+enum SaurfangWaypoint
+{
+    POINT_ID_EVADE      = 1
+};
+
 // positions
-float fPositions[12][4] =
+static const float fPositions[12][4] =
 {
     {-468.05f, 2211.69f, 541.11f, 3.16f}, // Deathbringer teleport point
     {-491.30f, 2211.35f, 541.11f, 3.16f}, // Deathbringer dest point
@@ -155,7 +160,7 @@ float fPositions[12][4] =
     {-536.87f, 2215.94f, 539.30f, 6.28f}, // guard npc1 first move
     {-535.17f, 2214.17f, 539.30f, 6.28f}, // guard npc2 first move
     {-535.17f, 2207.71f, 539.30f, 6.28f}, // guard npc3 first move
-    {-536.87f, 2205.68f, 539.30f, 6.28f} // guard npc4 first move
+    {-536.87f, 2205.68f, 539.30f, 6.28f}  // guard npc4 first move
 };
 
 // passive guards AI
@@ -515,15 +520,14 @@ struct MANGOS_DLL_DECL boss_deathbringer_saurfangAI : public base_icc_bossAI
 {
     boss_deathbringer_saurfangAI(Creature* pCreature) : base_icc_bossAI(pCreature)
     {
-        m_pInstance = ((instance_icecrown_spire*)pCreature->GetInstanceData());
+        m_pInstance = ((instance_icecrown_citadel*)pCreature->GetInstanceData());
         m_powerBloodPower = m_creature->getPowerType(); // don't call this function multiple times in script
-        m_bTeleported = false;
         m_bIsIntroStarted = false;
         m_guidEventNpcGuid.Clear();
         Reset();
     }
 
-    instance_icecrown_spire* m_pInstance;
+    instance_icecrown_citadel* m_pInstance;
     uint32 m_uiRuneOfBloodTimer;
     uint32 m_uiBoilingBloodTimer;
     uint32 m_uiBloodNovaTimer;
@@ -534,7 +538,6 @@ struct MANGOS_DLL_DECL boss_deathbringer_saurfangAI : public base_icc_bossAI
 
     bool m_bIsFrenzied;
 
-    bool m_bTeleported;
     bool m_bIsIntroStarted;
     bool m_bIsAlliance;
 
@@ -559,14 +562,8 @@ struct MANGOS_DLL_DECL boss_deathbringer_saurfangAI : public base_icc_bossAI
 
     void MoveInLineOfSight(Unit *pWho)
     {
-        if (!m_bTeleported && pWho->GetTypeId() == TYPEID_PLAYER && !((Player*)pWho)->isGameMaster())
-        {
-            // teleport behind door
-            m_creature->NearTeleportTo(fPositions[0][0], fPositions[0][1], fPositions[0][2], fPositions[0][3]);
-            m_bTeleported = true;
-        }
-
-        if (m_bTeleported && !m_bIsIntroStarted && pWho->GetTypeId() == TYPEID_PLAYER && !((Player*)pWho)->isGameMaster() && m_creature->GetDistance2d(pWho) < 50.0f)
+        if (!m_bIsIntroStarted && pWho->GetTypeId() == TYPEID_PLAYER && !((Player*)pWho)->isGameMaster() &&
+            m_creature->GetDistance2d(pWho) < 50.0f)
         {
             m_bIsAlliance = false; //((Player*)pWho)->GetTeam() == ALLIANCE;
             DoSummonEventNpc();
@@ -603,21 +600,44 @@ struct MANGOS_DLL_DECL boss_deathbringer_saurfangAI : public base_icc_bossAI
         DoCastSpellIfCan(m_creature, SPELL_MARK_OF_FALLEN_CHAMPION, CAST_TRIGGERED);
     }
 
-    void JustReachedHome()
+    void EnterEvadeMode()
     {
-        if (m_pInstance)
-        {
-            m_pInstance->SetData(TYPE_SAURFANG, FAIL);
-            m_pInstance->SetSpecialAchievementCriteria(ACHIEVE_IVE_GONE_AND_MADE_A_MESS, false);
-        }
+        m_creature->RemoveAllAuras();
+        m_creature->DeleteThreatList();
+        m_creature->CombatStop(true);
 
-        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PASSIVE);
+        // Boss needs to evade to the point in front of the door
+        if (m_creature->isAlive())
+            m_creature->GetMotionMaster()->MovePoint(POINT_ID_EVADE, fPositions[1][0], fPositions[1][1], fPositions[1][2]);
+
+        m_creature->SetLootRecipient(NULL);
+
+        Reset();
     }
 
-    // used for unlocking bugged encounter
+    void MovementInform(uint32 uiMoveType, uint32 uiPointId)
+    {
+        if (uiMoveType != POINT_MOTION_TYPE)
+            return;
+
+        // "JustReachedHome()"
+        if (uiPointId == POINT_ID_EVADE)
+        {
+            m_creature->SetFacingTo(M_PI_F);
+
+            if (m_pInstance)
+            {
+                m_pInstance->SetData(TYPE_SAURFANG, FAIL);
+                m_pInstance->SetSpecialAchievementCriteria(ACHIEVE_IVE_GONE_AND_MADE_A_MESS, false);
+            }
+
+            m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+            m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PASSIVE);
+        }
+    }
+
     void JustDied(Unit *pKiller)
     {
         if (m_pInstance)

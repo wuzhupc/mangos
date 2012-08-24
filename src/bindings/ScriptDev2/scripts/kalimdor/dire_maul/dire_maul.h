@@ -115,8 +115,8 @@ class MANGOS_DLL_DECL instance_dire_maul : public ScriptedInstance
         ObjectGuid m_aCrystalGeneratorGuid[MAX_GENERATORS];
 
         GuidList m_luiHighborneSummonerGUIDs;
-        GuidList m_lGeneratorGuardGUIDs;
-        std::set<uint32> m_sSortedGeneratorGuards[MAX_GENERATORS];
+        std::queue<ObjectGuid> m_lGeneratorGuardGUIDs;
+        GuidSet  m_sSortedGeneratorGuards[MAX_GENERATORS];
 };
 
 #endif

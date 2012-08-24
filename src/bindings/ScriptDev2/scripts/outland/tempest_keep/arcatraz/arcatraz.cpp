@@ -52,6 +52,7 @@ enum
     SPELL_CONJURE_WATER             = 36879,
     SPELL_ARCANE_INTELLECT          = 36880,
     SPELL_ICE_ARMOR                 = 36881,
+    SPELL_DRINK                     = 30024,
 
     SPELL_ARCANE_MISSILES           = 33833,
     SPELL_CONE_OF_COLD              = 12611,
@@ -71,14 +72,15 @@ static const DialogueEntry aIntroDialogue[] =
     {TYPE_WARDEN_2,   0,             10000},
     {SAY_INTRO_2,     NPC_MILLHOUSE, 18000},
     {SAY_WATER,       NPC_MILLHOUSE, 7000},
-    {SAY_BUFFS,       NPC_MILLHOUSE, 7000},
+    {SAY_BUFFS,       NPC_MILLHOUSE, 6000},
+    {SPELL_ICE_ARMOR, 0,             1000},
     {SAY_DRINK,       NPC_MILLHOUSE, 7000},
     {SAY_READY,       NPC_MILLHOUSE, 6000},
     {POINT_ID_CENTER, 0,             0},
     {0, 0, 0},
 };
 
-static const float fRoomCenterCoords[3] = {445.92f, -158.37f, 43.06f};
+static const float fRoomCenterCoords[3] = {445.8804f, -158.7055f, 43.06898f};
 
 struct MANGOS_DLL_DECL npc_millhouse_manastormAI : public ScriptedAI, private DialogueHelper
 {
@@ -166,10 +168,13 @@ struct MANGOS_DLL_DECL npc_millhouse_manastormAI : public ScriptedAI, private Di
                 DoCastSpellIfCan(m_creature, SPELL_CONJURE_WATER);
                 break;
             case SAY_BUFFS:
+                DoCastSpellIfCan(m_creature, SPELL_ARCANE_INTELLECT);
+                break;
+            case SPELL_ICE_ARMOR:
                 DoCastSpellIfCan(m_creature, SPELL_ICE_ARMOR);
                 break;
             case SAY_DRINK:
-                DoCastSpellIfCan(m_creature, SPELL_ARCANE_INTELLECT);
+                DoCastSpellIfCan(m_creature, SPELL_DRINK);
                 break;
             case POINT_ID_CENTER:
                 m_creature->SetWalk(false);
@@ -341,33 +346,6 @@ CreatureAI* GetAI_npc_warden_mellichar(Creature* pCreature)
     return new npc_warden_mellicharAI(pCreature);
 }
 
-/*#####
-# mob_zerekethvoidzone (this script probably not needed in future -> `creature_template_addon`.`auras`='36120 0')
-#####*/
-
-enum
-{
-    SPELL_VOID_ZONE_DAMAGE  = 36120,
-};
-
-struct MANGOS_DLL_DECL mob_zerekethvoidzoneAI : public ScriptedAI
-{
-    mob_zerekethvoidzoneAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
-
-    void Reset()
-    {
-        m_creature->SetUInt32Value(UNIT_NPC_FLAGS, 0);
-        m_creature->setFaction(16);
-        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-
-        DoCastSpellIfCan(m_creature, SPELL_VOID_ZONE_DAMAGE);
-    }
-};
-CreatureAI* GetAI_mob_zerekethvoidzoneAI(Creature* pCreature)
-{
-    return new mob_zerekethvoidzoneAI(pCreature);
-}
-
 void AddSC_arcatraz()
 {
     Script* pNewScript;
@@ -380,10 +358,5 @@ void AddSC_arcatraz()
     pNewScript = new Script;
     pNewScript->Name = "npc_warden_mellichar";
     pNewScript->GetAI = &GetAI_npc_warden_mellichar;
-    pNewScript->RegisterSelf();
-
-    pNewScript = new Script;
-    pNewScript->Name = "mob_zerekethvoidzone";
-    pNewScript->GetAI = &GetAI_mob_zerekethvoidzoneAI;
     pNewScript->RegisterSelf();
 }

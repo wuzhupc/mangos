@@ -507,9 +507,13 @@ void VehicleKit::RelocatePassengers(float x, float y, float z, float ang)
 
 VehicleSeatEntry const* VehicleKit::GetSeatInfo(Unit* passenger)
 {
-    for (SeatMap::iterator itr = m_Seats.begin(); itr != m_Seats.end(); ++itr)
+    if (m_Seats.empty())
+        return NULL;
+
+    for (SeatMap::const_iterator itr = m_Seats.begin(); itr != m_Seats.end(); ++itr)
     {
-        if (Unit* _passenger = GetBase()->GetMap()->GetUnit(itr->second.passenger))
+        ObjectGuid guid = itr->second.passenger;
+        if (Unit* _passenger = GetBase()->GetMap()->GetUnit(guid))
             if (_passenger == passenger)
                 return itr->second.seatInfo;
     }
@@ -608,7 +612,7 @@ bool PassengerEjectEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
     if (!m_vehicle.GetVehicleInfo())
         return true;
 
-    VehicleKit* pVehicle = m_vehicle.GetVehicleKit();
+    VehicleKitPtr pVehicle = m_vehicle.GetVehicleKit();
 
     if (!pVehicle)
         return true;
@@ -641,12 +645,13 @@ Aura* VehicleKit::GetControlAura(Unit* passenger)
         return NULL;
 
     ObjectGuid casterGuid = passenger->GetObjectGuid();
-    Unit::AuraList const& auras = GetBase()->GetAurasByType(SPELL_AURA_CONTROL_VEHICLE);
 
-    for(Unit::AuraList::const_iterator i = auras.begin();i != auras.end(); ++i)
+    MAPLOCK_READ(GetBase(),MAP_LOCK_TYPE_AURAS);
+    Unit::AuraList& auras = GetBase()->GetAurasByType(SPELL_AURA_CONTROL_VEHICLE);
+    for (Unit::AuraList::iterator itr = auras.begin(); itr != auras.end(); ++itr)
     {
-        if ((*i) && !(*i)->IsDeleted() && (*i)->GetCasterGuid() == casterGuid)
-            return *i;
+        if (!itr->IsEmpty() && (*itr)->GetCasterGuid() == casterGuid)
+            return (*itr)();
     }
     return NULL;
 }

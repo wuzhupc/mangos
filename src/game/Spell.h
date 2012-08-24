@@ -186,6 +186,9 @@ class SpellCastTargets
         float GetElevation() const { return m_elevation; }
         float GetSpeed()     const { return m_speed; }
 
+        void  SetElevation(float elevation) { m_elevation = elevation; }
+        void  SetSpeed(float speed)         { m_speed = speed; }
+
         uint32 m_targetMask;
 
     private:
@@ -374,11 +377,12 @@ class Spell
 
         void EffectFriendSummon(SpellEffectIndex eff_idx);
         void EffectServerSide(SpellEffectIndex eff_idx);
+        void EffectKnockBackFromPosition(SpellEffectIndex eff_idx);
 
         Spell(Unit* caster, SpellEntry const *info, bool triggered, ObjectGuid originalCasterGUID = ObjectGuid(), SpellEntry const* triggeredBy = NULL);
         ~Spell();
 
-        void prepare(SpellCastTargets const* targets, Aura* triggeredByAura = NULL);
+        void prepare(SpellCastTargets const* targets, Aura const* triggeredByAura = NULL);
 
         void cancel(bool force = false);
 
@@ -509,6 +513,9 @@ class Spell
         Unit* GetAffectiveCaster() const { return m_originalCasterGUID ? m_originalCaster : m_caster; }
         // m_originalCasterGUID can store GO guid, and in this case this is visual caster
         WorldObject* GetCastingObject() const;
+
+        // Unstead of GetAffectiveCaster() not return NULL if original caster is GameObject.
+        Unit* GetAffectiveUnitCaster() const { return (m_originalCaster ? m_originalCaster : m_caster); }
 
         int32 GetPowerCost() const { return m_powerCost; }
 

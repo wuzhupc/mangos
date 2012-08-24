@@ -292,6 +292,8 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
             case PHASE_FLOOR: uiText = urand(0, 2); break;
             case PHASE_ADDS: uiText = urand(3, 5); break;
             case PHASE_DRAGONS: uiText = urand(6, 8); break;
+            default:
+                break;
         }
         switch (uiText)
         {
@@ -362,7 +364,7 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
                 {
                     pDisk->SetLevitate(true);
                     pDisk->CastSpell(pDisk, SPELL_FLIGHT, true);
-                    if (VehicleKit* pDiskVehicle = pDisk->GetVehicleKit())
+                    if (VehicleKitPtr pDiskVehicle = pDisk->GetVehicleKit())
                         pSummoned->EnterVehicle(pDiskVehicle, 0);
                 }
                 pSummoned->SetInCombatWithZone();
@@ -374,7 +376,7 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
                 {
                     pDisk->SetLevitate(true);
                     pDisk->CastSpell(pDisk, SPELL_FLIGHT, true);
-                    if (VehicleKit* pDiskVehicle = pDisk->GetVehicleKit())
+                    if (VehicleKitPtr pDiskVehicle = pDisk->GetVehicleKit())
                         pSummoned->EnterVehicle(pDiskVehicle, 0);
                 }
                 pSummoned->SetInCombatWithZone();
@@ -450,31 +452,37 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
             }
             case POINT_ID_PHASE_2_WP:
             {
-                m_bReadyForWPMove = true;
-                m_uiTimer = 0;
-                if (m_SubPhase == SUBPHASE_FLY)
+                if (m_Phase == PHASE_ADDS)
                 {
-                    DoScriptText(SAY_AGGRO2, m_creature);
-                    m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                    m_uiShellTimer = urand(2000, 3000);
-                    m_SubPhase = SUBPHASE_NOT_DEEP_BREATH;
-                    for (uint8 i = 0; i < (m_bIsRegularMode ? NEXUS_LORD_COUNT : NEXUS_LORD_COUNT_H); ++i)
-                        m_creature->SummonCreature(NPC_NEXUS_LORD, urand(PLATFORM_MIN_X, PLATFORM_MAX_X), urand(PLATFORM_MIN_Y, PLATFORM_MAX_Y), FLOOR_Z+10.0f+urand(0, 15), 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
-                    for (uint8 i = 0; i < (m_bIsRegularMode ? SCION_OF_ETERNITY_COUNT : SCION_OF_ETERNITY_COUNT_H); ++i)
-                        m_creature->SummonCreature(NPC_SCION_OF_ETERNITY, urand(PLATFORM_MIN_X, PLATFORM_MAX_X), urand(PLATFORM_MIN_Y, PLATFORM_MAX_Y), FLOOR_Z+10.0f+urand(0, 15), 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
-                    m_uiTimer = 5000;
+                    m_bReadyForWPMove = true;
+                    m_uiTimer = 0;
+                    if (m_SubPhase == SUBPHASE_FLY)
+                    {
+                        DoScriptText(SAY_AGGRO2, m_creature);
+                        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                        m_uiShellTimer = urand(2000, 3000);
+                        m_SubPhase = SUBPHASE_NOT_DEEP_BREATH;
+                        for (uint8 i = 0; i < (m_bIsRegularMode ? NEXUS_LORD_COUNT : NEXUS_LORD_COUNT_H); ++i)
+                            m_creature->SummonCreature(NPC_NEXUS_LORD, urand(PLATFORM_MIN_X, PLATFORM_MAX_X), urand(PLATFORM_MIN_Y, PLATFORM_MAX_Y), FLOOR_Z+10.0f+urand(0, 15), 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                        for (uint8 i = 0; i < (m_bIsRegularMode ? SCION_OF_ETERNITY_COUNT : SCION_OF_ETERNITY_COUNT_H); ++i)
+                            m_creature->SummonCreature(NPC_SCION_OF_ETERNITY, urand(PLATFORM_MIN_X, PLATFORM_MAX_X), urand(PLATFORM_MIN_Y, PLATFORM_MAX_Y), FLOOR_Z+10.0f+urand(0, 15), 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                        m_uiTimer = 5000;
+                    }
                 }
                 break;
             }
             case POINT_ID_DEEP_BREATH:
             {
-                DoScriptText(SAY_ARCANE_PULSE, m_creature);
-                DoScriptText(SAY_ARCANE_PULSE_WARN, m_creature);
-                DoCast(m_creature, SPELL_SURGE_OF_POWER_BREATH);
-                m_uiShellTimer = urand(2000, 4000);
-                m_SubPhase = SUBPHASE_NOT_DEEP_BREATH;
-                m_bReadyForWPMove = true;
-                m_uiTimer = 10000;
+                if (m_Phase == PHASE_ADDS)
+                {
+                    DoScriptText(SAY_ARCANE_PULSE, m_creature);
+                    DoScriptText(SAY_ARCANE_PULSE_WARN, m_creature);
+                    DoCast(m_creature, SPELL_SURGE_OF_POWER_BREATH);
+                    m_uiShellTimer = urand(2000, 4000);
+                    m_SubPhase = SUBPHASE_NOT_DEEP_BREATH;
+                    m_bReadyForWPMove = true;
+                    m_uiTimer = 10000;
+                }
                 break;
             }
             default:
@@ -676,6 +684,8 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
                         DoMeleeAttackIfReady();
                         break;
                     }
+                    default:
+                        m_creature->MonsterSay("Unknown SubPhase in Floor Phase", LANG_UNIVERSAL);
                 }
                 break;
             }
@@ -1032,7 +1042,7 @@ struct MANGOS_DLL_DECL npc_nexus_lordAI : public ScriptedAI
         {
             if (m_uiMoveTimer <=uiDiff)
             {
-                if (VehicleKit* pVehicleBase = m_creature->GetVehicle())
+                if (VehicleKitPtr pVehicleBase = m_creature->GetVehicle())
                 {
                     if (Unit* pDisk = pVehicleBase->GetBase())
                     {
@@ -1112,7 +1122,7 @@ struct MANGOS_DLL_DECL npc_scion_of_eternityAI : public ScriptedAI
 
         if (m_uiMoveTimer < uiDiff)
         {
-            if (VehicleKit* pVehicle = m_creature->GetVehicle())
+            if (VehicleKitPtr pVehicle = m_creature->GetVehicle())
             {
                 if (Unit* pDisk = pVehicle->GetBase())
                 {

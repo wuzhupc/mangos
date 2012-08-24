@@ -24,6 +24,7 @@
 
 #include "precompiled.h"
 #include "eye_of_eternity.h"
+#include "Vehicle.h"
 
 instance_eye_of_eternity::instance_eye_of_eternity(Map* pMap) :
         ScriptedInstance(pMap)
@@ -35,23 +36,6 @@ instance_eye_of_eternity::instance_eye_of_eternity(Map* pMap) :
 void instance_eye_of_eternity::Initialize()
 {
     memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-
-    switch (difficulty)
-    {
-        case RAID_DIFFICULTY_10MAN_NORMAL:
-            m_uiFocusingIrisGUID = GO_FOCUSING_IRIS;
-            m_uiGiftGUID = GO_ALEXSTRASZAS_GIFT;
-            m_uiHeartGUID = GO_HEART_OF_MAGIC;
-            break;
-        case RAID_DIFFICULTY_25MAN_NORMAL:
-            m_uiFocusingIrisGUID = GO_FOCUSING_IRIS_H;
-            m_uiGiftGUID = GO_ALEXSTRASZAS_GIFT_H;
-            m_uiHeartGUID = GO_HEART_OF_MAGIC_H;
-            break;
-        default:
-            break;
-    }
-
 }
 
 void instance_eye_of_eternity::OnCreatureCreate(Creature* pCreature)
@@ -133,7 +117,7 @@ void instance_eye_of_eternity::SetData(uint32 uiType, uint32 uiData)
                 case FAIL:
                 case NOT_STARTED:
                 {
-                    if (GameObject* pFocusingIris = GetSingleGameObjectFromStorage(m_uiFocusingIrisGUID))
+                    if (GameObject* pFocusingIris = GetSingleGameObjectFromStorage(difficulty == RAID_DIFFICULTY_10MAN_NORMAL ? GO_FOCUSING_IRIS : GO_FOCUSING_IRIS_H))
                     {
                         pFocusingIris->SetGoState(GO_STATE_READY);
                         pFocusingIris->SetPhaseMask(1, true);
@@ -152,7 +136,7 @@ void instance_eye_of_eternity::SetData(uint32 uiType, uint32 uiData)
                 }
                 case IN_PROGRESS:
                 {
-                    if (GameObject* pFocusingIris = GetSingleGameObjectFromStorage(m_uiFocusingIrisGUID))
+                    if (GameObject* pFocusingIris = GetSingleGameObjectFromStorage(difficulty == RAID_DIFFICULTY_10MAN_NORMAL ? GO_FOCUSING_IRIS : GO_FOCUSING_IRIS_H))
                         pFocusingIris->SetPhaseMask(2, true);
                     if (GameObject* pExitPortal = GetSingleGameObjectFromStorage(GO_EXIT_PORTAL))
                         pExitPortal->SetPhaseMask(2, true);
@@ -162,8 +146,8 @@ void instance_eye_of_eternity::SetData(uint32 uiType, uint32 uiData)
                 {
                     if (GameObject* pExitPortal = GetSingleGameObjectFromStorage(GO_EXIT_PORTAL))
                         pExitPortal->SetPhaseMask(1, true);
-                    DoRespawnGameObject(m_uiGiftGUID, HOUR * IN_MILLISECONDS);
-                    DoRespawnGameObject(m_uiHeartGUID, HOUR * IN_MILLISECONDS);
+                    DoRespawnGameObject(difficulty == RAID_DIFFICULTY_10MAN_NORMAL ? GO_ALEXSTRASZAS_GIFT : GO_ALEXSTRASZAS_GIFT_H, HOUR * IN_MILLISECONDS);
+                    DoRespawnGameObject(difficulty == RAID_DIFFICULTY_10MAN_NORMAL ? GO_HEART_OF_MAGIC : GO_HEART_OF_MAGIC_H, HOUR * IN_MILLISECONDS);
                     break;
                 }
                 default:
@@ -296,8 +280,6 @@ void instance_eye_of_eternity::ActivateVisualOfVortex()
             pVortex->CastSpell(pVortex, SPELL_VORTEX_VISUAL, false);
         }
     }
-    m_uiVortexCounter = 0;
-    m_uiVortexSeatCounter = 0;
 }
 
 void instance_eye_of_eternity::DestroyVisualOfVortex(bool boom)
@@ -313,22 +295,17 @@ void instance_eye_of_eternity::DestroyVisualOfVortex(bool boom)
 
 void instance_eye_of_eternity::HandleRiderOfVortex(Unit* pTarget)
 {
-    uint8 loopCounter = 0;
     for (GuidList::const_iterator iter = m_lVortex.begin(); iter != m_lVortex.end(); ++iter)
     {
-        if (loopCounter != m_uiVortexCounter)
-            continue;
-
         if (Creature* pVortex = instance->GetCreature(*iter))
         {
-            //int32 seat = m_uiVortexSeatCounter;
-            //pTarget->CastCustomSpell(pVortex, SPELL_VORTEX_RIDE_AURA, &seat, NULL, NULL, true, NULL, NULL, pVortex->GetObjectGuid(), NULL);
-            pTarget->CastSpell(pTarget, SPELL_VORTEX_RIDE_AURA, true);
-            ++m_uiVortexSeatCounter;
-            if (m_uiVortexSeatCounter >= 5)
+            if (VehicleKitPtr pVehicle = pVortex->GetVehicleKit())
             {
-                ++m_uiVortexCounter; // next vortex
-                m_uiVortexSeatCounter = 0; // begin at seat 0
+                if (pVehicle->GetNextEmptySeatWithFlag(0) != -1)
+                {
+                    pTarget->CastSpell(pTarget, SPELL_VORTEX_RIDE_AURA, true);
+                    return;
+                }
             }
         }
     }

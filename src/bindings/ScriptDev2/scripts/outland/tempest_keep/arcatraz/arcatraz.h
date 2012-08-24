@@ -7,11 +7,12 @@
 
 enum
 {
-    MAX_ENCOUNTER                   = 9,
+    MAX_ENCOUNTER                   = 10,
 
+    TYPE_ENTRANCE                   = 0,
     TYPE_ZEREKETH                   = 1,
-    TYPE_DALLIAH                    = 2,                    // Handled in ACID (20885 - Dalliah the Doomsayer)
-    TYPE_SOCCOTHRATES               = 3,                    // Handled in ACID (20886 - Wrath-Scryer Soccothrates)
+    TYPE_DALLIAH                    = 2,
+    TYPE_SOCCOTHRATES               = 3,
     TYPE_HARBINGERSKYRISS           = 4,                    // Handled with ACID (FAIL of 20905, 20906, 20908, 20909, 20910, 20911)
     TYPE_WARDEN_1                   = 5,                    // Handled with ACID (20905 - Blazing Trickster, 20906 - Phase-Hunter)
     TYPE_WARDEN_2                   = 6,
@@ -19,12 +20,18 @@ enum
     TYPE_WARDEN_4                   = 8,                    // Handled with ACID (20910 - Twilight Drakonaar, 20911 - Blackwing Drakonaar)
     TYPE_WARDEN_5                   = 9,
 
+    NPC_DALLIAH                     = 20885,
+    NPC_SOCCOTHRATES                = 20886,
     NPC_MELLICHAR                   = 20904,                // Skyriss will kill this unit
     NPC_PRISON_APHPA_POD            = 21436,
     NPC_PRISON_BETA_POD             = 21437,
     NPC_PRISON_DELTA_POD            = 21438,
     NPC_PRISON_GAMMA_POD            = 21439,
     NPC_PRISON_BOSS_POD             = 21440,
+
+    // intro event related
+    NPC_PROTEAN_NIGHTMARE           = 20864,
+    NPC_PROTEAN_HORROR              = 20865,
 
     // Harbinger Skyriss event related (trash mobs are scripted in ACID)
     NPC_BLAZING_TRICKSTER           = 20905,                // phase 1
@@ -62,6 +69,10 @@ static const SpawnLocation aSummonPosition[5] =
     {445.763f, -191.639f, 44.64f, 1.60f}                    // Skyriss
 };
 
+static const float aDalliahStartPos[4] = {118.6038f, 96.84682f, 22.44115f, 1.012f};
+static const float aSoccotharesStartPos[4] = {122.1035f, 192.7203f, 22.44115f, 5.235f};
+static const float aEntranceMoveLoc[3] = {82.020f, 0.306f, -11.026f};
+
 class MANGOS_DLL_DECL instance_arcatraz : public ScriptedInstance, private DialogueHelper
 {
     public:
@@ -69,6 +80,7 @@ class MANGOS_DLL_DECL instance_arcatraz : public ScriptedInstance, private Dialo
 
         void Initialize();
 
+        void OnPlayerEnter(Player* pPlayer);
         void OnObjectCreate(GameObject* pGo);
         void OnCreatureCreate(Creature* pCreature);
 
@@ -87,8 +99,10 @@ class MANGOS_DLL_DECL instance_arcatraz : public ScriptedInstance, private Dialo
         std::string m_strInstData;
 
         uint32 m_uiResetDelayTimer;
+        uint32 m_uiEntranceEventTimer;
 
         GuidList m_lSkyrissEventMobsGuidList;
+        std::queue<ObjectGuid> m_qIntroEventMobsGuidQueue;
 };
 
 #endif

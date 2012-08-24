@@ -495,7 +495,7 @@ class MANGOS_DLL_SPEC Creature : public Unit
         bool IsTemporarySummon() const { return m_subtype == CREATURE_SUBTYPE_TEMPORARY_SUMMON; }
 
         bool IsCorpse() const { return getDeathState() ==  CORPSE; }
-        bool IsDespawned() const { return getDeathState() ==  DEAD; }
+        virtual bool IsDespawned() const { return getDeathState() ==  DEAD; }
         void SetCorpseDelay(uint32 delay) { m_corpseDelay = delay; }
         bool IsRacialLeader() const { return GetCreatureInfo()->RacialLeader; }
         bool IsCivilian() const { return GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_CIVILIAN; }
@@ -545,6 +545,8 @@ class MANGOS_DLL_SPEC Creature : public Unit
 
         void SetWalk(bool enable);
         void SetLevitate(bool enable);
+        void SetRoot(bool enable) override;
+        void SetWaterWalk(bool enable) override;
 
         uint32 GetShieldBlockValue() const                  // dunno mob block value
         {
@@ -713,7 +715,8 @@ class MANGOS_DLL_SPEC Creature : public Unit
 
         void SendAreaSpiritHealerQueryOpcode(Player *pl);
 
-        void LockAI(bool lock) { m_AI_locked = lock; }
+        void LockAI(bool lock) { m_AI_locked = lock; };
+        bool IsAILocked() const { return m_AI_locked; };
 
         void SetVirtualItem(VirtualItemSlot slot, uint32 item_id) { SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + slot, item_id); }
 
@@ -798,11 +801,22 @@ class ForcedDespawnDelayEvent : public BasicEvent
 class AttackResumeEvent : public BasicEvent
 {
     public:
-        AttackResumeEvent(Unit& owner) : m_owner(owner), b_force(false) {};
+        AttackResumeEvent(Unit& owner) : BasicEvent(), m_owner(owner), b_force(false) {};
         AttackResumeEvent(Unit& owner, bool force) : m_owner(owner), b_force(force) {};
         bool Execute(uint64 e_time, uint32 p_time);
     private:
         AttackResumeEvent();
+        Unit&   m_owner;
+        bool    b_force;
+};
+
+class EvadeDelayEvent : public BasicEvent
+{
+    public:
+        EvadeDelayEvent(Unit& owner, bool force = false) : BasicEvent(), m_owner(owner), b_force(force) {};
+        bool Execute(uint64 e_time, uint32 p_time);
+    private:
+        EvadeDelayEvent();
         Unit&   m_owner;
         bool    b_force;
 };

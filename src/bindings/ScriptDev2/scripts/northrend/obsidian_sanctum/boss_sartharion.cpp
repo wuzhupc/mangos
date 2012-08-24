@@ -880,7 +880,8 @@ struct MANGOS_DLL_DECL dummy_dragonAI : public ScriptedAI
 
         //using a grid search here seem to be more efficient than caching all four guids
         //in instance script and calculate range to each.
-        if (GameObject* pPortal = GetClosestGameObjectWithEntry(m_creature, GO_TWILIGHT_PORTAL, 100.0f))
+        GameObject* pPortal = m_creature->SummonGameobject(GO_TWILIGHT_PORTAL, m_creature->GetPositionX()+frand(-10.0f, 10.0f), m_creature->GetPositionY()+frand(-10.0f, 10.0f), m_creature->GetPositionZ(), 0.0f, 0);
+        if (pPortal)
         {
             Creature* pAcolyte = NULL;
             switch(m_creature->GetEntry())
@@ -962,11 +963,10 @@ struct MANGOS_DLL_DECL dummy_dragonAI : public ScriptedAI
 
             DoRaidWhisper(iTextId);
 
-            //By using SetRespawnTime() we will actually "spawn" the object with our defined time.
+            //By using SetRespawnTime() with SetSpawnedByDefault(false) we will actually "despawn" the object with our defined time.
             //Once time is up, portal will disappear again.
-            
+            pPortal->SetSpawnedByDefault(false);
             pPortal->SetRespawnTime(iPortalRespawnTime);
-            pPortal->Refresh();
 
             //Unclear what are expected to happen if one drake has a portal open already
             //Refresh respawnTime so time again are set to 30secs?

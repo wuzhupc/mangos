@@ -194,6 +194,10 @@ BindIP = "0.0.0.0"
 #        Default: 1 (Enable)
 #                 0 (Disabled)
 #
+#    WorldState.ExpireTime
+#        Expire time for cleanup WorldStates in seconds.
+#        Default: 604800 (1 week)
+#
 #    ACE mtmaps
 #    MapUpdate.Threads
 #        Number of threads to run if the binary was compiled with mtmaps support.
@@ -243,6 +247,7 @@ UpdateUptimeInterval = 10
 MaxCoreStuckTime = 0
 AddonChannel = 1
 CleanCharacterDB = 1
+WorldState.ExpireTime = 604800
 MapUpdate.Threads = 1
 MapUpdate.DynamicThreadsCount = 0
 MapUpdate.LoadBalanceHighValue = 0.8
@@ -1739,12 +1744,8 @@ BattleGround.Random.ResetHour = 6
 #                 1 (enable)
 #
 #    Arena.ArenaSeason.ID
-#        Current area season id show in client
-#        Default: 1
-#
 #    Arena.ArenaSeasonPrevious.ID
-#        Previous area season id show in client
-#        Default: 0
+#        Keys redundant, use WorldStates 3191 and 3901 instead
 #
 #    Arena.StartRating
 #        Default Rating at team creation
@@ -1779,13 +1780,36 @@ Arena.AutoDistributeInterval = 7
 Arena.QueueAnnouncer.Join = 0
 Arena.QueueAnnouncer.Exit = 0
 Arena.QueueAnnouncer.Start = 0
-Arena.ArenaSeason.ID = 1
-Arena.ArenaSeasonPrevious.ID = 0
 Arena.StartRating = -1
 Arena.StartPersonalRating = -1
 Arena.LoserNoChange = 0
 Arena.LoserHalfChange = 0
 Arena.RemoveAurasWithDurationLess = 30
+
+###################################################################################################################
+# OUTDOOR PVP CONFIG
+#
+#    OutdoorPvp.SIEnabled               #Enable Silithus Outdoor pvp
+#    OutdoorPvp.EPEnabled               #Enable Eastern Plaguelands Outdoor pvp
+#    OutdoorPvp.HPEnabled               #Enable Hellfire Peninsula Outdoor pvp
+#    OutdoorPvp.ZMEnabled               #Enable Zangarmarsh Outdoor pvp
+#    OutdoorPvp.TFEnabled               #Enable Terokkar Forest  Outdoor pvp
+#    OutdoorPvp.NAEnabled               #Enable Halaa (Nagrand) Outdoor pvp
+#    OutdoorPvp.GHEnabled               #Enable Venture Bay (Grizzly Hills) Outdoor pvp
+#    OutdoorPvp.WGEnabled               #Enable WinterGrasp Outdoor pvp
+#        Default: 1 (enable)
+#                 0 (disable)
+#
+###################################################################################################################
+
+OutdoorPvp.SIEnabled = 1
+OutdoorPvp.EPEnabled = 1
+OutdoorPvp.HPEnabled = 1
+OutdoorPvp.ZMEnabled = 1
+OutdoorPvp.TFEnabled = 1
+OutdoorPvp.NAEnabled = 1
+OutdoorPvp.GHEnabled = 1
+OutdoorPvp.WGEnabled = 0
 
 ###################################################################################################################
 # NETWORK CONFIG

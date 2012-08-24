@@ -15,7 +15,7 @@
  */
 
 /* ScriptData
-SDName: instance_icecrown_spire
+SDName: instance_icecrown_citadel
 SD%Complete: 90%
 SDComment:  by michalpolko with special thanks to:
             mangosR2 team and all who are supporting us with feedback, testing and fixes
@@ -35,13 +35,13 @@ static Locations SpawnLoc[]=
     {-428.140503f, 2421.336914f, 191.233078f},  // 1 Alliance ship enter
 };
 
-instance_icecrown_spire::instance_icecrown_spire(Map* pMap) : ScriptedInstance(pMap)
+instance_icecrown_citadel::instance_icecrown_citadel(Map* pMap) : ScriptedInstance(pMap)
 {
     Difficulty = pMap->GetDifficulty();
     Initialize();
 }
 
-void instance_icecrown_spire::Initialize()
+void instance_icecrown_citadel::Initialize()
 {
     for (uint8 i = 0; i < MAX_ENCOUNTERS; ++i)
         m_auiEncounter[i] = NOT_STARTED;
@@ -89,7 +89,7 @@ void instance_icecrown_spire::Initialize()
     }
 }
 
-bool instance_icecrown_spire::IsEncounterInProgress()
+bool instance_icecrown_citadel::IsEncounterInProgress()
 {
     for(uint8 i = 1; i < MAX_ENCOUNTERS-2 ; ++i)
     {
@@ -100,7 +100,7 @@ bool instance_icecrown_spire::IsEncounterInProgress()
     return false;
 }
 
-void instance_icecrown_spire::OnCreatureCreate(Creature* pCreature)
+void instance_icecrown_citadel::OnCreatureCreate(Creature* pCreature)
 {
     switch(pCreature->GetEntry())
     {
@@ -133,7 +133,7 @@ void instance_icecrown_spire::OnCreatureCreate(Creature* pCreature)
     }
 }
 
-void instance_icecrown_spire::OnObjectCreate(GameObject* pGo)
+void instance_icecrown_citadel::OnObjectCreate(GameObject* pGo)
 {
     switch(pGo->GetEntry())
     {
@@ -271,7 +271,7 @@ void instance_icecrown_spire::OnObjectCreate(GameObject* pGo)
     }
 }
 
-void instance_icecrown_spire::SetData(uint32 uiType, uint32 uiData)
+void instance_icecrown_citadel::SetData(uint32 uiType, uint32 uiData)
 {
 
     bool bChange = bool(m_auiEncounter[uiType] != uiData);
@@ -523,7 +523,7 @@ void instance_icecrown_spire::SetData(uint32 uiType, uint32 uiData)
     }
 }
 
-uint32 instance_icecrown_spire::GetData(uint32 uiType)
+uint32 instance_icecrown_citadel::GetData(uint32 uiType)
 {
     switch(uiType)
     {
@@ -548,7 +548,7 @@ uint32 instance_icecrown_spire::GetData(uint32 uiType)
              return 0;
     }
 }
-bool instance_icecrown_spire::CheckAchievementCriteriaMeet(uint32 uiCriteriaId, Player const* pSource, Unit const* pTarget, uint32 uiMiscValue1 /* = 0*/)
+bool instance_icecrown_citadel::CheckAchievementCriteriaMeet(uint32 uiCriteriaId, Player const* pSource, Unit const* pTarget, uint32 uiMiscValue1 /* = 0*/)
 {
     switch(uiCriteriaId)
     {
@@ -612,13 +612,13 @@ bool instance_icecrown_spire::CheckAchievementCriteriaMeet(uint32 uiCriteriaId, 
     }
 }
 
-void instance_icecrown_spire::SetSpecialAchievementCriteria(uint32 uiType, bool bIsMet)
+void instance_icecrown_citadel::SetSpecialAchievementCriteria(uint32 uiType, bool bIsMet)
 {
     if (uiType < ACHIEVE_MAX_COUNT)
         m_bAchievCriteria[uiType] = bIsMet;
 }
 
-void instance_icecrown_spire::Load(const char* chrIn)
+void instance_icecrown_citadel::Load(const char* chrIn)
 {
     if (!chrIn)
     {
@@ -641,17 +641,17 @@ void instance_icecrown_spire::Load(const char* chrIn)
     OUT_LOAD_INST_DATA_COMPLETE;
 }
 
-InstanceData* GetInstanceData_instance_icecrown_spire(Map* pMap)
+InstanceData* GetInstanceData_instance_icecrown_citadel(Map* pMap)
 {
-    return new instance_icecrown_spire(pMap);
+    return new instance_icecrown_citadel(pMap);
 }
 
 
-void AddSC_instance_icecrown_spire()
+void AddSC_instance_icecrown_citadel()
 {
     Script* pNewScript;
     pNewScript = new Script;
-    pNewScript->Name = "instance_icecrown_spire";
-    pNewScript->GetInstanceData = &GetInstanceData_instance_icecrown_spire;
+    pNewScript->Name = "instance_icecrown_citadel";
+    pNewScript->GetInstanceData = &GetInstanceData_instance_icecrown_citadel;
     pNewScript->RegisterSelf();
 }

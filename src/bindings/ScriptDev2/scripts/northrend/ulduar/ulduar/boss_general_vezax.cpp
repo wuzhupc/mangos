@@ -353,9 +353,6 @@ struct MANGOS_DLL_DECL mob_saronite_animusAI : public ScriptedAI
     }
 };
 
-
-
-
 CreatureAI* GetAI_mob_saronite_animus(Creature* pCreature)
 {
     return new mob_saronite_animusAI(pCreature);

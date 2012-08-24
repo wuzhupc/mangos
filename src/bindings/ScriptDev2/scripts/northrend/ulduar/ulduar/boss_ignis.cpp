@@ -245,7 +245,7 @@ struct MANGOS_DLL_DECL boss_ignisAI : public ScriptedAI
     {
         if (m_pInstance)
             m_pInstance->SetData(TYPE_IGNIS, FAIL);
-        if (VehicleKit *pVehKit = m_creature->GetVehicleKit())
+        if (VehicleKitPtr pVehKit = m_creature->GetVehicleKit())
             pVehKit->RemoveAllPassengers();
     }
 
@@ -322,7 +322,7 @@ struct MANGOS_DLL_DECL boss_ignisAI : public ScriptedAI
         {
             if (m_uiSlagPotSwitchTimer <= uiDiff)
             {
-                if (VehicleKit *pVehKit = m_creature->GetVehicleKit())
+                if (VehicleKitPtr pVehKit = m_creature->GetVehicleKit())
                     if (Unit *pPassenger = pVehKit->GetPassenger(0))
                     {
                         pVehKit->RemovePassenger(pPassenger);
@@ -336,7 +336,7 @@ struct MANGOS_DLL_DECL boss_ignisAI : public ScriptedAI
 
             if (m_uiSlagPotDmgTimer <= uiDiff)
             {
-                if (VehicleKit *pVehKit = m_creature->GetVehicleKit())
+                if (VehicleKitPtr pVehKit = m_creature->GetVehicleKit())
                     if (Unit *pPassenger = pVehKit->GetPassenger(1))
                     {
                         pPassenger->CastSpell(pPassenger, m_bIsRegularMode ? SPELL_SLAG_POT_DMG : SPELL_SLAG_POT_DMG_H, true ,0 ,0, m_creature->GetObjectGuid());
@@ -348,7 +348,7 @@ struct MANGOS_DLL_DECL boss_ignisAI : public ScriptedAI
 
             if (m_uiSlagPotExitTimer <= uiDiff)
             {
-                if (VehicleKit *pVehKit = m_creature->GetVehicleKit())
+                if (VehicleKitPtr pVehKit = m_creature->GetVehicleKit())
                     pVehKit->RemoveAllPassengers();
                 m_uiSlagPotExitTimer = 10000;
                 m_bIsSlagPot = false;

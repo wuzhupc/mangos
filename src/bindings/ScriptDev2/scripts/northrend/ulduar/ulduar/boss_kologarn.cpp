@@ -159,7 +159,7 @@ struct MANGOS_DLL_DECL boss_kologarnAI : public ScriptedAI
     }
 
     instance_ulduar* m_pInstance;
-    VehicleKit* vehicle;
+    VehicleKitPtr vehicle;
     bool m_bIsRegularMode;
 
     uint32 m_uiSpell_Timer;
@@ -564,7 +564,7 @@ struct MANGOS_DLL_DECL boss_right_armAI : public ScriptedAI
     }
 
     instance_ulduar* m_pInstance;
-    VehicleKit* vehicle;
+    VehicleKitPtr vehicle;
     bool m_bIsRegularMode;
 
     uint32 m_uiStone_Grip_Timer;

@@ -3939,7 +3939,7 @@ bool ChatHandler::HandleDamageCommand(char* args)
 
         target->CalculateDamageAbsorbAndResist(m_session->GetPlayer(),&damageInfo, false);
 
-        m_session->GetPlayer()->DealDamageMods(target, damageInfo.damage, &damageInfo.absorb);
+        m_session->GetPlayer()->DealDamageMods(&damageInfo);
         m_session->GetPlayer()->DealDamage(target,&damageInfo,false);
         m_session->GetPlayer()->SendAttackStateUpdate(&damageInfo);
         return true;
@@ -6647,8 +6647,10 @@ bool ChatHandler::HandleInstanceSaveDataCommand(char* /*args*/)
 bool ChatHandler::HandleGMListFullCommand(char* /*args*/)
 {
     ///- Get the accounts with GM Level >0
-    QueryResult *result = LoginDatabase.Query( "SELECT username,gmlevel FROM account WHERE gmlevel > 0" );
-    if(result)
+    QueryResult* result = LoginDatabase.PQuery("SELECT ac.username, ac.gmlevel, af.Security FROM account ac LEFT JOIN "
+                                               "account_forcepermission af ON ac.id = af.AccountID WHERE (af.Security > 0 AND realmID = '%u') "
+                                               "OR ac.gmlevel > 0", sConfig.GetIntDefault("RealmID", 0));
+    if (result)
     {
         SendSysMessage(LANG_GMLIST);
         SendSysMessage("========================");
@@ -6658,9 +6660,9 @@ bool ChatHandler::HandleGMListFullCommand(char* /*args*/)
         ///- Circle through them. Display username and GM level
         do
         {
-            Field *fields = result->Fetch();
-            PSendSysMessage("|%15s|%6s|", fields[0].GetString(),fields[1].GetString());
-        }while( result->NextRow() );
+            Field* fields = result->Fetch();
+            PSendSysMessage("|%15s|%6u|", fields[0].GetString(), (fields[1].GetUInt8() > fields[2].GetUInt8()) ? fields[1].GetUInt8() : fields[2].GetUInt8());
+        } while(result->NextRow());
 
         PSendSysMessage("========================");
         delete result;
@@ -7164,6 +7166,7 @@ bool ChatHandler::HandleAccountFriendAddCommand(char* args)
     {
         case AOR_OK:
             SendSysMessage(LANG_COMMAND_FRIEND);
+            PSendSysMessage("Added RAF link from referral account %u (%s) to referred %u (%s)",targetAccountId, account_name.c_str(), friendAccountId, account_friend_name.c_str());
             break;
         default:
             SendSysMessage(LANG_COMMAND_FRIEND_ERROR);
@@ -7196,6 +7199,7 @@ bool ChatHandler::HandleAccountFriendDeleteCommand(char* args)
     {
         case AOR_OK:
             SendSysMessage(LANG_COMMAND_FRIEND);
+            PSendSysMessage("Deleted RAF link from referral account %u (%s) to referred %u (%s)",targetAccountId, account_name.c_str(), friendAccountId, account_friend_name.c_str());
             break;
         default:
             SendSysMessage(LANG_COMMAND_FRIEND_ERROR);
@@ -7209,7 +7213,45 @@ bool ChatHandler::HandleAccountFriendDeleteCommand(char* args)
 // List friends for account
 bool ChatHandler::HandleAccountFriendListCommand(char* args)
 {
-    return false;
+    ///- Get the command line arguments
+    std::string account_name;
+    uint32 targetAccountId = ExtractAccountId(&args, &account_name);
+
+    if (!targetAccountId)
+        return false;
+
+    RafLinkedList const* referredAccounts = sAccountMgr.GetRAFAccounts(targetAccountId, true);
+    RafLinkedList const* referalAccounts  = sAccountMgr.GetRAFAccounts(targetAccountId, false);
+
+    if (!referredAccounts || !referalAccounts)
+    {
+        PSendSysMessage("Account %u (%s) not has RAF links!",targetAccountId, account_name.c_str());
+        return true;
+    }
+
+    if (!referredAccounts->empty())
+    {
+        PSendSysMessage("Account %u (%s) has %u referred accounts:",targetAccountId, account_name.c_str(), referredAccounts->size());
+        for (RafLinkedList::const_iterator itr = referredAccounts->begin(); itr != referredAccounts->end(); ++itr)
+        {
+            uint32 accId = *itr;
+            std::string acc_name;
+            sAccountMgr.GetName(accId, acc_name);
+            PSendSysMessage("        Referred account %u (%s)",accId, acc_name.c_str());
+        }
+    }
+    if (!referalAccounts->empty())
+    {
+        PSendSysMessage("Account %u (%s) has %u referral accounts:",targetAccountId, account_name.c_str(), referalAccounts->size());
+        for (RafLinkedList::const_iterator itr = referalAccounts->begin(); itr != referalAccounts->end(); ++itr)
+        {
+            uint32 accId = *itr;
+            std::string acc_name;
+            sAccountMgr.GetName(accId, acc_name);
+            PSendSysMessage("        Referal account %u (%s)",accId, acc_name.c_str());
+        }
+    }
+    return true;
 }
 
 bool ChatHandler::HandleShowGearScoreCommand(char *args)

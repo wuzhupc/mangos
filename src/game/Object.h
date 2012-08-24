@@ -74,14 +74,15 @@ class Map;
 class UpdateMask;
 class InstanceData;
 class TerrainInfo;
-class ZoneScript;
 class Transport;
+class TransportInfo;
 
 typedef UNORDERED_MAP<Player*, UpdateData> UpdateDataMapType;
 
 struct Position
 {
     Position() : x(0.0f), y(0.0f), z(0.0f), o(0.0f) {}
+    Position(float _x, float _y, float _z, float _o) : x(_x), y(_y), z(_z), o(_o) {}
     float x, y, z, o;
 };
 
@@ -450,6 +451,10 @@ class MANGOS_DLL_SPEC WorldObject : public Object
 
         void _Create(ObjectGuid guid, uint32 phaseMask);
 
+        TransportInfo* GetTransportInfo() const { return m_transportInfo; }
+        bool IsBoarded() const { return m_transportInfo != NULL; }
+        void SetTransportInfo(TransportInfo* transportInfo) { m_transportInfo = transportInfo; }
+
         void Relocate(float x, float y, float z, float orientation);
         void Relocate(float x, float y, float z);
 
@@ -603,9 +608,6 @@ class MANGOS_DLL_SPEC WorldObject : public Object
         //obtain terrain data for map where this object belong...
         TerrainInfo const* GetTerrain() const;
 
-        void SetZoneScript();
-        ZoneScript * GetZoneScript() const { return m_zoneScript; }
-
         void AddToClientUpdateList();
         void RemoveFromClientUpdateList();
         void BuildUpdateData(UpdateDataMapType &);
@@ -641,6 +643,10 @@ class MANGOS_DLL_SPEC WorldObject : public Object
         // ASSERT print helper
         bool PrintCoordinatesError(float x, float y, float z, char const* descr) const;
 
+        // WorldState operations
+        void UpdateWorldState(uint32 state, uint32 value);
+        uint32 GetWorldState(uint32 state);
+
 		//wuzhu start
 		const char *GetWUZHUString(int32 entry,Player *player) const;
 		//wuzhu end
@@ -659,9 +665,9 @@ class MANGOS_DLL_SPEC WorldObject : public Object
         ObjectGuid m_lootRecipientGuid;                     // player who will have rights for looting if m_lootGroupRecipient==0 or group disbanded
         uint32 m_lootGroupRecipientId;                      // group who will have rights for looting if set and exist
 
-        ZoneScript *m_zoneScript;
-
         std::string m_name;
+
+        TransportInfo* m_transportInfo;
 
     private:
         Map * m_currMap;                                    //current object's Map location

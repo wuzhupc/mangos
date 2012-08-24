@@ -3465,7 +3465,7 @@ struct MANGOS_DLL_DECL npc_mine_carAI : public ScriptedAI
 
     void UpdateAI(const uint32 uiDiff)
     {
-        if (m_creature->GetVehicleKit()->HasEmptySeat(0))
+        if (!m_creature->GetVehicleKit() || m_creature->GetVehicleKit()->HasEmptySeat(0))
         {
             m_creature->ForcedDespawn();
         }

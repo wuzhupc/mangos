@@ -194,7 +194,7 @@ struct MANGOS_DLL_DECL boss_leviathan_mkAI : public ScriptedAI
 
     bool m_bIsRegularMode;
     instance_ulduar* m_pInstance;
-    VehicleKit* pVehicleTank;
+    VehicleKitPtr pVehicleTank;
 
     bool m_bStartAttack;
 
@@ -348,7 +348,7 @@ struct MANGOS_DLL_DECL boss_leviathan_mkAI : public ScriptedAI
             m_creature->SetHealthPercent(50.0f);
             if(Creature* pTorso = m_pInstance->GetSingleCreatureFromStorage(NPC_VX001))
             {
-                if (VehicleKit* pVehicleTank = m_creature->GetVehicleKit())
+                if (VehicleKitPtr pVehicleTank = m_creature->GetVehicleKit())
                 {
                     pVehicleTank->RemoveAllPassengers();
                     pTorso->EnterVehicle(pVehicleTank, SEAT_FOR_ROBOT);
@@ -356,7 +356,7 @@ struct MANGOS_DLL_DECL boss_leviathan_mkAI : public ScriptedAI
 
                 if(Creature* pHead = m_pInstance->GetSingleCreatureFromStorage(NPC_AERIAL_UNIT))
                 {
-                    if (VehicleKit* pVehicleTorso = pTorso->GetVehicleKit())
+                    if (VehicleKitPtr pVehicleTorso = pTorso->GetVehicleKit())
                     {
                         pHead->EnterVehicle(pVehicleTorso, SEAT_FOR_ROBOT);
                     }
@@ -713,7 +713,7 @@ struct MANGOS_DLL_DECL boss_vx001AI : public ScriptedAI
         {
             if (Creature* pTank = m_pInstance->GetSingleCreatureFromStorage(NPC_LEVIATHAN_MK))
             {
-                if (VehicleKit* pTankV = pTank->GetVehicleKit())
+                if (VehicleKitPtr pTankV = pTank->GetVehicleKit())
                 {
                     if (!pTankV->GetPassenger(SEAT_FOR_ROBOT))
                     {
@@ -721,7 +721,7 @@ struct MANGOS_DLL_DECL boss_vx001AI : public ScriptedAI
                     }
                 }
             }
-            if (VehicleKit* pVX001V = m_creature->GetVehicleKit())
+            if (VehicleKitPtr pVX001V = m_creature->GetVehicleKit())
             {
                 if (!pVX001V->GetPassenger(SEAT_FOR_ROBOT))
                 {

@@ -422,18 +422,30 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
     switch (action.type)
     {
         case ACTION_T_TEXT:
+        case ACTION_T_CHANCED_TEXT:
         {
             if (!action.text.TextId[0])
                 return;
 
             int32 temp = 0;
 
-            if (action.text.TextId[1] && action.text.TextId[2])
-                temp = action.text.TextId[rand()%3];
-            else if (action.text.TextId[1] && urand(0,1))
-                temp = action.text.TextId[1];
-            else
-                temp = action.text.TextId[0];
+            if (action.type == ACTION_T_TEXT)
+            {
+                if (action.text.TextId[1] && action.text.TextId[2])
+                    temp = action.text.TextId[urand(0, 2)];
+                else if (action.text.TextId[1] && urand(0, 1))
+                    temp = action.text.TextId[1];
+                else
+                    temp = action.text.TextId[0];
+            }
+            // ACTION_T_CHANCED_TEXT, chance hits
+            else if (urand(0, 99) < action.chanced_text.chance)
+            {
+                if (action.chanced_text.TextId[0] && action.chanced_text.TextId[1])
+                    temp = action.chanced_text.TextId[urand(0, 1)];
+                else
+                    temp = action.chanced_text.TextId[0];
+            }
 
             if (temp)
             {
@@ -916,9 +928,6 @@ void CreatureEventAI::EnterEvadeMode()
     m_creature->DeleteThreatList();
     m_creature->CombatStop(true);
 
-    if (m_creature->isAlive())
-        m_creature->GetMotionMaster()->MoveTargetedHome();
-
     m_creature->SetLootRecipient(NULL);
 
     if (m_bEmptyList)
@@ -1274,7 +1283,7 @@ inline Unit* CreatureEventAI::GetTargetByType(uint32 Target, Unit* pActionInvoke
 
         case TARGET_T_CURRENT_VEHICLE:
         {
-            if (VehicleKit* vehicle = m_creature->GetVehicle())
+            if (VehicleKitPtr vehicle = m_creature->GetVehicle())
                 if (Unit* base = vehicle->GetBase())
                     return base;
             break;

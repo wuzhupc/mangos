@@ -36,12 +36,13 @@
 #include "CreatureAI.h"
 #include "CreatureAISelector.h"
 #include "CreatureEventAI.h"
+#include "PetAI.h"
 #include "Formulas.h"
 #include "WaypointMovementGenerator.h"
 #include "InstanceData.h"
 #include "MapPersistentStateMgr.h"
 #include "BattleGroundMgr.h"
-#include "WorldPvP/WorldPvPMgr.h"
+#include "OutdoorPvP/OutdoorPvP.h"
 #include "Spell.h"
 #include "Util.h"
 #include "GridNotifiers.h"
@@ -464,7 +465,7 @@ uint32 Creature::ChooseDisplayId(const CreatureInfo *cinfo, const CreatureData *
         // Where it's expected to select one of two, model must have a alternative model defined (alternative model is normally the same as defined in ModelId1).
         // Same pattern is used in the above model selection, but the result may be ModelId3 and not ModelId2 as here.
         uint32 modelid_tmp = sObjectMgr.GetCreatureModelAlternativeModel(cinfo->ModelId[1]);
-        display_id = modelid_tmp ? modelid_tmp : cinfo->ModelId[1];
+        display_id = modelid_tmp ? cinfo->ModelId[urand(0, 1)] : cinfo->ModelId[1];
     }
     else if (cinfo->ModelId[0])
     {
@@ -537,8 +538,8 @@ void Creature::Update(uint32 update_diff, uint32 diff)
                 if (AI())
                     AI()->JustRespawned();
 
-                if (m_zoneScript)
-                    m_zoneScript->OnCreatureRespawn(this);
+                if (OutdoorPvP* outdoorPvP = sOutdoorPvPMgr.GetScript(GetZoneId()))
+                    outdoorPvP->HandleCreatureRespawn(this);
 
                 if (m_isCreatureLinkingTrigger)
                     GetMap()->GetCreatureLinkingHolder()->DoCreatureLinkingEvent(LINKING_EVENT_RESPAWN, this);
@@ -615,9 +616,9 @@ void Creature::Update(uint32 update_diff, uint32 diff)
                 if (AI())
                 {
                     // do not allow the AI to be changed during update
-                    m_AI_locked = true;
+                    LockAI(true);
                     AI()->UpdateAI(diff);   // AI not react good at real update delays (while freeze in non-active part of map)
-                    m_AI_locked = false;
+                    LockAI(false);
                 }
             }
 
@@ -788,7 +789,7 @@ void Creature::DoFleeToGetAssistance()
 bool Creature::AIM_Initialize()
 {
     // make sure nothing can change the AI during AI update
-    if (m_AI_locked)
+    if (IsAILocked())
     {
         DEBUG_FILTER_LOG(LOG_FILTER_AI_AND_MOVEGENSS, "AIM_Initialize: failed to init, locked.");
         return false;
@@ -822,10 +823,9 @@ bool Creature::Create(uint32 guidlow, CreatureCreatePos& cPos, CreatureInfo cons
     if (InstanceData* iData = GetMap()->GetInstanceData())
         iData->OnCreatureCreate(this);
 
-    // Init and notify outdoor pvp script
-    SetZoneScript();
-    if (m_zoneScript)
-        m_zoneScript->OnCreatureCreate(this);
+    // Notify the outdoor pvp script
+    if (OutdoorPvP* outdoorPvP = sOutdoorPvPMgr.GetScript(GetZoneId()))
+        outdoorPvP->HandleCreatureCreate(this);
 
     switch (GetCreatureInfo()->rank)
     {
@@ -2056,14 +2056,10 @@ bool Creature::LoadCreatureAddon(bool reload)
     return true;
 }
 
-/// Send a message to LocalDefense channel for players opposition team in the zone
+/// Sends a message to LocalDefense and WorldDefense channels for players of the other team
 void Creature::SendZoneUnderAttackMessage(Player* attacker)
 {
-    Team enemy_team = attacker->GetTeam();
-
-    WorldPacket data(SMSG_ZONE_UNDER_ATTACK, 4);
-    data << uint32(GetZoneId());
-    sWorld.SendGlobalMessage(&data, NULL, (enemy_team == ALLIANCE ? HORDE : ALLIANCE));
+    sWorld.SendZoneUnderAttackMessage(GetZoneId(), attacker->GetTeam() == ALLIANCE ? HORDE : ALLIANCE);
 }
 
 void Creature::SetInCombatWithZone()
@@ -2252,7 +2248,7 @@ uint8 Creature::getRace() const
 
 bool Creature::IsInEvadeMode() const
 {
-    return i_motionMaster.GetCurrentMovementGeneratorType() == HOME_MOTION_TYPE;
+    return IsInUnitState(UNIT_ACTION_HOME);
 }
 
 bool Creature::HasSpell(uint32 spellID)
@@ -2783,4 +2779,105 @@ Unit* Creature::SelectPreferredTargetForSpell(SpellEntry const* spellInfo)
     }
 
     return target;
+}
+
+bool EvadeDelayEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
+{
+    if (m_owner.IsInEvadeMode())
+        return true;
+
+    if (m_owner.SelectHostileTarget(false))
+        return true;
+
+    switch (m_owner.GetObjectGuid().GetHigh())
+    {
+        case HIGHGUID_UNIT:
+        case HIGHGUID_VEHICLE:
+        {
+            Creature* c_owner = (Creature*)(&m_owner);
+            if (!c_owner)
+                return true;
+
+            if (c_owner->IsAILocked())
+                return false;
+
+            if (c_owner->IsDespawned())
+                return true;
+
+            if (c_owner->isAlive())
+                c_owner->GetMotionMaster()->MoveTargetedHome();
+
+            CreatureAI* ai = c_owner->AI();
+            if (ai)
+                ai->EnterEvadeMode();
+
+            if (InstanceData* mapInstance = c_owner->GetInstanceData())
+                mapInstance->OnCreatureEvade(c_owner);
+            break;
+        }
+        case HIGHGUID_PET:
+        {
+            Creature* c_owner = (Creature*)(&m_owner);
+            if (!c_owner)
+                return true;
+
+            if (c_owner->IsAILocked())
+                return false;
+
+            if (c_owner->IsDespawned())
+                return true;
+
+            if (c_owner->isAlive())
+                c_owner->GetMotionMaster()->MoveTargetedHome();
+
+            Pet* p_owner = (Pet*)(&m_owner);
+            if (!p_owner)
+                return true;
+
+            CreatureAI* ai = p_owner->AI();
+            if (ai)
+            {
+                if (PetAI* pai = (PetAI*)ai)
+                    pai->EnterEvadeMode();
+                else
+                    ai->EnterEvadeMode();
+            }
+
+            if (p_owner->GetOwner() && p_owner->GetOwner()->GetTypeId() == TYPEID_UNIT)
+            {
+                if (InstanceData* mapInstance = p_owner->GetInstanceData())
+                    mapInstance->OnCreatureEvade(c_owner);
+            }
+            break;
+        }
+        case HIGHGUID_PLAYER:
+        default:
+            sLog.outError("EvadeDelayEvent::Execute try execute for unsupported owner %s!", m_owner.GetObjectGuid().GetString().c_str());
+        break;
+    }
+    return true;
+}
+
+void Creature::SetRoot(bool enable)
+{
+    if (enable)
+        m_movementInfo.AddMovementFlag(MOVEFLAG_ROOT);
+    else
+        m_movementInfo.RemoveMovementFlag(MOVEFLAG_ROOT);
+
+    WorldPacket data(enable ? SMSG_SPLINE_MOVE_ROOT : SMSG_SPLINE_MOVE_UNROOT, 9);
+    data << GetPackGUID();
+    SendMessageToSet(&data, true);
+}
+
+void Creature::SetWaterWalk(bool enable)
+{
+    if (enable)
+        m_movementInfo.AddMovementFlag(MOVEFLAG_WATERWALKING);
+    else
+        m_movementInfo.RemoveMovementFlag(MOVEFLAG_WATERWALKING);
+
+    WorldPacket data(enable ? SMSG_SPLINE_MOVE_WATER_WALK : SMSG_SPLINE_MOVE_LAND_WALK, 9);
+    data << GetPackGUID();
+    SendMessageToSet(&data, true);
 }

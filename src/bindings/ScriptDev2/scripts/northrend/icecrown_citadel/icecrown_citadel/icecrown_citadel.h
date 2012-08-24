@@ -251,11 +251,11 @@ enum Achievements
     ACHIEVE_MAX_COUNT                       = 11,
 };
 
-class MANGOS_DLL_DECL instance_icecrown_spire : public ScriptedInstance
+class MANGOS_DLL_DECL instance_icecrown_citadel : public ScriptedInstance
 {
 public:
-    instance_icecrown_spire(Map* pMap);
-    ~instance_icecrown_spire() {}
+    instance_icecrown_citadel(Map* pMap);
+    ~instance_icecrown_citadel() {}
 
     void Initialize();
 

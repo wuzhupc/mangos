@@ -71,7 +71,7 @@ UPDATE `creature` SET `spawnMask` = 3 WHERE `map` = 578 AND `spawnMask` = 1;
 UPDATE `gameobject` SET `spawnMask` = 2 WHERE `map` = 578 AND `id` = 193603;
 UPDATE `gameobject` SET `spawnMask` = 1 WHERE `map` = 578 AND `id` = 191349;
 
-UPDATE `creature_template` SET `InhabitType` = 3, spell6 = 0 WHERE `entry` IN (27755,27756,27692);
+UPDATE `creature_template` SET `InhabitType` = 3 WHERE `entry` IN (27755,27756,27692);
 REPLACE INTO `creature_template_addon` VALUES (27755,0,0,0,0,0,0,'57403');
 REPLACE INTO `creature_template_addon` VALUES (27756,0,0,0,0,0,0,'57403');
 REPLACE INTO `creature_template_addon` VALUES (27692,0,0,0,0,0,0,'57403');
@@ -80,7 +80,7 @@ REPLACE INTO `creature_template_addon` VALUES (27692,0,0,0,0,0,0,'57403');
 UPDATE `gameobject_template` SET `data0` = 49665 WHERE `entry` = 189985;
 UPDATE `spell_target_position` SET `id` = 49665 WHERE `id` = 49305;
 
-UPDATE `creature_template` SET `spell6` = 57403, `InhabitType` = 3 WHERE `entry` IN (27692,27755,27756);
+UPDATE `creature_template` SET `InhabitType` = 3 WHERE `entry` IN (27692, 27755, 27756);
 
 DELETE FROM gameobject_scripts WHERE id IN 
 (40557,42275);
@@ -95,30 +95,23 @@ INSERT INTO `spell_script_target` VALUES (49460, 1, 27755);
 INSERT INTO `spell_script_target` VALUES (49346, 1, 27692);
 INSERT INTO `spell_script_target` VALUES (49464, 1, 27756);
 
--- from lanc
-UPDATE `creature_template` SET
-    spell1 = 50232,
-    spell2 = 50248,
-    spell3 = 50240,
-    spell4 = 50253,
-    spell5 = 0
-WHERE `entry` IN (27756);
-
-UPDATE `creature_template` SET
-    spell1 = 49840,
-    spell2 = 49838,
-    spell3 = 49592,
-    spell4 = 0,
-    spell5 = 0
-WHERE `entry` IN (27755);
- 
-UPDATE `creature_template` SET
-    spell1 = 50328,
-    spell2 = 50341,
-    spell3 = 50344,
-    spell4 = 0,
-    spell5 = 0
-WHERE `entry` IN (27692);
+DELETE FROM `creature_spell` WHERE `guid` IN (27755,27756,27692);
+INSERT INTO `creature_spell` (`guid`, `spell`, `index`, `active`, `disabled`, `flags`) VALUES
+(27756, 50232, 0, 0, 0, 0),
+(27756, 50248, 1, 0, 0, 0),
+(27756, 50240, 2, 0, 0, 0),
+(27756, 50253, 3, 0, 0, 0),
+(27756, 57403, 5, 0, 0, 0);
+INSERT INTO `creature_spell` (`guid`, `spell`, `index`, `active`, `disabled`, `flags`) VALUES
+(27755, 49840, 0, 0, 0, 0),
+(27755, 49838, 1, 0, 0, 0),
+(27755, 49592, 2, 0, 0, 0),
+(27755, 57403, 5, 0, 0, 0);
+INSERT INTO `creature_spell` (`guid`, `spell`, `index`, `active`, `disabled`, `flags`) VALUES
+(27692, 50328, 0, 0, 0, 0),
+(27692, 50341, 1, 0, 0, 0),
+(27692, 50344, 2, 0, 0, 0),
+(27692, 57403, 5, 0, 0, 0);
 
 DELETE FROM `spell_script_target` WHERE `entry` IN (49460, 49346, 49464);
 INSERT INTO `spell_script_target` VALUES (49460, 1, 27755);

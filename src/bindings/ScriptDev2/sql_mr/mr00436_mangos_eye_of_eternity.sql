@@ -40,7 +40,21 @@ INSERT INTO `npc_spellclick_spells` (npc_entry, spell_id, quest_start, quest_sta
 (30234, 48754, 0, 0, 0, 1),
 (30248, 48754, 0, 0, 0, 1);
 
-UPDATE `creature_template` SET Spell1=56091, Spell2=56092, Spell3=57090, Spell4=57143, Spell5=57108, Spell6=57092 WHERE entry IN (30161, 31752);
+DELETE FROM `creature_spell` WHERE `guid` IN (30161,31752);
+INSERT INTO `creature_spell` (`guid`, `spell`, `index`) VALUES
+(30161, 56091, 0),
+(30161, 56092, 1),
+(30161, 57090, 2),
+(30161, 57143, 3),
+(30161, 57108, 4),
+(30161, 57092, 5);
+INSERT INTO `creature_spell` (`guid`, `spell`, `index`) VALUES
+(31752, 56091, 0),
+(31752, 56092, 1),
+(31752, 57090, 2),
+(31752, 57143, 3),
+(31752, 57108, 4),
+(31752, 57092, 5);
 
 REPLACE INTO `creature_template_addon` VALUES (30161,0,0,0,0,0,0,'57403');
 REPLACE INTO `creature_template_addon` VALUES (31752,0,0,0,0,0,0,'57403');

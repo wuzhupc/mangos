@@ -88,7 +88,7 @@ bool GOGossipHello_go_icecrown_teleporter(Player *pPlayer, GameObject* pGo)
 
 bool GOHello_go_plague_sigil(Player *player, GameObject* pGo)
 {
-    instance_icecrown_spire* pInstance = (instance_icecrown_spire*)pGo->GetInstanceData();
+    instance_icecrown_citadel* pInstance = (instance_icecrown_citadel*)pGo->GetInstanceData();
 
     if(!pInstance)
         return false;
@@ -105,7 +105,7 @@ bool GOHello_go_plague_sigil(Player *player, GameObject* pGo)
 
 bool GOHello_go_bloodwing_sigil(Player *player, GameObject* pGo)
 {
-    instance_icecrown_spire* pInstance = (instance_icecrown_spire*)pGo->GetInstanceData();
+    instance_icecrown_citadel* pInstance = (instance_icecrown_citadel*)pGo->GetInstanceData();
 
     if(!pInstance)
         return false;
@@ -118,7 +118,7 @@ bool GOHello_go_bloodwing_sigil(Player *player, GameObject* pGo)
 
 bool GOHello_go_frostwing_sigil(Player *player, GameObject* pGo)
 {
-    instance_icecrown_spire* pInstance = (instance_icecrown_spire*)pGo->GetInstanceData();
+    instance_icecrown_citadel* pInstance = (instance_icecrown_citadel*)pGo->GetInstanceData();
     if(!pInstance) return false;
 
     if (pInstance->GetData(TYPE_SAURFANG) == DONE)

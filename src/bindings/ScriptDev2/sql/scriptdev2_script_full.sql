@@ -606,7 +606,7 @@ INSERT INTO script_texts (entry,content_default,sound,type,language,emote,commen
 (-1000577,'This is far enough. I can make it on my own from here.',0,0,0,0,'Lurgglbr - SAY_END_1'),
 (-1000578,'Thank you for helping me $r. Please tell the king I am back.',0,0,0,0,'Lurgglbr - SAY_END_2'),
 
-(-1000579,'Insolent fool! You thought to steal Zelemar\'s blood? You shall pay with your own!',0,1,0,0,'Zelemar the Wrathful - Aggro'),
+(-1000579,'REUSE ME',0,0,0,0,'REUSE ME'),
 
 (-1000580,'Sleep now, young one ...',0,0,0,0,'Raelorasz SAY_SLEEP'),
 (-1000581,'A wonderful specimen.',0,0,0,0,'Raeloarsz SAY_SPECIMEN'),
@@ -936,7 +936,26 @@ INSERT INTO script_texts (entry,content_default,sound,type,language,emote,commen
 (-1000869,'Reginald... I... I am sorry.',0,0,0,0,'bolvar SAY_IN_KEEP_13'),
 (-1000870,'Bol... Bolvar... the medallion... use...',0,0,0,0,'reginald windsor SAY_IN_KEEP_14'),
 (-1000871,'%s dies.',0,2,0,0,'reginald windsor EMOTE_IN_KEEP_DIE'),
-(-1000872,'%s hisses',0,2,0,0,'reginald windsor EMOTE_GUARD_TRANSFORM');
+(-1000872,'%s hisses',0,2,0,0,'reginald windsor EMOTE_GUARD_TRANSFORM'),
+
+(-1000873,'I know the way, insect. There is no need to prod me as if I were cattle.',0,0,0,1,'grark SAY_START'),
+(-1000874,'Surely you do not think that you will get away with this incursion. They will come for me and you shall pay for your insolence.',0,0,0,1,'grark SAY_PAY'),
+(-1000875,'RUN THEM THROUGH BROTHERS!',0,0,0,5,'grark SAY_FIRST_AMBUSH_START'),
+(-1000876,'I doubt you will be so lucky the next time you encounter my brethren.',0,0,0,1,'grark SAY_FIRST_AMBUSH_END'),
+(-1000877,'They come for you, fool!',0,0,0,5,'grark SAY_SEC_AMBUSH_START'),
+(-1000878,'What do you think you accomplish from this, fool? Even now, the Blackrock armies make preparations to destroy your world.',0,0,0,1,'grark SAY_SEC_AMBUSH_END'),
+(-1000879,'On darkest wing they fly. Prepare to meet your end!',0,0,0,5,'grark SAY_THIRD_AMBUSH_START'),
+(-1000880,'The worst is yet to come!',0,0,0,1,'grark SAY_THIRD_AMBUSH_END'),
+(-1000881,'%s laughs.',0,2,0,11,'grark EMOTE_LAUGH'),
+(-1000882,'Time to make your final stand, Insect.',0,0,0,0,'grark SAY_LAST_STAND'),
+(-1000883,'Kneel, Grark',0,0,0,1,'lexlort SAY_LEXLORT_1'),
+(-1000884,'Grark Lorkrub, you have been charged and found guilty of treason against Horde. How you plead is unimportant. High Executioner Nuzrak, step forward.',0,0,0,1,'lexlort SAY_LEXLORT_2'),
+(-1000885,'%s raises his massive axe over Grark.',0,2,0,27,'nuzark EMOTE_RAISE_AXE'),
+(-1000886,'%s raises his hand and then lowers it.',0,2,0,0,'lexlort EMOTE_LOWER_HAND'),
+(-1000887,'End him...',0,0,0,0,'lexlort SAY_LEXLORT_3'),
+(-1000888,'You, soldier, report back to Kargath at once!',0,0,0,1,'lexlort SAY_LEXLORT_4'),
+(-1000889,'%s submits.',0,2,0,0,'grark EMOTE_SUBMIT'),
+(-1000890,'You have come to play? Then let us play!',0,0,0,0,'grark SAY_AGGRO');
 
 -- -1 033 000 SHADOWFANG KEEP
 INSERT INTO script_texts (entry,content_default,sound,type,language,emote,comment) VALUES
@@ -1083,11 +1102,11 @@ INSERT INTO script_texts (entry,content_default,sound,type,language,emote,commen
 
 -- -1 129 000 RAZORFEN DOWNS
 INSERT INTO script_texts (entry,content_default,sound,type,language,emote,comment) VALUES
-(-1129000,'You\'ll never leave this place... alive.',5825,1,0,0,'amnennar SAY_AGGRO'),
-(-1129001,'To me, my servants!',5828,1,0,0,'amnennar SAY_SUMMON60'),
-(-1129002,'Come, spirits, attend your master!',5829,1,0,0,'amnennar SAY_SUMMON30'),
-(-1129003,'I am the hand of the Lich King!',5827,1,0,0,'amnennar SAY_HP'),
-(-1129004,'Too...easy!',5826,1,0,0,'amnennar SAY_KILL'),
+(-1129000,'REUSE_ME',0,0,0,0,'REUSE_ME'),
+(-1129001,'REUSE_ME',0,0,0,0,'REUSE_ME'),
+(-1129002,'REUSE_ME',0,0,0,0,'REUSE_ME'),
+(-1129003,'REUSE_ME',0,0,0,0,'REUSE_ME'),
+(-1129004,'REUSE_ME',0,0,0,0,'REUSE_ME'),
 
 (-1129005,'All right, stay close. These fiends will jump right out of the shadows at you if you let your guard down.',0,0,0,0,'belnistrasz SAY_READY'),
 (-1129006,'Okay, here we go. It\'s going to take about five minutes to shut this thing down through the ritual. Once I start, keep the vermin off of me or it will be the end of us all!',0,0,0,0,'belnistrasz SAY_START_RIT'),
@@ -1114,20 +1133,21 @@ INSERT INTO script_texts (entry,content_default,sound,type,language,emote,commen
 (-1189009,'The Light has spoken!',5839,1,0,0,'whitemane SAY_WH_KILL'),
 (-1189010,'Arise, my champion!',5840,1,0,0,'whitemane SAY_WH_RESSURECT'),
 
-(-1189011,'Tell me... tell me everything!',5847,1,0,0,'vishas SAY_AGGRO'),
-(-1189012,'Naughty secrets!',5849,1,0,0,'vishas SAY_HEALTH1'),
-(-1189013,'I\'ll rip the secrets from your flesh!',5850,1,0,0,'vishas SAY_HEALTH2'),
-(-1189014,'Purged by pain!',5848,1,0,0,'vishas SAY_KILL'),
+(-1189011,'REUSE_ME',0,0,0,0,'REUSE_ME'),
+(-1189012,'REUSE_ME',0,0,0,0,'REUSE_ME'),
+(-1189013,'REUSE_ME',0,0,0,0,'REUSE_ME'),
+(-1189014,'REUSE_ME',0,0,0,0,'REUSE_ME'),
+
 (-1189015,'The monster got what he deserved.',0,0,1,0,'vishas SAY_TRIGGER_VORREL'),
 
-(-1189016,'We hunger for vengeance.',5844,1,0,0,'thalnos SAY_AGGRO'),
-(-1189017,'No rest, for the angry dead.',5846,1,0,0,'thalnos SAY_HEALTH'),
-(-1189018,'More... More souls.',5845,1,0,0,'thalnos SAY_KILL'),
+(-1189016,'REUSE_ME',0,0,0,0,'REUSE_ME'),
+(-1189017,'REUSE_ME',0,0,0,0,'REUSE_ME'),
+(-1189018,'REUSE_ME',0,0,0,0,'REUSE_ME'),
 
 (-1189019,'You will not defile these mysteries!',5842,1,0,0,'doan SAY_AGGRO'),
 (-1189020,'Burn in righteous fire!',5843,1,0,0,'doan SAY_SPECIALAE'),
 
-(-1189021,'Release the hounds!',5841,1,0,0,'loksey SAY_AGGRO'),
+(-1189021,'REUSE_ME',0,0,0,0,'REUSE_ME'),
 
 (-1189022,'It is over, your search is done! Let fate choose now, the righteous one.',11961,1,0,0,'horseman SAY_ENTRANCE'),
 (-1189023,'Here\'s my body, fit and pure! Now, your blackened souls I\'ll cure!',12567,1,0,0,'horseman SAY_REJOINED'),
@@ -1184,7 +1204,32 @@ INSERT INTO script_texts (entry,content_default,sound,type,language,emote,commen
 (-1230006,'Unleash the fury and let it be done!',0,1,0,0,'grimstone SAY_OPEN_EAST_GATE'),
 (-1230007,'But your real punishment lies ahead.',0,1,0,0,'grimstone SAY_SUMMON_BOSS_1'),
 (-1230008,'Haha! I bet you thought you were done!',0,1,0,0,'grimstone SAY_SUMMON_BOSS_2'),
-(-1230009,'Good Riddance!',0,1,0,0,'grimstone SAY_OPEN_NORTH_GATE');
+(-1230009,'Good Riddance!',0,1,0,0,'grimstone SAY_OPEN_NORTH_GATE'),
+
+(-1230010,'Thank you, $N! I\'m free!!!',0,0,0,0,'dughal SAY_FREE'),
+(-1230011,'You locked up the wrong Marshal, $N. Prepare to be destroyed!',0,0,0,0,'windsor SAY_AGGRO_1'),
+(-1230012,'I bet you\'re sorry now, aren\'t you?',0,0,0,0,'windsor SAY_AGGRO_2'),
+(-1230013,'You better hold me back or $N is going to feel some prison house beatings.',0,0,0,0,'windsor SAY_AGGRO_3'),
+(-1230014,'Let\'s get a move on. My gear should be in the storage area up this way...',0,0,0,0,'windsor SAY_START'),
+(-1230015,'Check that cell, $N. If someone is alive in there, we need to get them out.',0,0,0,25,'windsor SAY_CELL_DUGHAL_1'),
+(-1230016,'Good work! We\'re almost there, $N. This way.',0,0,0,0,'windsor SAY_CELL_DUGHAL_3'),
+(-1230017,'This is it, $N. My stuff should be in that room. Cover me, I\'m going in!',0,0,0,0,'windsor SAY_EQUIPMENT_1'),
+(-1230018,'Ah, there it is!',0,0,0,0,'windsor SAY_EQUIPMENT_2'),
+(-1230019,'Can you feel the power, $N??? It\'s time to ROCK!',0,0,0,0,'reginald_windsor SAY__EQUIPMENT_3'),
+(-1230020,'Now we just have to free Tobias and we can get out of here. This way!',0,0,0,0,'reginald_windsor SAY__EQUIPMENT_4'),
+(-1230021,'Open it.',0,0,0,25,'reginald_windsor SAY_CELL_JAZ_1'),
+(-1230022,'I never did like those two. Let\'s get moving.',0,0,0,0,'reginald_windsor SAY_CELL_JAZ_2'),
+(-1230023,'Open it and be careful this time!',0,0,0,25,'reginald_windsor SAY_CELL_SHILL_1'),
+(-1230024,'That intolerant dirtbag finally got what was coming to him. Good riddance!',0,0,0,66,'reginald_windsor SAY_CELL_SHILL_2'),
+(-1230025,'Alright, let\'s go.',0,0,0,0,'reginald_windsor SAY_CELL_SHILL_3'),
+(-1230026,'Open it. We need to hurry up. I can smell those Dark Irons coming a mile away and I can tell you one thing, they\'re COMING!',0,0,0,25,'reginald_windsor SAY_CELL_CREST_1'),
+(-1230027,'He has to be in the last cell. Unless... they killed him.',0,0,0,0,'reginald_windsor SAY_CELL_CREST_2'),
+(-1230028,'Get him out of there!',0,0,0,25,'reginald_windsor SAY_CELL_TOBIAS_1'),
+(-1230029,'Excellent work, $N. Let\'s find the exit. I think I know the way. Follow me!',0,0,0,0,'reginald_windsor SAY_CELL_TOBIAS_2'),
+(-1230030,'We made it!',0,0,0,4,'reginald_windsor SAY_FREE_1'),
+(-1230031,'Meet me at Maxwell\'s encampment. We\'ll go over the next stages of the plan there and figure out a way to decode my tablets without the decryption ring.',0,0,0,1,'reginald_windsor SAY_FREE_2'),
+(-1230032,'Thank you! I will run for safety immediately!',0,0,0,0,'tobias SAY_TOBIAS_FREE_1'),
+(-1230033,'Finally!! I can leave this dump.',0,0,0,0,'tobias SAY_TOBIAS_FREE_2');
 
 -- -1 249 000 ONYXIA'S LAIR
 INSERT INTO script_texts (entry,content_default,sound,type,language,emote,comment) VALUES
@@ -1445,7 +1490,40 @@ INSERT INTO script_texts (entry,content_default,sound,type,language,emote,commen
 (-1531009,'I sentence you to death!',8647,1,0,0,'sartura SAY_SLAY'),
 (-1531010,'I serve to the last!',8648,1,0,0,'sartura SAY_DEATH'),
 
-(-1531011,'%s is weakened!',0,2,0,0,'cthun EMOTE_WEAKENED');
+(-1531011,'%s is weakened!',0,2,0,0,'cthun EMOTE_WEAKENED'),
+
+(-1531012,'The massive floating eyeball in the center of the chamber turns its gaze upon you. You stand before a god.',0,2,0,0,'eye cthun EMOTE_INTRO'),
+(-1531013,'Only flesh and bone. Mortals are such easy prey...',0,1,0,0,'veklor SAY_INTRO_1'),
+(-1531014,'Where are your manners, brother. Let us properly welcome our guests.',0,1,0,0,'veknilash SAY_INTRO_2'),
+(-1531015,'There will be pain...',0,1,0,0,'veklor SAY_INTRO_3'),
+(-1531016,'Oh so much pain...',0,1,0,0,'veknilash SAY_INTRO_4'),
+(-1531017,'Come, little ones.',0,1,0,0,'veklor SAY_INTRO_5'),
+(-1531018,'The feast of souls begin now...',0,1,0,0,'veknilash SAY_INTRO_6'),
+
+(-1531019,'It\'s too late to turn away.',8623,1,0,0,'veklor SAY_AGGRO_1'),
+(-1531020,'Prepare to embrace oblivion!',8626,1,0,0,'veklor SAY_AGGRO_2'),
+(-1531021,'Like a fly in a web.',8624,1,0,0,'veklor SAY_AGGRO_3'),
+(-1531022,'Your brash arrogance!',8628,1,0,0,'veklor SAY_AGGRO_4'),
+(-1531023,'You will not escape death!',8629,1,0,0,'veklor SAY_SLAY'),
+(-1531024,'My brother...NO!',8625,1,0,0,'veklor SAY_DEATH'),
+(-1531025,'To decorate our halls!',8627,1,0,0,'veklor SAY_SPECIAL'),
+
+(-1531026,'Ah, lambs to the slaughter!',8630,1,0,0,'veknilash SAY_AGGRO_1'),
+(-1531027,'Let none survive!',8632,1,0,0,'veknilash SAY_AGGRO_2'),
+(-1531028,'Join me brother, there is blood to be shed!',8631,1,0,0,'veknilash SAY_AGGRO_3'),
+(-1531029,'Look brother, fresh blood!',8633,1,0,0,'veknilash SAY_AGGRO_4'),
+(-1531030,'Your fate is sealed!',8635,1,0,0,'veknilash SAY_SLAY'),
+(-1531031,'Vek\'lor, I feel your pain!',8636,1,0,0,'veknilash SAY_DEATH'),
+(-1531032,'Shall be your undoing!',8634,1,0,0,'veknilash SAY_SPECIAL'),
+
+(-1531033,'Death is close...',8580,4,0,0,'cthun SAY_WHISPER_1'),
+(-1531034,'You are already dead.',8581,4,0,0,'cthun SAY_WHISPER_2'),
+(-1531035,'Your courage will fail.',8582,4,0,0,'cthun SAY_WHISPER_3'),
+(-1531036,'Your friends will abandon you.',8583,4,0,0,'cthun SAY_WHISPER_4'),
+(-1531037,'You will betray your friends.',8584,4,0,0,'cthun SAY_WHISPER_5'),
+(-1531038,'You will die.',8585,4,0,0,'cthun SAY_WHISPER_6'),
+(-1531039,'You are weak.',8586,4,0,0,'cthun SAY_WHISPER_7'),
+(-1531040,'Your heart will explode.',8587,4,0,0,'cthun SAY_WHISPER_8');
 
 -- -1 532 000 KARAZHAN
 INSERT INTO script_texts (entry,content_default,sound,type,language,emote,comment) VALUES
@@ -2125,7 +2203,35 @@ INSERT INTO script_texts (entry,content_default,sound,type,language,emote,commen
 (-1552027,'What is this? A lowly gnome? I will do better, O\'great one.',11226,1,0,0,'mellichar YELL_RELEASE2B'),
 (-1552028,'Anarchy! Bedlam! Oh, you are so wise! Yes, I see it now, of course!',11227,1,0,0,'mellichar YELL_RELEASE3'),
 (-1552029,'One final cell remains. Yes, O\'great one, right away!',11228,1,0,0,'mellichar YELL_RELEASE4'),
-(-1552030,'Welcome, O\'great one. I am your humble servant.',11229,1,0,0,'mellichar YELL_WELCOME');
+(-1552030,'Welcome, O\'great one. I am your humble servant.',11229,1,0,0,'mellichar YELL_WELCOME'),
+
+(-1552031,'It is unwise to anger me.',11086,1,0,0,'dalliah SAY_AGGRO'),
+(-1552032,'Ahh... That is much better.',11091,1,0,0,'dalliah SAY_HEAL_1'),
+(-1552033,'Ahh... Just what I needed.',11092,1,0,0,'dalliah SAY_HEAL_2'),
+(-1552034,'Completely ineffective. Just like someone else I know.',11087,1,0,0,'dalliah SAY_KILL_1'),
+(-1552035,'You chose the wrong opponent.',11088,1,0,0,'dalliah SAY_KILL_2'),
+(-1552036,'I\'ll cut you to pieces!',11090,1,0,0,'dalliah SAY_WHIRLWIND_1'),
+(-1552037,'Reap the Whirlwind!',11089,1,0,0,'dalliah SAY_WHIRLWIND_2'),
+(-1552038,'Now I\'m really... angry...',11093,1,0,0,'dalliah SAY_DEATH'),
+
+(-1552039,'Have you come to kill Dalliah? Can I watch?',11237,1,0,1,'soccothrates SAY_DALLIAH_AGGRO_1'),
+(-1552040,'This may be the end for you, Dalliah. What a shame that would be.',11245,1,0,1,'soccothrates SAY_DALLIAH_TAUNT_1'),
+(-1552041,'Facing difficulties, Dalliah? How nice.',11244,1,0,1,'soccothrates SAY_DALLIAH_TAUNT_2'),
+(-1552042,'I suggest a new strategy, you draw the attackers while I gather reinforcements. Hahaha!',11246,1,0,1,'soccothrates SAY_DALLIAH_TAUNT_3'),
+(-1552043,'Finally! Well done!',11247,1,0,66,'soccothrates SAY_DALLIAH_DEAD'),
+(-1552044,'On guard!',11241,1,0,0,'soccothrates SAY_CHARGE_1'),
+(-1552045,'Defend yourself, for all the good it will do...',11242,1,0,0,'soccothrates SAY_CHARGE_2'),
+(-1552046,'Knew this was... the only way out',11243,1,0,0,'soccothrates SAY_DEATH'),
+(-1552047,'Yes, that was quite satisfying',11239,1,0,0,'soccothrates SAY_KILL'),
+(-1552048,'At last, a target for my frustrations!',11238,1,0,0,'soccothrates SAY_AGGRO'),
+
+(-1552049,'Did you call on me?',11236,1,0,397,'soccothrates SAY_INTRO_1'),
+(-1552050,'Why would I call on you?',0,1,0,396,'dalliah SAY_INTRO_2'),
+(-1552051,'To do your heavy lifting, most likely.',0,1,0,396,'soccothrates SAY_INTRO_3'),
+(-1552052,'When I need someone to prance around like an overstuffed peacock, I''ll call on you.',0,1,0,396,'dalliah SAY_INTRO_4'),
+(-1552053,'Then I\'ll commit myself to ignoring you.',0,1,0,396,'soccothrates SAY_INTRO_5'),
+(-1552054,'What would you know about commitment, sheet-sah?',0,1,0,396,'dalliah SAY_INTRO_6'),
+(-1552055,'You\'re the one who should be-- Wait, we have company...',0,1,0,396,'soccothrates SAY_INTRO_7');
 
 -- -1 553 000 THE BOTANICA
 INSERT INTO script_texts (entry,content_default,sound,type,language,emote,comment) VALUES
@@ -2153,14 +2259,13 @@ INSERT INTO script_texts (entry,content_default,sound,type,language,emote,commen
 (-1554003,'REUSE_ME',0,0,0,0,'REUSE_ME'),
 (-1554004,'REUSE_ME',0,0,0,0,'REUSE_ME'),
 (-1554005,'REUSE_ME',0,0,0,0,'REUSE_ME'),
-
-(-1554006,'You have approximately five seconds to live.',11109,1,0,0,'ironhand SAY_AGGRO_1'),
-(-1554007,'With the precise angle and velocity...',11112,1,0,0,'ironhand SAY_HAMMER_1'),
-(-1554008,'Low tech yet quiet effective!',11113,1,0,0,'ironhand SAY_HAMMER_2'),
-(-1554009,'A foregone conclusion.',11110,1,0,0,'ironhand SAY_SLAY_1'),
-(-1554010,'The processing will continue a schedule!',11111,1,0,0,'ironhand SAY_SLAY_2'),
-(-1554011,'My calculations did not...',11114,1,0,0,'ironhand SAY_DEATH_1'),
-(-1554012,'%s raises his hammer menacingly...',0,3,0,0,'ironhand EMOTE_HAMMER'),
+(-1554006,'REUSE_ME',0,0,0,0,'REUSE_ME'),
+(-1554007,'REUSE_ME',0,0,0,0,'REUSE_ME'),
+(-1554008,'REUSE_ME',0,0,0,0,'REUSE_ME'),
+(-1554009,'REUSE_ME',0,0,0,0,'REUSE_ME'),
+(-1554010,'REUSE_ME',0,0,0,0,'REUSE_ME'),
+(-1554011,'REUSE_ME',0,0,0,0,'REUSE_ME'),
+(-1554012,'REUSE_ME',0,0,0,0,'REUSE_ME'),
 
 (-1554013,'Don\'t value your life very much, do you?',11186,1,0,0,'sepethrea SAY_AGGRO'),
 (-1554014,'I am not alone.',11191,1,0,0,'sepethrea SAY_SUMMON'),
@@ -2178,7 +2283,7 @@ INSERT INTO script_texts (entry,content_default,sound,type,language,emote,commen
 (-1554025,'A minor inconvenience.',11194,1,0,0,'pathaleon SAY_SLAY_1'),
 (-1554026,'Looks like you lose.',11195,1,0,0,'pathaleon SAY_SLAY_2'),
 (-1554027,'The project will... continue.',11200,1,0,0,'pathaleon SAY_DEATH'),
-(-1554028,'I have been waiting for you!',0,1,0,0,'pathaleon SAY_INTRO');
+(-1554028,'I have been waiting for you!',0,1,0,53,'pathaleon SAY_INTRO');
 
 -- -1 555 000 SHADOW LABYRINTH
 INSERT INTO script_texts (entry,content_default,sound,type,language,emote,comment) VALUES
@@ -2288,30 +2393,31 @@ INSERT INTO script_texts (entry,content_default,sound,type,language,emote,commen
 -- -1 560 000 ESCAPE FROM DURNHOLDE (OLD HILLSBRAD)
 INSERT INTO script_texts (entry,content_default,sound,type,language,emote,comment) VALUES
 (-1560000,'Thrall! You didn\'t really think you would escape did you? You and your allies shall answer to Blackmoore - after I\'ve had my fun!',10406,1,0,0,'skarloc SAY_ENTER'),
-(-1560001,'You\'re a slave. That\'s all you\'ll ever be.',10407,1,0,0,'skarloc SAY_TAUNT1'),
-(-1560002,'I don\'t know what Blackmoore sees in you. For my money, you\'re just another ignorant savage!',10408,1,0,0,'skarloc SAY_TAUNT2'),
-(-1560003,'Thrall will never be free!',10409,1,0,0,'skarloc SAY_SLAY1'),
-(-1560004,'Did you really think you would leave here alive?',10410,1,0,0,'skarloc SAY_SLAY2'),
-(-1560005,'Guards! Urgh..Guards..!',10411,1,0,0,'skarloc SAY_DEATH'),
 
-(-1560006,'You there, fetch water quickly! Get these flames out before they spread to the rest of the keep! Hurry, damn you!',10428,1,0,0,'lieutenant_drake SAY_ENTER'),
-(-1560007,'I know what you\'re up to, and I mean to put an end to it, permanently!',10429,1,0,0,'lieutenant_drake SAY_AGGRO'),
-(-1560008,'No more middling for you.',10432,1,0,0,'lieutenant_drake SAY_SLAY1'),
-(-1560009,'You will not interfere!',10433,1,0,0,'lieutenant_drake SAY_SLAY2'),
-(-1560010,'Time to bleed!',10430,1,0,0,'lieutenant_drake SAY_MORTAL'),
-(-1560011,'Run, you blasted cowards!',10431,1,0,0,'lieutenant_drake SAY_SHOUT'),
-(-1560012,'Thrall... must not... go free.',10434,1,0,0,'lieutenant_drake SAY_DEATH'),
+(-1560001,'REUSE_ME',0,0,0,0,'REUSE_ME'),
+(-1560002,'REUSE_ME',0,0,0,0,'REUSE_ME'),
+(-1560003,'REUSE_ME',0,0,0,0,'REUSE_ME'),
+(-1560004,'REUSE_ME',0,0,0,0,'REUSE_ME'),
+(-1560005,'REUSE_ME',0,0,0,0,'REUSE_ME'),
+(-1560006,'REUSE_ME',0,0,0,0,'REUSE_ME'),
+(-1560007,'REUSE_ME',0,0,0,0,'REUSE_ME'),
+(-1560008,'REUSE_ME',0,0,0,0,'REUSE_ME'),
+(-1560009,'REUSE_ME',0,0,0,0,'REUSE_ME'),
+(-1560010,'REUSE_ME',0,0,0,0,'REUSE_ME'),
+(-1560011,'REUSE_ME',0,0,0,0,'REUSE_ME'),
+(-1560012,'REUSE_ME',0,0,0,0,'REUSE_ME'),
 
 (-1560013,'Thrall! Come outside and face your fate!',10418,1,0,0,'epoch SAY_ENTER1'),
 (-1560014,'Taretha\'s life hangs in the balance. Surely you care for her. Surely you wish to save her...',10419,1,0,0,'epoch SAY_ENTER2'),
 (-1560015,'Ah, there you are. I had hoped to accomplish this with a bit of subtlety, but I suppose direct confrontation was inevitable. Your future, Thrall, must not come to pass and so...you and your troublesome friends must die!',10420,1,0,0,'epoch SAY_ENTER3'),
-(-1560016,'Enough! I will erase your very existence!',10421,1,0,0,'epoch SAY_AGGRO1'),
-(-1560017,'You cannot fight fate!',10422,1,0,0,'epoch SAY_AGGRO2'),
-(-1560018,'You are...irrelevant.',10425,1,0,0,'epoch SAY_SLAY1'),
-(-1560019,'Thrall will remain a slave. Taretha will die. You have failed.',10426,1,0,0,'epoch SAY_SLAY2'),
-(-1560020,'Not so fast!',10423,1,0,0,'epoch SAY_BREATH1'),
-(-1560021,'Struggle as much as you like!',10424,1,0,0,'epoch SAY_BREATH2'),
-(-1560022,'No!...The master... will not... be pleased.',10427,1,0,0,'epoch SAY_DEATH'),
+
+(-1560016,'REUSE_ME',0,0,0,0,'REUSE_ME'),
+(-1560017,'REUSE_ME',0,0,0,0,'REUSE_ME'),
+(-1560018,'REUSE_ME',0,0,0,0,'REUSE_ME'),
+(-1560019,'REUSE_ME',0,0,0,0,'REUSE_ME'),
+(-1560020,'REUSE_ME',0,0,0,0,'REUSE_ME'),
+(-1560021,'REUSE_ME',0,0,0,0,'REUSE_ME'),
+(-1560022,'REUSE_ME',0,0,0,0,'REUSE_ME'),
 
 (-1560023,'Very well then. Let\'s go!',10465,0,0,0,'thrall hillsbrad SAY_TH_START_EVENT_PART1'),
 (-1560024,'As long as we\'re going with a new plan, I may aswell pick up a weapon and some armor.',0,0,0,0,'thrall hillsbrad SAY_TH_ARMORY'),
@@ -4198,8 +4304,9 @@ INSERT INTO gossip_texts (entry,content_default,comment) VALUES
 (-3000105,'Ezekiel said that you might have a certain book...','dirty larry GOSSIP_ITEM_BOOK'),
 (-3000106,'Let Marshal Windsor know that I am ready.','squire rowe GOSSIP_ITEM_WINDSOR'),
 (-3000107,'I am ready, as are my forces. Let us end this masquerade!','reginald windsor GOSSIP_ITEM_START'),
-(-3000108,'REUSE ME','REUSE ME'),
-(-3000109,'I am ready, Oronok. Let us destroy Cyrukh and free the elements!','oronok torn-heart GOSSIP_ITEM_FIGHT');
+(-3000108,'I need a moment of your time, sir.','prospector anvilward GOSSIP_ITEM_MOMENT'),
+(-3000109,'I am ready, Oronok. Let us destroy Cyrukh and free the elements!','oronok torn-heart GOSSIP_ITEM_FIGHT'),
+(-3000110,'Why... yes, of course. I\'ve something to show you right inside this building, Mr. Anvilward.','prospector anvilward GOSSIP_ITEM_SHOW');
 
 -- -3 033 000 SHADOWFANG KEEP
 INSERT INTO gossip_texts (entry,content_default,comment) VALUES
@@ -4212,6 +4319,12 @@ INSERT INTO gossip_texts (entry,content_default,comment) VALUES
 -- -3 090 000 GNOMEREGAN
 INSERT INTO gossip_texts (entry,content_default,comment) VALUES
 (-3090000,'I am ready to begin.','emi shortfuse GOSSIP_ITEM_START');
+
+-- -3 230 000 BLACKROCK DEPTHS
+INSERT INTO gossip_texts (entry,content_default,comment) VALUES
+(-3230000,'You\'re free, Dughal! Get out of here!','dughal GOSSIP_ITEM_DUGHAL'),
+(-3230001,'Get out of here, Tobias, you\'re free!','tobias GOSSIP_ITEM_TOBIAS'),
+(-3230002,'Your bondage is at an end, Doom\'rel. I challenge you!','doomrel GOSSIP_ITEM_CHALLENGE');
 
 -- -3 409 000 MOLTEN CORE
 INSERT INTO gossip_texts (entry,content_default,comment) VALUES
@@ -6662,5 +6775,114 @@ INSERT INTO script_waypoint VALUES
 (12580, 24, -8455.95, 351.225, 120.88, 0, ''),
 (12580, 25, -8446.87, 339.904, 121.33, 0, 'SAY_WINDSOR_KEEP_1'),
 (12580, 26, -8446.87, 339.904, 121.33, 10000, '');
+
+DELETE FROM script_waypoint WHERE entry=9520;
+INSERT INTO script_waypoint VALUES
+(9520, 1, -7699.62, -1444.29, 139.87, 4000, 'SAY_START'),
+(9520, 2, -7670.67, -1458.25, 140.74, 0, ''),
+(9520, 3, -7675.26, -1465.58, 140.74, 0, ''),
+(9520, 4, -7685.84, -1472.66, 140.75, 0, ''),
+(9520, 5, -7700.08, -1473.41, 140.79, 0, ''),
+(9520, 6, -7712.55, -1470.19, 140.79, 0, ''),
+(9520, 7, -7717.27, -1481.70, 140.72, 5000, 'SAY_PAY'),
+(9520, 8, -7726.23, -1500.78, 132.99, 0, ''),
+(9520, 9, -7744.61, -1531.61, 132.69, 0, ''),
+(9520, 10, -7763.08, -1536.22, 131.93, 0, ''),
+(9520, 11, -7815.32, -1522.61, 134.16, 0, ''),
+(9520, 12, -7850.26, -1516.87, 138.17, 0, 'SAY_FIRST_AMBUSH_START'),
+(9520, 13, -7850.26, -1516.87, 138.17, 3000, 'SAY_FIRST_AMBUSH_END'),
+(9520, 14, -7881.01, -1508.49, 142.37, 0, ''),
+(9520, 15, -7888.91, -1458.09, 144.79, 0, ''),
+(9520, 16, -7889.18, -1430.21, 145.31, 0, ''),
+(9520, 17, -7900.53, -1427.01, 150.26, 0, ''),
+(9520, 18, -7904.15, -1429.91, 150.27, 0, ''),
+(9520, 19, -7921.48, -1425.47, 140.54, 0, ''),
+(9520, 20, -7941.43, -1413.10, 134.35, 0, ''),
+(9520, 21, -7964.85, -1367.45, 132.99, 0, ''),
+(9520, 22, -7989.95, -1319.121, 133.71, 0, ''),
+(9520, 23, -8010.43, -1270.23, 133.42, 0, ''),
+(9520, 24, -8025.62, -1243.78, 133.91, 0, 'SAY_SEC_AMBUSH_START'),
+(9520, 25, -8025.62, -1243.78, 133.91, 3000, 'SAY_SEC_AMBUSH_END'),
+(9520, 26, -8015.22, -1196.98, 146.76, 0, ''),
+(9520, 27, -7994.68, -1151.38, 160.70, 0, ''),
+(9520, 28, -7970.91, -1132.81, 170.16, 0, 'summon Searscale Drakes'),
+(9520, 29, -7927.59, -1122.79, 185.86, 0, ''),
+(9520, 30, -7897.67, -1126.67, 194.32, 0, 'SAY_THIRD_AMBUSH_START'),
+(9520, 31, -7897.67, -1126.67, 194.32, 3000, 'SAY_THIRD_AMBUSH_END'),
+(9520, 32, -7864.11, -1135.98, 203.29, 0, ''),
+(9520, 33, -7837.31, -1137.73, 209.63, 0, ''),
+(9520, 34, -7808.72, -1134.90, 214.84, 0, ''),
+(9520, 35, -7786.85, -1127.24, 214.84, 0, ''),
+(9520, 36, -7746.58, -1125.16, 215.08, 5000, 'EMOTE_LAUGH'),
+(9520, 37, -7746.41, -1103.62, 215.62, 0, ''),
+(9520, 38, -7740.25, -1090.51, 216.69, 0, ''),
+(9520, 39, -7730.97, -1085.55, 217.12, 0, ''),
+(9520, 40, -7697.89, -1089.43, 217.62, 0, ''),
+(9520, 41, -7679.30, -1059.15, 220.09, 0, ''),
+(9520, 42, -7661.39, -1038.24, 226.24, 0, ''),
+(9520, 43, -7634.49, -1020.96, 234.30, 0, ''),
+(9520, 44, -7596.22, -1013.16, 244.03, 0, ''),
+(9520, 45, -7556.53, -1021.74, 253.21, 0, 'SAY_LAST_STAND');
+
+DELETE FROM script_waypoint WHERE entry=9023;
+INSERT INTO script_waypoint VALUES
+(9023, 1, 316.336, -225.528, -77.7258, 2000, 'SAY_WINDSOR_START'),
+(9023, 2, 322.96, -207.13, -77.87, 0, ''),
+(9023, 3, 281.05, -172.16, -75.12, 0, ''),
+(9023, 4, 272.19, -139.14, -70.61, 0, ''),
+(9023, 5, 283.62, -116.09, -70.21, 0, ''),
+(9023, 6, 296.18, -94.30, -74.08, 0, ''),
+(9023, 7, 294.57, -93.11, -74.08, 0, 'escort paused - SAY_WINDSOR_CELL_DUGHAL_1'),
+(9023, 8, 294.57, -93.11, -74.08, 10000, ''),
+(9023, 9, 294.57, -93.11, -74.08, 3000, 'SAY_WINDSOR_CELL_DUGHAL_3'),
+(9023, 10, 314.31, -74.31, -76.09, 0, ''),
+(9023, 11, 360.22, -62.93, -66.77, 0, ''),
+(9023, 12, 383.38, -69.40, -63.25, 0, ''),
+(9023, 13, 389.99, -67.86, -62.57, 0, ''),
+(9023, 14, 400.98, -72.01, -62.31, 0, 'SAY_WINDSOR_EQUIPMENT_1'),
+(9023, 15, 404.22, -62.30, -63.50, 2000, ''),
+(9023, 16, 404.22, -62.30, -63.50, 1500, 'open supply door'),
+(9023, 17, 407.65, -51.86, -63.96, 0, ''),
+(9023, 18, 403.61, -51.71, -63.92, 1000, 'SAY_WINDSOR_EQUIPMENT_2'),
+(9023, 19, 403.61, -51.71, -63.92, 2000, ''),
+(9023, 20, 403.61, -51.71, -63.92, 1000, 'open supply crate'),
+(9023, 21, 403.61, -51.71, -63.92, 1000, 'update entry to Reginald Windsor'),
+(9023, 22, 403.61, -52.71, -63.92, 4000, 'SAY_WINDSOR_EQUIPMENT_3'),
+(9023, 23, 403.61, -52.71, -63.92, 4000, 'SAY_WINDSOR_EQUIPMENT_4'),
+(9023, 24, 406.33, -54.87, -63.95, 0, ''),
+(9023, 25, 403.86, -73.88, -62.02, 0, ''),
+(9023, 26, 428.80, -81.34, -64.91, 0, ''),
+(9023, 27, 557.03, -119.71, -61.83, 0, ''),
+(9023, 28, 573.40, -124.39, -65.07, 0, ''),
+(9023, 29, 593.91, -130.29, -69.25, 0, ''),
+(9023, 30, 593.21, -132.16, -69.25, 0, 'escort paused - SAY_WINDSOR_CELL_JAZ_1'),
+(9023, 31, 593.21, -132.16, -69.25, 1000, ''),
+(9023, 32, 593.21, -132.16, -69.25, 3000, 'SAY_WINDSOR_CELL_JAZ_2'),
+(9023, 33, 622.81, -135.55, -71.92, 0, ''),
+(9023, 34, 634.68, -151.29, -70.32, 0, ''),
+(9023, 35, 635.06, -153.25, -70.32, 0, 'escort paused - SAY_WINDSOR_CELL_SHILL_1'),
+(9023, 36, 635.06, -153.25, -70.32, 3000, ''),
+(9023, 37, 635.06, -153.25, -70.32, 5000, 'SAY_WINDSOR_CELL_SHILL_2'),
+(9023, 38, 635.06, -153.25, -70.32, 2000, 'SAY_WINDSOR_CELL_SHILL_3'),
+(9023, 39, 655.25, -172.39, -73.72, 0, ''),
+(9023, 40, 654.79, -226.30, -83.06, 0, ''),
+(9023, 41, 622.85, -268.85, -83.96, 0, ''),
+(9023, 42, 579.45, -275.56, -80.44, 0, ''),
+(9023, 43, 561.19, -266.85, -75.59, 0, ''),
+(9023, 44, 547.91, -253.92, -70.34, 0, ''),
+(9023, 45, 549.20, -252.40, -70.34, 0, 'escort paused - SAY_WINDSOR_CELL_CREST_1'),
+(9023, 46, 549.20, -252.40, -70.34, 1000, ''),
+(9023, 47, 549.20, -252.40, -70.34, 4000, 'SAY_WINDSOR_CELL_CREST_2'),
+(9023, 48, 555.33, -269.16, -74.40, 0, ''),
+(9023, 49, 554.31, -270.88, -74.40, 0, 'escort paused - SAY_WINDSOR_CELL_TOBIAS_1'),
+(9023, 50, 554.31, -270.88, -74.40, 10000, ''),
+(9023, 51, 554.31, -270.88, -74.40, 4000, 'SAY_WINDSOR_CELL_TOBIAS_2'),
+(9023, 52, 536.10, -249.60, -67.47, 0, ''),
+(9023, 53, 520.94, -216.65, -59.28, 0, ''),
+(9023, 54, 505.99, -148.74, -62.17, 0, ''),
+(9023, 55, 484.21, -56.24, -62.43, 0, ''),
+(9023, 56, 470.39, -6.01, -70.10, 0, ''),
+(9023, 57, 452.45, 29.85, -70.37, 1500, 'SAY_WINDSOR_FREE_1'),
+(9023, 58, 452.45, 29.85, -70.37, 15000, 'SAY_WINDSOR_FREE_2');
 
 -- EOF

@@ -226,11 +226,11 @@ struct MANGOS_DLL_DECL boss_lady_deathwhisperAI : public boss_lady_deathwhisper_
 {
     boss_lady_deathwhisperAI(Creature* pCreature) : boss_lady_deathwhisper_eventAI(pCreature)
     {
-        m_pInstance = ((instance_icecrown_spire*)pCreature->GetInstanceData());
+        m_pInstance = ((instance_icecrown_citadel*)pCreature->GetInstanceData());
         Reset();
     }
 
-    instance_icecrown_spire* m_pInstance;
+    instance_icecrown_citadel* m_pInstance;
 
     bool m_bIsPhaseOne;
     uint32 m_uiManaBarrierCheckTimer;

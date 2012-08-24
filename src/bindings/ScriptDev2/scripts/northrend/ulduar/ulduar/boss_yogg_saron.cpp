@@ -550,12 +550,16 @@ struct MANGOS_DLL_DECL boss_yogg_saronAI : public ScriptedAI
             {
                 case 0:
                     m_pInstance->SetSpecialAchievementCriteria(TYPE_ACHIEV_ALONE, true);
+                    /* no break */
                 case 1:
                     m_pInstance->SetSpecialAchievementCriteria(TYPE_ACHIEV_ONE_LIGHT, true);
+                    /* no break */
                 case 2:
                     m_pInstance->SetSpecialAchievementCriteria(TYPE_ACHIEV_TWO_LIGHTS, true);
+                    /* no break */
                 case 3:
                     m_pInstance->SetSpecialAchievementCriteria(TYPE_ACHIEV_THREE_LIGHTS, true);
+                    /* no break */
             }
 
             if(Creature* pSara = m_pInstance->GetSingleCreatureFromStorage(NPC_SARA))
@@ -625,7 +629,7 @@ struct MANGOS_DLL_DECL boss_yogg_saronAI : public ScriptedAI
         if (m_pInstance)
         {
             //remove Clouds
-            for(GuidList::iterator iter = m_pInstance->m_lCLoudGuids.begin(); iter != m_pInstance->m_lCLoudGuids.end(); ++iter)
+            for(GuidList::iterator iter = m_pInstance->m_lCloudGuids.begin(); iter != m_pInstance->m_lCloudGuids.end(); ++iter)
                 if (Creature *pTmp = m_pInstance->instance->GetCreature(*iter))
                     pTmp->ForcedDespawn();
         }
@@ -1661,7 +1665,7 @@ struct MANGOS_DLL_DECL boss_saraAI : public ScriptedAI
                         DoCast(m_creature, SPELL_SHADOWY_BARRIER);
                         m_creature->SetHealth(m_creature->GetMaxHealth());
                         m_creature->GetMap()->CreatureRelocation(m_creature, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ() +  10, 5.9f);
-                        m_creature->GetMotionMaster()->MovePoint(0,m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ() +  10);
+                        m_creature->GetMotionMaster()->MovePoint(0,m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ() +  10, false);
                         if(Creature* pYogg = m_pInstance->GetSingleCreatureFromStorage(NPC_YOGGSARON))
                             ((boss_yogg_saronAI*)pYogg->AI())->StartSecondPhase();
                         m_uiPhaseYellTimer = 30000 + urand(5000, 10000);
@@ -2663,6 +2667,7 @@ bool pGossipSelect_adventurer(Player* pPlayer, Creature* pCreature, uint32 uiSen
         break;
     default:
         pCreature->MonsterSay("Unbekannte Antwort", LANG_UNIVERSAL);
+        break;
     }
     return true;
 }

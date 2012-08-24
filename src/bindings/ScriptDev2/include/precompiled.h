@@ -17,6 +17,7 @@
 #include "sc_instance.h"
 #include "sc_utility.h"
 #include "SpellAuras.h"
+#include "DBCStructure.h"
 
 #ifdef WIN32
 #  include <windows.h>

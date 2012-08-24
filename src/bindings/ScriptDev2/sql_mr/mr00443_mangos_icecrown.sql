@@ -1,38 +1,28 @@
 -- --------
 -- Entrance
 -- --------
-UPDATE `areatrigger_teleport` SET `required_level` = '80' WHERE `areatrigger_teleport`.`id` =5670;
 
-UPDATE `creature` SET `spawntimesecs` = 7200 WHERE `map` = 631 AND (`spawntimesecs` BETWEEN 200 AND 7100 );
+-- as in sd2
+UPDATE instance_template SET ScriptName='instance_icecrown_citadel' WHERE map=631;
 
-DELETE FROM `gameobject` WHERE `guid` = 913334;
-INSERT INTO `gameobject` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`) VALUES
-(913334, 202244, 631, 3, 1, -209.5, 2211.91, 199.97, 3.07661, 0, 0, 0.999472, 0.0324833, 0, 0, 1);
-
+-- make teleports always usable
+-- TODO: implement "discovering" teleports
 UPDATE `gameobject_template` SET `flags` = 0, `ScriptName` = 'go_icecrown_teleporter' WHERE `entry`  IN (202242,202243,202244,202245,202235,202223,202246);
 UPDATE `gameobject` SET `phaseMask` = 1 WHERE `id`  IN (202242,202243,202244,202245,202235,202223,202246);
-DELETE FROM `areatrigger_teleport` WHERE `id` = 5718 AND `target_map` = 631;
 
-DELETE FROM `creature` WHERE `id` = 99322;
-DELETE FROM `creature_template` WHERE `entry` = 99322;
-DELETE FROM `locales_npc_text` WHERE `entry` = 99322;
-DELETE FROM `npc_text` WHERE `ID` = 99322;
-DELETE FROM `locales_npc_text` WHERE `entry` = 99323;
-DELETE FROM `npc_text` WHERE `ID` = 99323;
-DELETE FROM `gameobject` WHERE `guid` IN (913334);
-
-UPDATE `instance_template` SET `ScriptName`='instance_icecrown_spire' WHERE `map`=631;
+-- why was this removed?
+-- DELETE FROM `areatrigger_teleport` WHERE `id` = 5718 AND `target_map` = 631;
 
 -- fix for ytdb data on frostwing door/puddle
-
-DELETE FROM `gameobject` WHERE `id`=201919;
-INSERT INTO `gameobject` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`position_x`,`position_y`,`position_z`,`orientation`,`rotation0`,`rotation1`,`rotation2`,`rotation3`,`spawntimesecs`,`animprogress`,`state`) VALUES
-(7807, 201919, 631, 1, 128, 4356.52, 2651.74, 351.1, 1.61378, 0, 0, 0.722138, 0.691749, 25, 255, 1);
+-- NOT SURE IF NEEDED
+-- DELETE FROM `gameobject` WHERE `id`=201919;
+-- INSERT INTO `gameobject` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`position_x`,`position_y`,`position_z`,`orientation`,`rotation0`,`rotation1`,`rotation2`,`rotation3`,`spawntimesecs`,`animprogress`,`state`) VALUES
+-- (7807, 201919, 631, 1, 128, 4356.52, 2651.74, 351.1, 1.61378, 0, 0, 0.722138, 0.691749, 25, 255, 1);
 
 -- Icecrown buff
 DELETE FROM `spell_area` WHERE `spell` IN
 (73762, 73824, 73825, 73826, 73827, 73828, -- Alliance
-73816, 73818, 73819, 73820, 73821, 73822);
+73816, 73818, 73819, 73820, 73821, 73822); -- Horde
 -- +5%
 -- INSERT INTO `spell_area` (`spell`, `area`, `racemask`, `gender`, `autocast`) VALUES
 -- (73762, 4812, 1101, 2, 1), -- Alliance
@@ -62,12 +52,17 @@ DELETE FROM `spell_area` WHERE `spell` IN
 -- Saurfang
 -- --------
 
-UPDATE `creature_template` SET `vehicle_id` = 639, `AIName`='', `PowerType` = 3, `ScriptName`='boss_deathbringer_saurfang' WHERE `entry`=37813;
+-- vehicle_id: ytdb = 591, here some old custom = 639
+UPDATE `creature_template` SET `AIName`='', `PowerType` = 3, `ScriptName`='boss_deathbringer_saurfang' WHERE `entry`=37813;
 UPDATE `creature_template` SET `AIName`='', `ScriptName`='npc_highlord_saurfang_icc' WHERE `entry`=37187;
 UPDATE `creature_template` SET `AIName`='', `ScriptName`='npc_deathbringer_event_guards_iccAI' WHERE `entry` IN (37920, 37902);
-UPDATE `creature_template` SET `vehicle_id` = 639, `AIName`='', `PowerType` = 3 WHERE `entry` IN (38402,38582,38583);
-UPDATE `creature` SET `position_x` = -476.621,`position_y` = 2211.11,`position_z` = 541.197, `spawntimesecs` = 604800 WHERE `id` = 37813;
-UPDATE `creature_template` SET `ScriptName`='mob_blood_beast', `AIName`='' WHERE `entry`= 38508;
+UPDATE `creature_template` SET `AIName`='', `ScriptName`='mob_blood_beast' WHERE `entry`= 38508;
+
+-- is this needed?
+-- UPDATE `creature_template` SET `PowerType` = 3 WHERE `entry` IN (38402,38582,38583);
+-- old hacky way of moving from behind the door
+-- UPDATE `creature` SET `position_x` = -476.621,`position_y` = 2211.11,`position_z` = 541.197, `spawntimesecs` = 604800 WHERE `id` = 37813;
+
 DELETE FROM `spell_script_target` WHERE `entry` IN (72260, 72202, 72278,72279,72280);
 INSERT INTO `spell_script_target` (`entry`, `type`, `targetEntry`) VALUES
 ('72260', '1', '37813'),
@@ -95,7 +90,7 @@ INSERT INTO `spell_proc_event` () VALUES
 DELETE FROM `spell_script_target` WHERE `entry` = 72771;
 INSERT INTO `spell_script_target` VALUES (72771, 1, 38508);
 
--- update attack speed for Saurfang
+-- update attack speed for Saurfang (in ytdb other than 10normal have 2s)
 UPDATE `creature_template` SET baseattacktime = 1000 WHERE `entry` IN (37813, 38402, 38582, 38583);
 
 
