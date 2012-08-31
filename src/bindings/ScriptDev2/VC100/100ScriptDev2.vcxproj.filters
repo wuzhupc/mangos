@@ -747,9 +747,6 @@
     <ClCompile Include="..\scripts\eastern_kingdoms\scholomance\boss_jandice_barov.cpp">
       <Filter>scripts\eastern_kingdoms\scholomance</Filter>
     </ClCompile>
-    <ClCompile Include="..\scripts\eastern_kingdoms\scholomance\boss_vectus.cpp">
-      <Filter>scripts\eastern_kingdoms\scholomance</Filter>
-    </ClCompile>
     <ClCompile Include="..\scripts\eastern_kingdoms\scholomance\instance_scholomance.cpp">
       <Filter>scripts\eastern_kingdoms\scholomance</Filter>
     </ClCompile>
@@ -2702,6 +2699,11 @@
     <ClInclude Include="..\scripts\custom\WUZHU_PetShow.h">
       <Filter>scripts\custom</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\precompiled.h" />
+    <ClInclude Include="..\include\sc_creature.h" />
+    <ClInclude Include="..\include\sc_gossip.h" />
+    <ClInclude Include="..\include\sc_grid_searchers.h" />
+    <ClInclude Include="..\include\sc_instance.h" />
     <ClInclude Include="..\include\precompiled.h" />
     <ClInclude Include="..\include\sc_creature.h" />
     <ClInclude Include="..\include\sc_gossip.h" />

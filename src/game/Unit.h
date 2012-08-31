@@ -29,7 +29,6 @@
 #include "HostileRefManager.h"
 #include "FollowerReference.h"
 #include "FollowerRefManager.h"
-#include "Utilities/EventProcessor.h"
 #include "MapManager.h"
 #include "MotionMaster.h"
 #include "DBCStructure.h"
@@ -1538,6 +1537,7 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         }
 
         bool HasAuraType(AuraType auraType) const;
+        bool HasAuraTypeWithCaster(AuraType auraType, ObjectGuid casterGuid) const;
         bool HasNegativeAuraType(AuraType auraType) const;
         bool HasAffectedAura(AuraType auraType, SpellEntry const* spellProto) const;
         bool HasAura(uint32 spellId, SpellEffectIndex effIndex) const;
@@ -1621,7 +1621,7 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         virtual void SetDeathState(DeathState s);           // overwritten in Creature/Player/Pet
 
         ObjectGuid const& GetOwnerGuid() const { return  GetGuidValue(UNIT_FIELD_SUMMONEDBY); }
-        void SetOwnerGuid(ObjectGuid owner) { SetGuidValue(UNIT_FIELD_SUMMONEDBY, owner); }
+        void SetOwnerGuid(ObjectGuid owner);
         ObjectGuid const& GetCreatorGuid() const;
         void SetCreatorGuid(ObjectGuid creator) { SetGuidValue(UNIT_FIELD_CREATEDBY, creator); }
         ObjectGuid const& GetPetGuid() const { return GetGuidValue(UNIT_FIELD_SUMMON); }
@@ -1842,12 +1842,6 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         float m_modAttackSpeedPct[MAX_ATTACK_MOD];
         float m_modSpellSpeedPctNeg;
         float m_modSpellSpeedPctPos;
-
-        // Event handler
-        EventProcessor* GetEvents();
-        void UpdateEvents(uint32 update_diff, uint32 time);
-        void KillAllEvents(bool force);
-        void AddEvent(BasicEvent* Event, uint64 e_time, bool set_addtime = true);
 
         // stat system
         bool HandleStatModifier(UnitMods unitMod, UnitModifierType modifierType, float amount, bool apply);
@@ -2305,8 +2299,6 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
 
         GroupPetList m_groupPets;
 
-        EventProcessor m_Events;
-
         GuidSet m_guardianPets;
 
         ObjectGuid m_TotemSlot[MAX_TOTEM_SLOT];
@@ -2407,15 +2399,5 @@ bool Unit::CheckAllControlledUnits(Func const& func, uint32 controlledMask) cons
 
     return false;
 }
-
-class ManaUseEvent : public BasicEvent
-{
-    public:
-        ManaUseEvent(Unit& caster) : BasicEvent(), m_caster(caster) {}
-        bool Execute(uint64 e_time, uint32 p_time);
-
-    private:
-        Unit& m_caster;
-};
 
 #endif

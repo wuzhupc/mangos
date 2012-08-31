@@ -708,7 +708,6 @@ UPDATE creature_template SET ScriptName='boss_malchezaar' WHERE entry=15690;
 UPDATE creature_template SET ScriptName='boss_bigbadwolf' WHERE entry=17521;
 UPDATE creature_template SET ScriptName='mob_demon_chain' WHERE entry=17248;
 UPDATE creature_template SET ScriptName='npc_fiendish_portal' WHERE entry=17265;
-UPDATE creature_template SET ScriptName='mob_cyclone' WHERE entry=18412;
 UPDATE creature_template SET ScriptName='netherspite_infernal' WHERE entry=17646;
 UPDATE creature_template SET ScriptName='npc_berthold' WHERE entry=16153;
 UPDATE creature_template SET ScriptName='npc_barnes' WHERE entry=16812;
@@ -899,7 +898,6 @@ UPDATE creature_template SET ScriptName='boss_headless_horseman' WHERE entry=236
 /* SCHOLOMANCE */
 UPDATE instance_template SET ScriptName='instance_scholomance' WHERE map=289;
 UPDATE creature_template SET ScriptName='boss_darkmaster_gandling' WHERE entry=1853;
-UPDATE creature_template SET ScriptName='boss_vectus' WHERE entry=10432;
 UPDATE creature_template SET ScriptName='boss_jandice_barov' WHERE entry=10503;
 DELETE FROM scripted_event_id WHERE id IN (5618, 5619, 5620, 5621, 5622, 5623);
 INSERT INTO scripted_event_id VALUES

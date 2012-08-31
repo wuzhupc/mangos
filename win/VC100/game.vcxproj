@@ -516,6 +516,7 @@
     <ClCompile Include="..\..\src\game\Transports.cpp" />
     <ClCompile Include="..\..\src\game\Unit.cpp" />
     <ClCompile Include="..\..\src\game\UpdateData.cpp" />
+    <ClCompile Include="..\..\src\game\UpdateFieldFlags.cpp" />
     <ClCompile Include="..\..\src\game\Vehicle.cpp" />
     <ClCompile Include="..\..\src\game\VehicleHandler.cpp" />
     <ClCompile Include="..\..\src\game\vmap\DynamicTree.cpp" />
@@ -538,6 +539,7 @@
     <ClCompile Include="..\..\src\game\OutdoorPvP\OutdoorPvPSI.cpp" />
     <ClCompile Include="..\..\src\game\OutdoorPvP\OutdoorPvPTF.cpp" />
     <ClCompile Include="..\..\src\game\OutdoorPvP\OutdoorPvPZM.cpp" />
+    <ClCompile Include="..\..\src\game\WorldObjectEvents.cpp" />
     <ClCompile Include="..\..\src\game\WorldSession.cpp" />
     <ClCompile Include="..\..\src\game\WorldSocket.cpp" />
     <ClCompile Include="..\..\src\game\WorldSocketMgr.cpp" />
@@ -706,6 +708,7 @@
     <ClInclude Include="..\..\src\game\Unit.h" />
     <ClInclude Include="..\..\src\game\UnitEvents.h" />
     <ClInclude Include="..\..\src\game\UpdateData.h" />
+    <ClInclude Include="..\..\src\game\UpdateFieldFlags.h" />
     <ClInclude Include="..\..\src\game\UpdateFields.h" />
     <ClInclude Include="..\..\src\game\UpdateMask.h" />
     <ClInclude Include="..\..\src\game\Vehicle.h" />
@@ -732,6 +735,7 @@
     <ClInclude Include="..\..\src\game\OutdoorPvP\OutdoorPvPSI.h" />
     <ClInclude Include="..\..\src\game\OutdoorPvP\OutdoorPvPTF.h" />
     <ClInclude Include="..\..\src\game\OutdoorPvP\OutdoorPvPZM.h" />
+    <ClInclude Include="..\..\src\game\WorldObjectEvents.h" />
     <ClInclude Include="..\..\src\game\WorldSession.h" />
     <ClInclude Include="..\..\src\game\WorldSocket.h" />
     <ClInclude Include="..\..\src\game\WorldSocketMgr.h" />
