@@ -23,8 +23,7 @@ SDCategory: Battleground_SA
 EndScriptData */
 
 #include "precompiled.h"
-#include "BattleGroundSA.h"
-#include "Vehicle.h"
+#include "BattleGround/BattleGroundSA.h"
 
 struct MANGOS_DLL_DECL npc_sa_demolisherAI : public ScriptedAI
 {

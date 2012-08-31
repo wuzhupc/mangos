@@ -16,15 +16,15 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "Object.h"
-#include "Player.h"
+#include "..\Object.h"
+#include "..\Player.h"
 #include "BattleGround.h"
-#include "BattleGroundBE.h"
-#include "ObjectMgr.h"
+#include "BattleGroundRL.h"
+#include "..\ObjectMgr.h"
+#include "..\Language.h"
 #include "WorldPacket.h"
-#include "Language.h"
 
-BattleGroundBE::BattleGroundBE()
+BattleGroundRL::BattleGroundRL()
 {
     m_StartDelayTimes[BG_STARTING_EVENT_FIRST]  = BG_START_DELAY_1M;
     m_StartDelayTimes[BG_STARTING_EVENT_SECOND] = BG_START_DELAY_30S;
@@ -37,11 +37,11 @@ BattleGroundBE::BattleGroundBE()
     m_StartMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_ARENA_HAS_BEGUN;
 }
 
-BattleGroundBE::~BattleGroundBE()
+BattleGroundRL::~BattleGroundRL()
 {
 }
 
-void BattleGroundBE::Update(uint32 diff)
+void BattleGroundRL::Update(uint32 diff)
 {
     BattleGround::Update(diff);
 
@@ -51,39 +51,39 @@ void BattleGroundBE::Update(uint32 diff)
     }*/
 }
 
-void BattleGroundBE::StartingEventCloseDoors()
+void BattleGroundRL::StartingEventCloseDoors()
 {
 }
 
-void BattleGroundBE::StartingEventOpenDoors()
+void BattleGroundRL::StartingEventOpenDoors()
 {
     OpenDoorEvent(BG_EVENT_DOOR);
 }
 
-void BattleGroundBE::AddPlayer(Player *plr)
+void BattleGroundRL::AddPlayer(Player *plr)
 {
     BattleGround::AddPlayer(plr);
     //create score and add it to map, default values are set in constructor
-    BattleGroundBEScore* sc = new BattleGroundBEScore;
+    BattleGroundRLScore* sc = new BattleGroundRLScore;
 
     m_PlayerScores[plr->GetObjectGuid()] = sc;
 
-    UpdateWorldState(0x9f1, GetAlivePlayersCountByTeam(ALLIANCE));
-    UpdateWorldState(0x9f0, GetAlivePlayersCountByTeam(HORDE));
+    UpdateWorldState(0xbb8, GetAlivePlayersCountByTeam(ALLIANCE));
+    UpdateWorldState(0xbb9, GetAlivePlayersCountByTeam(HORDE));
 }
 
-void BattleGroundBE::RemovePlayer(Player* /*plr*/, ObjectGuid /*guid*/)
+void BattleGroundRL::RemovePlayer(Player* /*plr*/, ObjectGuid /*guid*/)
 {
     if (GetStatus() == STATUS_WAIT_LEAVE)
         return;
 
-    UpdateWorldState(0x9f1, GetAlivePlayersCountByTeam(ALLIANCE));
-    UpdateWorldState(0x9f0, GetAlivePlayersCountByTeam(HORDE));
+    UpdateWorldState(0xbb8, GetAlivePlayersCountByTeam(ALLIANCE));
+    UpdateWorldState(0xbb9, GetAlivePlayersCountByTeam(HORDE));
 
     CheckArenaWinConditions();
 }
 
-void BattleGroundBE::HandleKillPlayer(Player *player, Player *killer)
+void BattleGroundRL::HandleKillPlayer(Player *player, Player *killer)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
@@ -96,19 +96,19 @@ void BattleGroundBE::HandleKillPlayer(Player *player, Player *killer)
 
     BattleGround::HandleKillPlayer(player,killer);
 
-    UpdateWorldState(0x9f1, GetAlivePlayersCountByTeam(ALLIANCE));
-    UpdateWorldState(0x9f0, GetAlivePlayersCountByTeam(HORDE));
+    UpdateWorldState(0xbb8, GetAlivePlayersCountByTeam(ALLIANCE));
+    UpdateWorldState(0xbb9, GetAlivePlayersCountByTeam(HORDE));
 
     CheckArenaWinConditions();
 }
 
-bool BattleGroundBE::HandlePlayerUnderMap(Player *player)
+bool BattleGroundRL::HandlePlayerUnderMap(Player *player)
 {
-    player->TeleportTo(GetMapId(),6238.930176f,262.963470f,0.889519f,player->GetOrientation(),false);
+    player->TeleportTo(GetMapId(),1285.810547f,1667.896851f,39.957642f,player->GetOrientation(),false);
     return true;
 }
 
-void BattleGroundBE::HandleAreaTrigger(Player *Source, uint32 Trigger)
+void BattleGroundRL::HandleAreaTrigger(Player *Source, uint32 Trigger)
 {
     // this is wrong way to implement these things. On official it done by gameobject spell cast.
     if (GetStatus() != STATUS_IN_PROGRESS)
@@ -118,11 +118,8 @@ void BattleGroundBE::HandleAreaTrigger(Player *Source, uint32 Trigger)
     //uint64 buff_guid = 0;
     switch(Trigger)
     {
-        case 4538:                                          // buff trigger?
-            //buff_guid = m_BgObjects[BG_BE_OBJECT_BUFF_1];
-            break;
-        case 4539:                                          // buff trigger?
-            //buff_guid = m_BgObjects[BG_BE_OBJECT_BUFF_2];
+        case 4696:                                          // buff trigger?
+        case 4697:                                          // buff trigger?
             break;
         default:
             sLog.outError("WARNING: Unhandled AreaTrigger in Battleground: %u", Trigger);
@@ -134,47 +131,30 @@ void BattleGroundBE::HandleAreaTrigger(Player *Source, uint32 Trigger)
     //    HandleTriggerBuff(buff_guid,Source);
 }
 
-void BattleGroundBE::FillInitialWorldStates()
+void BattleGroundRL::FillInitialWorldStates()
 {
-    FillInitialWorldState(0x9f1, GetAlivePlayersCountByTeam(ALLIANCE));
-    FillInitialWorldState(0x9f0, GetAlivePlayersCountByTeam(HORDE));
-    FillInitialWorldState(0x9f3, 1);
+    FillInitialWorldState(0xbb8, GetAlivePlayersCountByTeam(ALLIANCE));
+    FillInitialWorldState(0xbb9, GetAlivePlayersCountByTeam(HORDE));
+    FillInitialWorldState(0xbba, 1);
 }
 
-void BattleGroundBE::Reset()
+void BattleGroundRL::Reset()
 {
-    //call parent's class reset
+    //call parent's reset
     BattleGround::Reset();
 }
 
-bool BattleGroundBE::SetupBattleGround()
+bool BattleGroundRL::SetupBattleGround()
 {
     return true;
 }
 
-void BattleGroundBE::UpdatePlayerScore(Player* Source, uint32 type, uint32 value)
-{
-
-    BattleGroundScoreMap::iterator itr = m_PlayerScores.find(Source->GetObjectGuid());
-    if(itr == m_PlayerScores.end())                         // player not found...
-        return;
-
-    //there is nothing special in this score
-    BattleGround::UpdatePlayerScore(Source, type, value);
-
-}
-
 /*
-21:45:46 id:231310 [S2C] SMSG_INIT_WORLD_STATES (706 = 0x02C2) len: 86
-0000: 32 02 00 00 76 0e 00 00 00 00 00 00 09 00 f3 09  |  2...v...........
-0010: 00 00 01 00 00 00 f1 09 00 00 01 00 00 00 f0 09  |  ................
-0020: 00 00 02 00 00 00 d4 08 00 00 00 00 00 00 d8 08  |  ................
-0030: 00 00 00 00 00 00 d7 08 00 00 00 00 00 00 d6 08  |  ................
-0040: 00 00 00 00 00 00 d5 08 00 00 00 00 00 00 d3 08  |  ................
-0050: 00 00 00 00 00 00                                |  ......
-
-spell 32724 - Gold Team
-spell 32725 - Green Team
-35774 Gold Team
-35775 Green Team
+Packet S->C, id 600, SMSG_INIT_WORLD_STATES (706), len 86
+0000: 3C 02 00 00 80 0F 00 00 00 00 00 00 09 00 BA 0B | <...............
+0010: 00 00 01 00 00 00 B9 0B 00 00 02 00 00 00 B8 0B | ................
+0020: 00 00 00 00 00 00 D8 08 00 00 00 00 00 00 D7 08 | ................
+0030: 00 00 00 00 00 00 D6 08 00 00 00 00 00 00 D5 08 | ................
+0040: 00 00 00 00 00 00 D3 08 00 00 00 00 00 00 D4 08 | ................
+0050: 00 00 00 00 00 00                               | ......
 */

@@ -16,6 +16,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include "AccountMgr.h"
 #include "Common.h"
 #include "Database/DatabaseEnv.h"
 #include "WorldPacket.h"
@@ -38,6 +39,7 @@
 #include "Util.h"
 #include "ArenaTeam.h"
 #include "Language.h"
+#include "SpellMgr.h"
 
 // Playerbot mod:
 #include "playerbot/PlayerbotMgr.h"
@@ -70,12 +72,12 @@ bool LoginQueryHolder::Initialize()
     bool res = true;
 
     // NOTE: all fields in `characters` must be read to prevent lost character data at next save in case wrong DB structure.
-    // !!! NOTE: including unused `zone`,`online`
+    // !!! NOTE: including unused `zone`,`online`//wuzhu
     res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADFROM,            "SELECT guid, account, name, race, class, gender, level, xp, money, playerBytes, playerBytes2, playerFlags,"
         "position_x, position_y, position_z, map, orientation, taximask, cinematic, totaltime, leveltime, rest_bonus, logout_time, is_logout_resting, resettalents_cost,"
         "resettalents_time, trans_x, trans_y, trans_z, trans_o, transguid, extra_flags, stable_slots, at_login, zone, online, death_expire_time, taxi_path, dungeon_difficulty,"
         "arenaPoints, totalHonorPoints, todayHonorPoints, yesterdayHonorPoints, totalKills, todayKills, yesterdayKills, chosenTitle, knownCurrencies, watchedFaction, drunk,"
-        "health, power1, power2, power3, power4, power5, power6, power7, specCount, activeSpec, exploredZones, equipmentCache, ammoId, knownTitles, actionBars, grantableLevels FROM characters WHERE guid = '%u'", m_guid.GetCounter());
+        "health, power1, power2, power3, power4, power5, power6, power7, specCount, activeSpec, exploredZones, equipmentCache, ammoId, knownTitles, actionBars, grantableLevels, vip_integral FROM characters WHERE guid = '%u'", m_guid.GetCounter());//wuzhu
     res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADGROUP,           "SELECT groupId FROM group_member WHERE memberGuid ='%u'", m_guid.GetCounter());
     res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADBOUNDINSTANCES,  "SELECT id, permanent, map, difficulty, extend, resettime FROM character_instance LEFT JOIN instance ON instance = id WHERE guid = '%u'", m_guid.GetCounter());
     res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADAURAS,           "SELECT caster_guid,item_guid,spell,stackcount,remaincharges,basepoints0,basepoints1,basepoints2,periodictime0,periodictime1,periodictime2,maxduration,remaintime,effIndexMask FROM character_aura WHERE guid = '%u'", m_guid.GetCounter());
@@ -316,42 +318,25 @@ void WorldSession::HandleCharCreateOpcode( WorldPacket & recv_data )
         return;
     }
 
-    if (sObjectMgr.GetPlayerGuidByName(name))
+    if (sAccountMgr.GetPlayerGuidByName(name))
     {
         data << (uint8)CHAR_CREATE_NAME_IN_USE;
         SendPacket( &data );
         return;
     }
 
-    QueryResult *resultacct = LoginDatabase.PQuery("SELECT SUM(numchars) FROM realmcharacters WHERE acctid = '%u'", GetAccountId());
-    if (resultacct)
-    {
-        Field *fields=resultacct->Fetch();
-        uint32 acctcharcount = fields[0].GetUInt32();
-        delete resultacct;
 
-        if (acctcharcount >= sWorld.getConfig(CONFIG_UINT32_CHARACTERS_PER_ACCOUNT))
-        {
-            data << (uint8)CHAR_CREATE_ACCOUNT_LIMIT;
-            SendPacket( &data );
-            return;
-        }
+    if (sAccountMgr.GetCharactersCount(GetAccountId(), true) >= sWorld.getConfig(CONFIG_UINT32_CHARACTERS_PER_ACCOUNT))
+    {
+        data << (uint8)CHAR_CREATE_ACCOUNT_LIMIT;
+        SendPacket( &data );
+        return;
     }
-
-    QueryResult *result = CharacterDatabase.PQuery("SELECT COUNT(guid) FROM characters WHERE account = '%u'", GetAccountId());
-    uint8 charcount = 0;
-    if ( result )
+    else if (sAccountMgr.GetCharactersCount(GetAccountId(), false) >= sWorld.getConfig(CONFIG_UINT32_CHARACTERS_PER_REALM))
     {
-        Field *fields = result->Fetch();
-        charcount = fields[0].GetUInt8();
-        delete result;
-
-        if (charcount >= sWorld.getConfig(CONFIG_UINT32_CHARACTERS_PER_REALM))
-        {
-            data << (uint8)CHAR_CREATE_SERVER_LIMIT;
-            SendPacket( &data );
-            return;
-        }
+        data << (uint8)CHAR_CREATE_SERVER_LIMIT;
+        SendPacket( &data );
+        return;
     }
 
     // speedup check for heroic class disabled case
@@ -495,10 +480,8 @@ void WorldSession::HandleCharCreateOpcode( WorldPacket & recv_data )
 
     // Player created, save it now
     pNewChar.SaveToDB();
-    charcount += 1;
 
-    LoginDatabase.PExecute("DELETE FROM realmcharacters WHERE acctid= '%u' AND realmid = '%u'", GetAccountId(), realmID);
-    LoginDatabase.PExecute("INSERT INTO realmcharacters (numchars, acctid, realmid) VALUES (%u, %u, %u)",  charcount, GetAccountId(), realmID);
+    sAccountMgr.UpdateCharactersCount(GetAccountId(), realmID);
 
     data << (uint8)CHAR_CREATE_SUCCESS;
     SendPacket( &data );
@@ -615,7 +598,7 @@ void PlayerbotMgr::AddPlayerBot(ObjectGuid playerGuid)
     if (sObjectMgr.GetPlayer(playerGuid))
         return;
 
-    uint32 accountId = sObjectMgr.GetPlayerAccountIdByGUID(playerGuid);
+    uint32 accountId = sAccountMgr.GetPlayerAccountIdByGUID(playerGuid);
     if (accountId == 0)
         return;
 
@@ -626,7 +609,7 @@ void PlayerbotMgr::AddPlayerBot(ObjectGuid playerGuid)
         return;
     }
 
-    uint32 masterId = sObjectMgr.GetPlayerAccountIdByGUID(GetMaster()->GetObjectGuid());
+    uint32 masterId = sAccountMgr.GetPlayerAccountIdByGUID(GetMaster()->GetObjectGuid());
     CharacterDatabase.DelayQueryHolder(&chrHandler, &CharacterHandler::HandlePlayerBotLoginCallback, holder, masterId);
 }
 
@@ -696,7 +679,13 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder *holder)
 
         data.put(0, linecount);
 
-        SendPacket( &data );
+        SendPacket( &data );		
+		//wuzhu start
+		if(rand()%2==0)
+			sWorld.SendWorldText(8211,pCurrChar->GetName());//wzuhu 发送欢迎信息
+		else
+			sWorld.SendWorldText(8212,pCurrChar->GetName());//wzuhu 发送欢迎信息
+		//wuzhu end
         DEBUG_LOG( "WORLD: Sent motd (SMSG_MOTD)" );
     }
 
@@ -810,7 +799,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder *holder)
             pCurrChar->CastSpell(pCurrChar, 20584, true);   // auras SPELL_AURA_INCREASE_SPEED(+speed in wisp form), SPELL_AURA_INCREASE_SWIM_SPEED(+swim speed in wisp form), SPELL_AURA_TRANSFORM (to wisp form)
         pCurrChar->CastSpell(pCurrChar, 8326, true);        // auras SPELL_AURA_GHOST, SPELL_AURA_INCREASE_SPEED(why?), SPELL_AURA_INCREASE_SWIM_SPEED(why?)
 
-        pCurrChar->SetMovement(MOVE_WATER_WALK);
+        pCurrChar->SetWaterWalk(true);
     }
 
     pCurrChar->ContinueTaxiFlight();
@@ -857,7 +846,12 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder *holder)
         SendNotification(LANG_GM_ON);
 
     if (!pCurrChar->isGMVisible())
+    {
         SendNotification(LANG_INVISIBLE_INVISIBLE);
+        SpellEntry const* invisibleAuraInfo = sSpellStore.LookupEntry(sWorld.getConfig(CONFIG_UINT32_GM_INVISIBLE_AURA));
+        if (invisibleAuraInfo && IsSpellAppliesAura(invisibleAuraInfo))
+            pCurrChar->CastSpell(pCurrChar, invisibleAuraInfo, true);
+    }
 
     std::string IP_str = GetRemoteAddress();
     sLog.outChar("Account: %d (IP: %s) Login Character:[%s] (guid: %u)",
@@ -870,6 +864,36 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder *holder)
 
     // Handle Login-Achievements (should be handled after loading)
     pCurrChar->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_ON_LOGIN, 1);
+
+    // Titles check
+    if (pCurrChar->HasAtLoginFlag(AT_LOGIN_CHECK_TITLES))
+    {
+        Team team = pCurrChar->GetTeam();
+        if (QueryResult *result = WorldDatabase.Query("SELECT alliance_id, horde_id FROM player_factionchange_titles"))
+        {
+            do
+            {
+                Field *fields = result->Fetch();
+                uint32 title_alliance = fields[0].GetUInt32();
+                uint32 title_horde = fields[1].GetUInt32();
+
+                CharTitlesEntry const* titleEntry = sCharTitlesStore.LookupEntry(team == HORDE ? title_alliance : title_horde);
+                uint32 fieldIndexOffset = titleEntry->bit_index / 32;
+                uint32 flag = 1 << (titleEntry->bit_index % 32);
+                if (pCurrChar->HasFlag(PLAYER__FIELD_KNOWN_TITLES + fieldIndexOffset, flag))
+                {
+                    pCurrChar->SetTitle(titleEntry, true);
+                    if (CharTitlesEntry const* titleNewEntry = sCharTitlesStore.LookupEntry(team == HORDE ? title_horde : title_alliance))
+                    {
+                        pCurrChar->SetTitle(titleNewEntry);
+                        pCurrChar->SetUInt32Value(PLAYER_CHOSEN_TITLE, 0);
+                    }
+                }
+            }
+            while(result->NextRow());
+        }
+        pCurrChar->RemoveAtLoginFlag(AT_LOGIN_CHECK_TITLES);
+    }
 
     delete holder;
 }
@@ -1041,7 +1065,7 @@ void WorldSession::HandleSetPlayerDeclinedNamesOpcode(WorldPacket& recv_data)
 
     // not accept declined names for unsupported languages
     std::string name;
-    if(!sObjectMgr.GetPlayerNameByGUID(guid, name))
+    if(!sAccountMgr.GetPlayerNameByGUID(guid, name))
     {
         WorldPacket data(SMSG_SET_PLAYER_DECLINED_NAMES_RESULT, 4+8);
         data << uint32(1);
@@ -1258,9 +1282,9 @@ void WorldSession::HandleCharFactionOrRaceChangeOpcode(WorldPacket& recv_data)
     }
 
     // character with this name already exist
-    if (sObjectMgr.GetPlayerGuidByName(newname))
+    if (sAccountMgr.GetPlayerGuidByName(newname))
     {
-        ObjectGuid newguid = sObjectMgr.GetPlayerGuidByName(newname);
+        ObjectGuid newguid = sAccountMgr.GetPlayerGuidByName(newname);
         if (newguid != guid)
         {
             WorldPacket data(SMSG_CHAR_FACTION_CHANGE, 1);
@@ -1277,7 +1301,9 @@ void WorldSession::HandleCharFactionOrRaceChangeOpcode(WorldPacket& recv_data)
     {
         uint32 groupId = (*resultGroup)[0].GetUInt32();
         delete resultGroup;
-        if (Group* group = sObjectMgr.GetGroupById(groupId))
+
+        Group* group = sObjectMgr.GetGroupById(groupId);
+        if (group)
             Player::RemoveFromGroup(group, guid);
     }
 
@@ -1296,9 +1322,12 @@ void WorldSession::HandleCharFactionOrRaceChangeOpcode(WorldPacket& recv_data)
         CharacterDatabase.PExecute("DELETE FROM `character_queststatus` WHERE `status` = 3 AND guid ='%u'", guid.GetCounter());
         // Reset guild
         if (uint32 guildId = Player::GetGuildIdFromDB(guid))
-            if (Guild* guild = sGuildMgr.GetGuildById(guildId))
+        {
+            Guild* guild = sGuildMgr.GetGuildById(guildId);
+            if (guild)
                 if (guild->DelMember(guid))
                     deletedGuild = guildId;
+        }
 
         // Delete Friend List
         // Cleanup friends for online players
@@ -1435,7 +1464,8 @@ void WorldSession::HandleCharFactionOrRaceChangeOpcode(WorldPacket& recv_data)
 
     if (deletedGuild)
     {
-        if (Guild* guild = sGuildMgr.GetGuildById(deletedGuild))
+        Guild* guild = sGuildMgr.GetGuildById(deletedGuild);
+        if (guild)
         {
             guild->Disband();
             delete guild;
@@ -1519,7 +1549,7 @@ void WorldSession::HandleCharCustomizeOpcode(WorldPacket& recv_data)
     }
 
     // character with this name already exist
-    ObjectGuid newguid = sObjectMgr.GetPlayerGuidByName(newname);
+    ObjectGuid newguid = sAccountMgr.GetPlayerGuidByName(newname);
     if (newguid && newguid != guid)
     {
         WorldPacket data(SMSG_CHAR_CUSTOMIZE, 1);

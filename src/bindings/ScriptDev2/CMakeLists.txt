@@ -62,7 +62,7 @@ if(WIN32)
   target_link_libraries(mangosscriptR2
     mangosd # FIXME: could this be done for unix? because unix won't generate exe.libs
     ${ACE_LIBRARIES}
-    debug ${WIN_DEBUGLIBS}
+#    debug ${WIN_DEBUGLIBS}
   )
 endif()
 
@@ -70,6 +70,7 @@ add_dependencies(mangosscriptR2 revision.h)
 if(NOT ACE_USE_EXTERNAL)
   add_dependencies(mangosscriptR2 ACE_Project)
 # add_dependencies(mangosscriptR2 ace)
+  add_dependencies(mangosscriptR2 game)
 endif()
 
 if(UNIX)
@@ -126,7 +127,7 @@ endif()
 if(PCH)
   if(MSVC OR XCODE)
     if(MSVC)
-      set(mangosscript_pch "${CMAKE_CURRENT_SOURCE_DIR}/include/precompiled.cpp")
+      set(mangosscriptR2_pch "${CMAKE_CURRENT_SOURCE_DIR}/include/precompiled.cpp")
     endif()
     add_native_precompiled_header(mangosscriptR2 ${CMAKE_CURRENT_SOURCE_DIR}/include/precompiled.h)
   elseif(CMAKE_COMPILER_IS_GNUCXX)

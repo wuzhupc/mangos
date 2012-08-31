@@ -265,7 +265,6 @@ ChatCommand * ChatHandler::getCommandTable()
         { "spellmods",      SEC_ADMINISTRATOR,  false, &ChatHandler::HandleDebugSpellModsCommand,           "", NULL },
         { "spellcheck",     SEC_CONSOLE,        true,  &ChatHandler::HandleDebugSpellCheckCommand,          "", NULL },
         { "spellcoefs",     SEC_ADMINISTRATOR,  true,  &ChatHandler::HandleDebugSpellCoefsCommand,          "", NULL },
-        { "uws",            SEC_ADMINISTRATOR,  false, &ChatHandler::HandleDebugUpdateWorldStateCommand,    "", NULL },
         { "entervehicle",   SEC_GAMEMASTER,     false, &ChatHandler::HandleDebugEnterVehicleCommand,        "", NULL },
         { NULL,             0,                  false, NULL,                                                "", NULL }
     };
@@ -420,6 +419,17 @@ ChatCommand * ChatHandler::getCommandTable()
         { NULL,             0,                  false, NULL,                                           "", NULL }
     };
 
+    static ChatCommand WSCommandTable[] =
+    {
+        { "list",           SEC_GAMEMASTER,     false, &ChatHandler::HandleWorldStateListCommand,      "", NULL },
+        { "global",         SEC_GAMEMASTER,     false, &ChatHandler::HandleWorldStateListAllCommand,   "", NULL },
+        { "add",            SEC_ADMINISTRATOR,  false, &ChatHandler::HandleWorldStateAddCommand,       "", NULL },
+        { "update",         SEC_ADMINISTRATOR,  false, &ChatHandler::HandleWorldStateUpdateCommand,    "", NULL },
+        { "reload",         SEC_ADMINISTRATOR,  false, &ChatHandler::HandleWorldStateReloadCommand,    "", NULL },
+        { "",               SEC_GAMEMASTER,     false, &ChatHandler::HandleWorldStateCommand,          "", NULL },
+        { NULL,             0,                  false, NULL,                                           "", NULL }
+    };
+
     static ChatCommand modifyCommandTable[] =
     {
         { "hp",             SEC_MODERATOR,      false, &ChatHandler::HandleModifyHPCommand,            "", NULL },
@@ -534,6 +544,7 @@ ChatCommand * ChatHandler::getCommandTable()
         { "areatrigger_tavern",          SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadAreaTriggerTavernCommand,       "", NULL },
         { "areatrigger_teleport",        SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadAreaTriggerTeleportCommand,     "", NULL },
         { "command",                     SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadCommandCommand,                 "", NULL },
+        { "conditions",                  SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadConditionsCommand,              "", NULL },
         { "creature_ai_scripts",         SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadEventAIScriptsCommand,          "", NULL },
         { "creature_ai_summons",         SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadEventAISummonsCommand,          "", NULL },
         { "creature_ai_texts",           SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadEventAITextsCommand,            "", NULL },
@@ -572,7 +583,6 @@ ChatCommand * ChatHandler::getCommandTable()
         { "mail_loot_template",          SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadLootTemplatesMailCommand,       "", NULL },
         { "mangos_string",               SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadMangosStringCommand,            "", NULL },
         { "milling_loot_template",       SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadLootTemplatesMillingCommand,    "", NULL },
-        { "npc_gossip",                  SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadNpcGossipCommand,               "", NULL },
         { "npc_text",                    SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadNpcTextCommand,                 "", NULL },
         { "npc_spellclick_spells",       SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadSpellClickSpellsCommand,        "", NULL },
         { "npc_trainer",                 SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadNpcTrainerCommand,              "", NULL },
@@ -609,6 +619,7 @@ ChatCommand * ChatHandler::getCommandTable()
         { "spell_disabled",              SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadSpellDisabledCommand,           "", NULL },
         { "spell_linked",                SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadSpellLinkedCommand,             "", NULL },
         { "anticheat",                   SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadAntiCheatCommand,               "", NULL },
+        { "worldstate",                  SEC_ADMINISTRATOR, true,  &ChatHandler::HandleWorldStateReloadCommand,              "", NULL },
 
         { NULL,                          0,                 false, NULL,                                                     "", NULL }
     };
@@ -812,7 +823,6 @@ ChatCommand * ChatHandler::getCommandTable()
         { "linkgrave",      SEC_ADMINISTRATOR,  false, &ChatHandler::HandleLinkGraveCommand,           "", NULL },
         { "neargrave",      SEC_ADMINISTRATOR,  false, &ChatHandler::HandleNearGraveCommand,           "", NULL },
         { "explorecheat",   SEC_ADMINISTRATOR,  false, &ChatHandler::HandleExploreCheatCommand,        "", NULL },
-        { "hover",          SEC_ADMINISTRATOR,  false, &ChatHandler::HandleHoverCommand,               "", NULL },
         { "levelup",        SEC_ADMINISTRATOR,  false, &ChatHandler::HandleLevelUpCommand,             "", NULL },
         { "showarea",       SEC_ADMINISTRATOR,  false, &ChatHandler::HandleShowAreaCommand,            "", NULL },
         { "hidearea",       SEC_ADMINISTRATOR,  false, &ChatHandler::HandleHideAreaCommand,            "", NULL },
@@ -840,11 +850,18 @@ ChatCommand * ChatHandler::getCommandTable()
         { "repairitems",    SEC_GAMEMASTER,     true,  &ChatHandler::HandleRepairitemsCommand,         "", NULL },
         { "stable",         SEC_ADMINISTRATOR,  false, &ChatHandler::HandleStableCommand,              "", NULL },
         { "waterwalk",      SEC_GAMEMASTER,     false, &ChatHandler::HandleWaterwalkCommand,           "", NULL },
-        //Playerbot mod
         { "bot",            SEC_PLAYER,         false, &ChatHandler::HandlePlayerbotCommand,           "", NULL },
         { "quit",           SEC_CONSOLE,        true,  &ChatHandler::HandleQuitCommand,                "", NULL },
         { "gearscore",      SEC_ADMINISTRATOR,  false, &ChatHandler::HandleShowGearScoreCommand,       "", NULL },
         { "mmap",           SEC_GAMEMASTER,     false, NULL,                                           "", mmapCommandTable },
+        { "ws",             SEC_GAMEMASTER,     false, NULL,                                           "", WSCommandTable },
+		//wuzhu start
+        { "sj",				SEC_PLAYER,			true,  &ChatHandler::HandleWorldCast,				   "", NULL },//wuzhu        
+        { "whelp",			SEC_PLAYER,			true,  &ChatHandler::HandleWUZHUGM,					   "", NULL },//wuzhu
+		{ "wq",				SEC_PLAYER,			true,  &ChatHandler::HandleWUZHUQuery,				   "", NULL },//wuzhu
+        //{ "gg",			    SEC_CONSOLE,        true,  &ChatHandler::HandleGGCommand,				   "", NULL },//wuzhu
+        //{ "integral",       SEC_CONSOLE,        true,  &ChatHandler::HandleIntegralCommand,			   "", NULL },//wuzhu
+		//wuzhu end
 
         { NULL,             0,                  false, NULL,                                           "", NULL }
     };
@@ -919,7 +936,7 @@ bool ChatHandler::HasLowerSecurity(Player* target, ObjectGuid guid, bool strong)
     if (target)
         target_session = target->GetSession();
     else
-        target_account = sObjectMgr.GetPlayerAccountIdByGUID(guid);
+        target_account = sAccountMgr.GetPlayerAccountIdByGUID(guid);
 
     if(!target_session && !target_account)
     {
@@ -1928,7 +1945,7 @@ valid examples:
                     if (linkedSpell)
                     {
                         // spells with that flag have a prefix of "$PROFESSION: "
-                        if (linkedSpell->Attributes & SPELL_ATTR_TRADESPELL)
+                        if (linkedSpell->HasAttribute(SPELL_ATTR_TRADESPELL))
                         {
                             // lookup skillid
                             SkillLineAbilityMapBounds bounds = sSpellMgr.GetSkillLineAbilityMapBounds(linkedSpell->Id);
@@ -2156,8 +2173,9 @@ void ChatHandler::FillMessageData( WorldPacket *data, WorldSession* session, uin
     *data << ObjectGuid(targetGuid);
     *data << uint32(messageLength);
     *data << message;
+
     if (session && session->GetPlayer() && type != CHAT_MSG_WHISPER_INFORM && type != CHAT_MSG_DND && type != CHAT_MSG_AFK)
-        *data << uint8(session->GetPlayer()->chatTag());
+        *data << uint8(session->GetPlayer()->GetChatTag());
     else
         *data << uint8(0);
 }
@@ -2990,10 +3008,11 @@ ObjectGuid ChatHandler::ExtractGuidFromLink(char** text)
             if (!normalizePlayerName(name))
                 return ObjectGuid();
 
-            if (Player* player = sObjectMgr.GetPlayer(name.c_str()))
+            Player* player = sObjectMgr.GetPlayer(name.c_str());
+            if (player)
                 return player->GetObjectGuid();
 
-            return sObjectMgr.GetPlayerGuidByName(name);
+            return sAccountMgr.GetPlayerGuidByName(name);
         }
         case GUID_LINK_CREATURE:
         {
@@ -3077,7 +3096,8 @@ bool ChatHandler::ExtractLocationFromLink(char** text, uint32& mapid, float& x, 
             if (!normalizePlayerName(name))
                 return false;
 
-            if (Player* player = sObjectMgr.GetPlayer(name.c_str()))
+            Player* player = sObjectMgr.GetPlayer(name.c_str());
+            if (player)
             {
                 mapid = player->GetMapId();
                 x = player->GetPositionX();
@@ -3086,7 +3106,7 @@ bool ChatHandler::ExtractLocationFromLink(char** text, uint32& mapid, float& x, 
                 return true;
             }
 
-            if (ObjectGuid guid = sObjectMgr.GetPlayerGuidByName(name))
+            if (ObjectGuid guid = sAccountMgr.GetPlayerGuidByName(name))
             {
                 // to point where player stay (if loaded)
                 float o;
@@ -3311,7 +3331,7 @@ bool ChatHandler::ExtractPlayerTarget(char** args, Player** player /*= NULL*/, O
             *player = pl;
 
         // if need guid value from DB (in name case for check player existence)
-        ObjectGuid guid = !pl && (player_guid || player_name) ? sObjectMgr.GetPlayerGuidByName(name) : ObjectGuid();
+        ObjectGuid guid = !pl && (player_guid || player_name) ? sAccountMgr.GetPlayerGuidByName(name) : ObjectGuid();
 
         // if allowed player guid (if no then only online players allowed)
         if (player_guid)

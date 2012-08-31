@@ -23,8 +23,7 @@ SDCategory: Battleground_IoC
 EndScriptData */
 
 #include "precompiled.h"
-#include "BattleGroundIC.h"
-#include "Vehicle.h"
+#include "BattleGround/BattleGroundIC.h"
 
 /*######
 ## go_ic_teleport
