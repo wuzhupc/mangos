@@ -4983,7 +4983,7 @@ void ObjectMgr::LoadInstanceTemplate()
             if (!parentEntry)
             {
                 sLog.outErrorDb("ObjectMgr::LoadInstanceTemplate: bad parent map id %u for instance template %d template!",
-                    parentEntry->MapID, temp->map);
+                    temp->parent, temp->map);
                 const_cast<InstanceTemplate*>(temp)->parent = 0;
                 continue;
             }
@@ -7240,7 +7240,7 @@ void ObjectMgr::LoadSpellTemplate()
             sLog.outErrorDb("Loading Spell Template for spell %u, index out of bounds (max = %u)", i, sSpellStore.GetNumRows());
             continue;
         }
-        else if (SpellEntry const* spellEntry = sSpellStore.LookupEntry(i))
+        else if (SpellEntry const* originalSpellEntry = sSpellStore.LookupEntry(i))
         {
             sLog.outErrorDb("Loading Spell Template for spell %u failed, index already handled (possible in spell_dbc)", i);
             continue;

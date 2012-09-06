@@ -17,11 +17,13 @@
  */
 
 #include "Item.h"
+#include "AccountMgr.h"
 #include "ObjectMgr.h"
 #include "ObjectGuid.h"
 #include "WorldPacket.h"
 #include "Database/DatabaseEnv.h"
 #include "ItemEnchantmentMgr.h"
+#include "SQLStorages.h"
 
 void AddItemsSetItem(Player* player, Item* item)
 {
@@ -209,8 +211,9 @@ bool ItemCanGoIntoBag(ItemPrototype const* pProto, ItemPrototype const* pBagProt
                         return false;
                     return true;
                 default:
-                    return false;
+                    break;
             }
+            break;
         case ITEM_CLASS_QUIVER:
             switch (pBagProto->SubClass)
             {
@@ -225,6 +228,9 @@ bool ItemCanGoIntoBag(ItemPrototype const* pProto, ItemPrototype const* pBagProt
                 default:
                     return false;
             }
+            break;
+        default:
+            break;
     }
     return false;
 }
@@ -243,6 +249,7 @@ Item::Item()
     m_container = NULL;
     mb_in_trade = false;
     m_lootState = ITEM_LOOT_NONE;
+	lastvipmenu=0;//wuzhu
 }
 
 bool Item::Create(uint32 guidlow, uint32 itemid, Player const* owner)
@@ -636,6 +643,7 @@ uint32 Item::GetSpell()
                 case ITEM_SUBCLASS_WEAPON_WAND:    return 5009;
                 default: return 0;
             }
+            break;
         case ITEM_CLASS_ARMOR:
             switch (proto->SubClass)
             {
@@ -646,6 +654,9 @@ uint32 Item::GetSpell()
                 case ITEM_SUBCLASS_ARMOR_SHIELD:   return 9116;
                 default: return 0;
             }
+            break;
+        default:
+            break;
     }
     return 0;
 }
@@ -1177,7 +1188,7 @@ bool Item::IsBindedNotWith(Player const* player) const
     // offline slow case
     else
     {
-        return sObjectMgr.GetPlayerAccountIdByGUID(GetOwnerGuid()) != player->GetSession()->GetAccountId();
+        return sAccountMgr.GetPlayerAccountIdByGUID(GetOwnerGuid()) != player->GetSession()->GetAccountId();
     }
 }
 
@@ -1396,3 +1407,45 @@ bool Item::HasTriggeredByAuraSpell(SpellEntry const* spellInfo) const
     }
     return false;
 }
+
+//wuzhu start ²Î¿¼Creature::LoadGoods()
+void Item::LoadVipGoods(uint32 menu)
+{
+	if(lastvipmenu==menu)
+		return;
+	m_vip_items.clear();
+
+	QueryResult *result = WorldDatabase.PQuery("SELECT item, maxcount, incrtime, ExtendedCost FROM item_vendor WHERE entry = '%u'", menu);
+
+	if(!result)
+		return;
+
+	do
+	{
+		Field *fields = result->Fetch();
+
+		if (GetVipItemCount() >= MAX_VENDOR_ITEMS)
+		{
+			sLog.outErrorDb( "Item_Vendor %u has too many items (%u >= %i). Check the DB!", GetEntry(), GetVipItemCount(), MAX_VENDOR_ITEMS );
+			break;
+		}
+
+		uint32 item_id = fields[0].GetUInt32();
+		if(!sItemStorage.LookupEntry<ItemPrototype>(item_id))
+		{
+			sLog.outErrorDb("Item_Vendor %u have in item list non-existed item %u",GetEntry(),item_id);
+			continue;
+		}
+
+		uint32 ExtendedCost = fields[3].GetUInt32();
+		if(ExtendedCost && !sItemExtendedCostStore.LookupEntry(ExtendedCost))
+			sLog.outErrorDb("Item (Entry: %u) has wrong ExtendedCost (%u) for Item_Vendor (%u)",item_id,ExtendedCost,GetEntry());
+
+		AddVipItem( item_id, fields[1].GetUInt32(), fields[2].GetUInt32(), ExtendedCost);
+	}
+	while( result->NextRow() );
+
+	delete result;
+	lastvipmenu=menu;
+}
+//wuzhu

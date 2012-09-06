@@ -183,6 +183,7 @@ struct MANGOS_DLL_DECL boss_paletressAI : public ScriptedAI
     uint32 Shield_Delay;
     uint32 Shield_Check;
     uint32 m_uiBerserk_Timer;
+    uint32 summonEntry;
     bool summoned;
     bool shielded;
 
@@ -197,6 +198,7 @@ struct MANGOS_DLL_DECL boss_paletressAI : public ScriptedAI
         Shield_Check = 1000;
         m_uiBerserk_Timer = m_bIsRegularMode ? 300000 : 180000;
         summoned = false;
+        summonEntry = 0;
         shielded = false;
         m_creature->GetMotionMaster()->MovePoint(0, 746, 614, m_creature->GetPositionZ());
         m_creature->SetWalk(true);
@@ -207,6 +209,7 @@ struct MANGOS_DLL_DECL boss_paletressAI : public ScriptedAI
         if (Unit* target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
             _summoned->AddThreat(target);
 
+        summonEntry = _summoned->GetEntry();
         summoned = true;
     }
 
@@ -260,7 +263,7 @@ struct MANGOS_DLL_DECL boss_paletressAI : public ScriptedAI
             switch(urand(0, 1))
             {
                 case 0:
-                    if (Creature* pTemp = m_pInstance->GetSingleCreatureFromStorage(DATA_MEMORY))
+                    if (Creature* pTemp = m_pInstance->GetSingleCreatureFromStorage(summonEntry))
                     {
                         if (pTemp->isAlive())
                             DoCast(pTemp, m_bIsRegularMode ? SPELL_RENEW : SPELL_RENEW_H);
@@ -375,7 +378,7 @@ struct MANGOS_DLL_DECL boss_paletressAI : public ScriptedAI
 
         if (Shield_Check < diff && shielded)
         {
-            if (Creature* pTemp = m_pInstance->GetSingleCreatureFromStorage(DATA_MEMORY))
+            if (Creature* pTemp = m_pInstance->GetSingleCreatureFromStorage(summonEntry))
             {
                 if (!pTemp->isAlive())
                 {

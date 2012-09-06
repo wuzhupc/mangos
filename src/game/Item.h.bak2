@@ -30,6 +30,20 @@ class Field;
 class QueryResult;
 class Unit;
 
+//wuzhu start 参考Creature.h VendorItem
+struct VipItem
+{
+	VipItem(uint32 _item, uint32 _maxcount, uint32 _incrtime, uint32 _ExtendedCost)
+		: id(_item), count(_maxcount), maxcount(_maxcount), incrtime(_incrtime), ExtendedCost(_ExtendedCost), lastincr((uint32)time(NULL)) {}
+
+	uint32 id;
+	uint32 count;
+	uint32 maxcount;
+	uint32 incrtime;
+	uint32 lastincr;
+	uint32 ExtendedCost;
+};//wuzhu end
+
 struct ItemSetEffect
 {
     uint32 setid;
@@ -396,6 +410,45 @@ class MANGOS_DLL_SPEC Item : public Object
         bool CheckSoulboundTradeExpire();
 
         AllowedLooterSet allowedGUIDs;
+        
+		//wuzhu start 宝石商店 参考\game\Creature.h中VENDOR SYSTEM  
+		typedef std::vector<VipItem> VipItems;
+		VipItems m_vip_items;
+		uint32 lastvipmenu;
+
+		void LoadVipGoods(uint32 menu);
+		void ReloadVipGoods(uint32 menu){lastvipmenu=0;	LoadVipGoods(menu);	}
+
+		VipItem* GetVipItem(uint32 slot)
+		{
+			if(slot>=m_vip_items.size()) return NULL;
+			return &m_vip_items[slot];
+		}
+		uint8 GetVipItemCount() const { return m_vip_items.size(); }
+		void AddVipItem( uint32 item, uint32 maxcount, uint32 ptime, uint32 ExtendedCost)
+		{
+			m_vip_items.push_back(VipItem(item, maxcount, ptime, ExtendedCost));
+		}
+		bool RemoveVipItem( uint32 item_id )
+		{
+			for(VipItems::iterator i = m_vip_items.begin(); i != m_vip_items.end(); ++i )
+			{
+				if(i->id==item_id)
+				{
+					m_vip_items.erase(i);
+					return true;
+				}
+			}
+			return false;
+		}
+		VipItem* FindVipItem(uint32 item_id)
+		{
+			for(VipItems::iterator i = m_vip_items.begin(); i != m_vip_items.end(); ++i )
+				if(i->id==item_id)
+					return &*i;
+			return NULL;
+		}
+		//wuzhu end	
 
     private:
         std::string m_text;

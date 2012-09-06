@@ -122,15 +122,16 @@ void GameObject::RemoveFromWorld()
             }
         }
 
-        if (m_model)
-            if (GetMap()->ContainsGameObjectModel(*m_model))
-                GetMap()->RemoveGameObjectModel(*m_model);
-
         MAPLOCK_WRITE(this, MAP_LOCK_TYPE_DEFAULT);
+
         GetMap()->GetObjectsStore().erase<GameObject>(GetObjectGuid(), (GameObject*)NULL);
 
         EnableCollision(false);
     }
+
+    if (m_model)
+        if (GetMap()->ContainsGameObjectModel(*m_model))
+            GetMap()->RemoveGameObjectModel(*m_model);
 
     Object::RemoveFromWorld();
 }
@@ -187,7 +188,13 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMa
     SetGoArtKit(0);                                         // unknown what this is
     SetGoAnimProgress(animprogress);
 
-    // Notify the battleground script
+    // Notify the map's instance data.
+    // Only works if you create the object in it, not if it is moves to that map.
+    // Normally non-players do not teleport to other maps.
+    if (InstanceData* iData = map->GetInstanceData())
+        iData->OnObjectCreate(this);
+
+    // Notify the battleground/OPvP scripts
     if (map->IsBattleGroundOrArena())
         ((BattleGroundMap*)map)->GetBG()->HandleGameObjectCreate(this);
     // Notify the outdoor pvp script

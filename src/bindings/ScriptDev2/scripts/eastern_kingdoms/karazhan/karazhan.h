@@ -23,14 +23,13 @@ enum
     TYPE_NIGHTBANE                  = 10,
     TYPE_OPERA_PERFORMANCE          = 11,               // no regular encounter - just store one random opera event
 
-    DATA_OPERA_OZ_DEATHCOUNT        = 12,
-
     NPC_ATTUMEN                     = 15550,
     NPC_MIDNIGHT                    = 16151,
     NPC_MOROES                      = 15687,
     NPC_BARNES                      = 16812,
     // NPC_TERESTIAN                = 15688,
     NPC_NIGHTBANE                   = 17225,
+    NPC_NIGHTBANE_HELPER            = 17260,
 
     // Moroes event related
     NPC_LADY_KEIRA_BERRYBUCK        = 17007,
@@ -49,6 +48,10 @@ enum
     NPC_GRANDMOTHER                 = 17603,
     NPC_JULIANNE                    = 17534,
     NPC_ROMULO                      = 17533,
+
+    // The Master's Terrace quest related
+    NPC_IMAGE_OF_MEDIVH             = 17651,
+    NPC_IMAGE_OF_ARCANAGOS          = 17652,
 
     GO_STAGE_CURTAIN                = 183932,
     GO_STAGE_DOOR_LEFT              = 184278,
@@ -120,6 +123,9 @@ class MANGOS_DLL_DECL instance_karazhan : public ScriptedInstance
 
         void DoPrepareOperaStage(Creature* pOrganizer);
 
+        void GetNightbaneGroundTriggers(GuidList &lList) { lList = m_lNightbaneGroundTriggers; }
+        void GetNightbaneAirTriggers(GuidList &lList) { lList = m_lNightbaneAirTriggers; }
+
         void Load(const char* chrIn);
         const char* Save() { return m_strInstData.c_str(); }
 
@@ -132,6 +138,8 @@ class MANGOS_DLL_DECL instance_karazhan : public ScriptedInstance
 
         GuidList m_lOperaTreeGuidList;
         GuidList m_lOperaHayGuidList;
+        GuidList m_lNightbaneGroundTriggers;
+        GuidList m_lNightbaneAirTriggers;
 };
 
 class MANGOS_DLL_DECL npc_fiendish_portalAI : public ScriptedAI

@@ -605,7 +605,7 @@ Player::~Player ()
     //m_social = NULL;
 
     // Clear chache need only if player true loaded, not in broken state
-    if (!GetObjectGuid().IsEmpty())
+    if (m_uint32Values && !GetObjectGuid().IsEmpty())
         sAccountMgr.ClearPlayerDataCache(GetObjectGuid());
 
     // Note: buy back item already deleted from DB when player was saved
@@ -19332,7 +19332,7 @@ void Player::AddSpellMod(Aura* aura, bool apply)
     Modifier const* mod = aura->GetModifier();
     uint16 Opcode= (mod->m_auraname == SPELL_AURA_ADD_FLAT_MODIFIER) ? SMSG_SET_FLAT_SPELL_MODIFIER : SMSG_SET_PCT_SPELL_MODIFIER;
 
-    for(int eff = 0; eff < 96; ++eff)
+    for (uint8 eff = 0; eff < 96; ++eff)
     {
         if (aura->GetAuraSpellClassMask().test(eff))
         {
@@ -19345,7 +19345,10 @@ void Player::AddSpellMod(Aura* aura, bool apply)
                 if ((*itr)->GetModifier()->m_auraname == mod->m_auraname && ((*itr)->GetAuraSpellClassMask().test(eff)))
                     val += (*itr)->GetModifier()->m_amount;
             }
-            val += apply ? mod->m_amount : -(mod->m_amount);
+
+            // Not need manually remove m_amount from total value - his already removed from calculation due to removed from SpellAuraHolder (IsEmpty() method)
+            val += apply ? mod->m_amount : 0;
+
             WorldPacket data(Opcode, (1+1+4));
             data << uint8(eff);
             data << uint8(mod->m_miscvalue);
@@ -21361,9 +21364,10 @@ void Player::SendAurasForTarget(Unit *target)
     Unit::VisibleAuraMap const& visibleAuras = target->GetVisibleAuras();
     for (Unit::VisibleAuraMap::const_iterator itr = visibleAuras.begin(); itr != visibleAuras.end(); ++itr)
     {
-        SpellAuraHolderConstBounds bounds = target->GetSpellAuraHolderBounds(itr->second);
-        for (SpellAuraHolderMap::const_iterator iter = bounds.first; iter != bounds.second; ++iter)
-            iter->second->BuildUpdatePacket(data);
+        if (!itr->second)
+            continue;
+
+        itr->second->BuildUpdatePacket(data);
     }
 
     GetSession()->SendPacket(&data);

@@ -74,7 +74,8 @@ struct MANGOS_DLL_DECL mob_aquementasAI : public ScriptedAI
     {
         if (((Player*)pReceiver)->HasItemCount(ITEM_BOOK_AQUOR, 1) &&
             ((Player*)pReceiver)->HasItemCount(ITEM_SILVERY_CLAWS, 11) &&
-            ((Player*)pReceiver)->HasItemCount(ITEM_IRONTREE_HEART, 1))
+            ((Player*)pReceiver)->HasItemCount(ITEM_IRONTREE_HEART, 1) &&
+            !((Player*)pReceiver)->HasItemCount(ITEM_SILVER_TOTEM, 1, true))
         {
             if (Item* pItem = ((Player*)pReceiver)->StoreNewItemInInventorySlot(ITEM_SILVER_TOTEM, 1))
                 ((Player*)pReceiver)->SendNewItem(pItem, 1, true, false);

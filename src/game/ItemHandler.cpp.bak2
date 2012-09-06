@@ -26,6 +26,8 @@
 #include "Item.h"
 #include "UpdateData.h"
 #include "Chat.h"
+#include "Spell.h"//wuzhu
+#include "ScriptMgr.h"//wuzhu
 
 void WorldSession::HandleSplitItemOpcode( WorldPacket & recv_data )
 {
@@ -446,6 +448,8 @@ void WorldSession::HandleReadItemOpcode( WorldPacket & recv_data )
         WorldPacket data;
 
         InventoryResult msg = _player->CanUseItem( pItem );
+        SpellCastTargets targets;//wuzhu
+		if(!sScriptMgr.OnItemUse(GetPlayer(),pItem,targets)){//wuzhu
         if( msg == EQUIP_ERR_OK )
         {
             data.Initialize (SMSG_READ_ITEM_OK, 8);
@@ -459,6 +463,7 @@ void WorldSession::HandleReadItemOpcode( WorldPacket & recv_data )
         }
         data << ObjectGuid(pItem->GetObjectGuid());
         SendPacket(&data);
+		}//wuzhu
     }
     else
         _player->SendEquipError( EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL );
@@ -492,12 +497,15 @@ void WorldSession::HandleSellItemOpcode( WorldPacket & recv_data )
         return;
 
     Creature *pCreature = GetPlayer()->GetNPCIfCanInteractWith(vendorGuid, UNIT_NPC_FLAG_VENDOR);
+	Item *pVipItem = _player->GetItemByGuid( vendorGuid );//wuzhu 宝石商店 //主函数是处理卖物品的
+	if(!pVipItem){//wuzhu
     if (!pCreature)
     {
         DEBUG_LOG("WORLD: HandleSellItemOpcode - %s not found or you can't interact with him.", vendorGuid.GetString().c_str());
         _player->SendSellError(SELL_ERR_CANT_FIND_VENDOR, NULL, itemGuid, 0);
         return;
     }
+	}//wuzhu
 
     // remove fake death
     if (GetPlayer()->hasUnitState(UNIT_STAT_DIED))
@@ -598,12 +606,15 @@ void WorldSession::HandleBuybackItem(WorldPacket & recv_data)
     recv_data >> vendorGuid >> slot;
 
     Creature *pCreature = GetPlayer()->GetNPCIfCanInteractWith(vendorGuid, UNIT_NPC_FLAG_VENDOR);
+	Item *pVipItem = _player->GetItemByGuid( vendorGuid );//wuzhu 宝石商店//主函数是处理买物品的
+	if(!pVipItem){//wuzhu
     if (!pCreature)
     {
         DEBUG_LOG("WORLD: HandleBuybackItem - %s not found or you can't interact with him.", vendorGuid.GetString().c_str());
         _player->SendSellError( SELL_ERR_CANT_FIND_VENDOR, NULL, ObjectGuid(), 0);
         return;
     }
+	}//wuzhu
 
     // remove fake death
     if(GetPlayer()->hasUnitState(UNIT_STAT_DIED))
@@ -677,6 +688,15 @@ void WorldSession::HandleBuyItemInSlotOpcode( WorldPacket & recv_data )
     if (bag == NULL_BAG)
         return;
 
+    //wuzhu 宝石商店  start
+	//Creature *pCreature = ObjectAccessor::GetNPCIfCanInteractWith(*_player, vendorguid,UNIT_NPC_FLAG_VENDOR);
+	Creature *pCreature = GetPlayer()->GetNPCIfCanInteractWith(vendorGuid,UNIT_NPC_FLAG_VENDOR);
+	if(!pCreature)
+	{ 
+		GetPlayer()->BuyItemFromItemVendorSlot(vendorGuid, slot, item, count, bag, bagslot,vip_item_menu) ;
+		return;
+	}//wuzhu end
+
     GetPlayer()->BuyItemFromVendorSlot(vendorGuid, slot, item, count, bag, bagslot);
 }
 
@@ -694,6 +714,15 @@ void WorldSession::HandleBuyItemOpcode( WorldPacket & recv_data )
         --slot;
     else
         return;                                             // cheating
+	//wuzhu 宝石商店  start
+	//Creature *pCreature = ObjectAccessor::GetNPCIfCanInteractWith(*_player, vendorguid,UNIT_NPC_FLAG_VENDOR);
+	Creature *pCreature = GetPlayer()->GetNPCIfCanInteractWith(vendorGuid,UNIT_NPC_FLAG_VENDOR);
+	if(!pCreature)
+	{
+		GetPlayer()->BuyItemFromItemVendorSlot(vendorGuid, slot, item, count, NULL_BAG, NULL_SLOT,vip_item_menu);
+		return;
+	}
+	//wuzhu end
 
     GetPlayer()->BuyItemFromVendorSlot(vendorGuid, slot, item, count, NULL_BAG, NULL_SLOT);
 }
@@ -711,6 +740,82 @@ void WorldSession::HandleListInventoryOpcode( WorldPacket & recv_data )
 
     SendListInventory( guid );
 }
+
+//wuzhu 宝石商店 start 参考WorldSession::SendListInventory 
+void WorldSession::OpenShop(uint64 vguid, uint32 menu)
+{
+	//error_log("WUZHU WORLD: Sent SMSG_LIST_INVENTORY ---wuzhu" );
+
+	ObjectGuid vendorguid=ObjectGuid(vguid);
+
+	Item *p_Item = GetPlayer()->GetItemByGuid(vendorguid);	
+	if (!p_Item)
+	{
+		//error_log( "WUZHU WORLD: OpenShop - %s not found or you can't interact with him.", vendorguid.GetString().c_str());
+		_player->SendSellError( SELL_ERR_CANT_FIND_VENDOR, NULL, ObjectGuid(), 0);
+		return;
+	}
+	vip_item_menu=menu;
+
+	// remove fake death
+	if(GetPlayer()->hasUnitState(UNIT_STAT_DIED))
+		GetPlayer()->RemoveSpellsCausingAura(SPELL_AURA_FEIGN_DEATH);
+
+	// load vendor items if not yet
+	p_Item->LoadVipGoods(menu);
+
+	uint8 numitems = p_Item->GetVipItemCount();
+	uint8 count = 0;
+
+	WorldPacket data( SMSG_LIST_INVENTORY, (8+1+numitems*8*4) );
+	data << ObjectGuid(vendorguid);
+
+    size_t count_pos = data.wpos();
+    data << uint8(count);                                   // placeholder
+	//data << uint8(numitems);
+
+	float discountMod = 1.0f;
+
+	for(int i = 0; i < numitems; i++ )
+	{	
+		if( VipItem const* crItem = p_Item->GetVipItem(i) )
+		{
+			if( ItemPrototype const *pProto=ObjectMgr::GetItemPrototype(crItem->id))
+			{
+				if((pProto->AllowableClass & _player->getClassMask()) == 0 && pProto->Bonding == BIND_WHEN_PICKED_UP && !_player->isGameMaster())
+					continue;
+
+				++count;
+					
+				// reputation discount
+				uint32 price =uint32(floor(pProto->BuyPrice * discountMod));
+				//乘以物品等级
+				if(pProto->BuyPrice==0)
+					price = pProto->ItemLevel*200;
+
+				data << uint32(i+1);
+				data << uint32(crItem->id);
+				data << uint32(pProto->DisplayInfoID);
+				data << uint32(crItem->maxcount <= 0 ? 0xFFFFFFFF : crItem->count);
+				data << uint32(price);
+				data << uint32(pProto->MaxDurability);
+				data << uint32(pProto->BuyCount);
+				data << uint32(crItem->ExtendedCost);
+			}
+		}
+	}
+
+	if ( count == 0)
+	{
+		data << uint8(0);                                   // "Vendor has no inventory"
+		SendPacket(&data);
+		return;
+	}
+
+    data.put<uint8>(count_pos, count);
+    SendPacket( &data );
+}
+//wuzhu end
 
 void WorldSession::SendListInventory(ObjectGuid vendorguid)
 {
@@ -801,7 +906,7 @@ void WorldSession::SendListInventory(ObjectGuid vendorguid)
                 ++count;
 
                 // reputation discount
-                uint32 price = (crItem->ExtendedCost == 0 || pProto->Flags2 & ITEM_FLAG2_EXT_COST_REQUIRES_GOLD) ? uint32(floor(pProto->BuyPrice * discountMod)) : 0;
+                uint32 price = (crItem->ExtendedCost == 0 || (pProto->Flags2 & ITEM_FLAG2_EXT_COST_REQUIRES_GOLD)) ? uint32(floor(pProto->BuyPrice * discountMod)) : 0;
 
                 data << uint32(vendorslot +1);              // client size expected counting from 1
                 data << uint32(pProto->ItemId);

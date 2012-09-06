@@ -88,7 +88,15 @@ void instance_karazhan::OnCreatureCreate(Creature* pCreature)
         case NPC_BARON_RAFE_DREUGER:
         case NPC_BARONESS_DOROTHEA_MILLSTIPE:
         case NPC_LORD_ROBIN_DARIS:
+        case NPC_IMAGE_OF_MEDIVH:
+        case NPC_IMAGE_OF_ARCANAGOS:
             m_mNpcEntryGuidStore[pCreature->GetEntry()] = pCreature->GetObjectGuid();
+            break;
+        case NPC_NIGHTBANE_HELPER:
+            if (pCreature->GetPositionZ() < 100.0f)
+                m_lNightbaneGroundTriggers.push_back(pCreature->GetObjectGuid());
+            else
+                m_lNightbaneAirTriggers.push_back(pCreature->GetObjectGuid());
             break;
     }
 }
@@ -211,13 +219,6 @@ void instance_karazhan::SetData(uint32 uiType, uint32 uiData)
         case TYPE_OPERA_PERFORMANCE:
             m_uiOperaEvent = uiData;
             break;
-
-        case DATA_OPERA_OZ_DEATHCOUNT:
-            if (uiData == SPECIAL)
-                ++m_uiOzDeathCount;
-            else if (uiData == IN_PROGRESS)
-                m_uiOzDeathCount = 0;
-            return;
     }
 
     // Also save the opera performance, once it's set
@@ -254,8 +255,6 @@ uint32 instance_karazhan::GetData(uint32 uiType)
         case TYPE_MALCHEZZAR:           return m_auiEncounter[9];
         case TYPE_NIGHTBANE:            return m_auiEncounter[10];
         case TYPE_OPERA_PERFORMANCE:    return m_uiOperaEvent;
-
-        case DATA_OPERA_OZ_DEATHCOUNT:  return m_uiOzDeathCount;
 
         default:
             return 0;

@@ -36,7 +36,6 @@ enum
     DATA_CHAMPIONID_1           = 11,
     DATA_CHAMPIONID_2           = 12,
     DATA_CHAMPIONID_3           = 13,
-    DATA_MEMORY                 = 14,
     DATA_ARGENT_CHALLENGER      = 15,
     DATA_CHAMPIONS_COUNT        = 16,
 
