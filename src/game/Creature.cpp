@@ -618,7 +618,8 @@ void Creature::RegenerateAll(uint32 update_diff)
     if (m_regenTimer != 0)
         return;
 
-    if (!isInCombat() || IsPolymorphed())
+    if ((!isInCombat() && !IsInEvadeMode())
+        || IsPolymorphed())
         RegenerateHealth();
 
     Regenerate(getPowerType());
@@ -1627,7 +1628,7 @@ void Creature::ForcedDespawn(uint32 timeMSToDespawn)
          ((TemporarySummon*)this)->UnSummon();
 }
 
-bool Creature::IsImmuneToSpell(SpellEntry const* spellInfo) const
+bool Creature::IsImmuneToSpell(SpellEntry const* spellInfo, bool isFriendly) const
 {
     if (!spellInfo)
         return false;
@@ -1635,7 +1636,7 @@ bool Creature::IsImmuneToSpell(SpellEntry const* spellInfo) const
     if (GetCreatureInfo()->MechanicImmuneMask & (1 << (spellInfo->Mechanic - 1)))
         return true;
 
-    return Unit::IsImmuneToSpell(spellInfo);
+    return Unit::IsImmuneToSpell(spellInfo, isFriendly);
 }
 
 bool Creature::IsImmuneToSpellEffect(SpellEntry const* spellInfo, SpellEffectIndex index) const

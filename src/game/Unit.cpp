@@ -3695,7 +3695,7 @@ SpellMissInfo Unit::MagicSpellHitResult(Unit *pVictim, SpellEntry const *spell)
 //   Parry
 // For spells
 //   Resist
-SpellMissInfo Unit::SpellHitResult(Unit *pVictim, SpellEntry const *spell, bool CanReflect)
+SpellMissInfo Unit::SpellHitResult(Unit* pVictim, SpellEntry const* spell, bool CanReflect)
 {
     // Return evade for units in evade mode
     if (pVictim->GetTypeId()==TYPEID_UNIT && ((Creature*)pVictim)->IsInEvadeMode())
@@ -3709,7 +3709,7 @@ SpellMissInfo Unit::SpellHitResult(Unit *pVictim, SpellEntry const *spell, bool 
         if (IsSpellCauseDamage(spell) && pVictim->IsImmunedToDamage(GetSpellSchoolMask(spell)))
             return SPELL_MISS_IMMUNE;
 
-        if (pVictim->IsImmuneToSpell(spell))
+        if (pVictim->IsImmuneToSpell(spell, IsFriendlyTo(pVictim)))
             return SPELL_MISS_IMMUNE;
     }
 
@@ -6944,20 +6944,21 @@ bool Unit::Attack(Unit *victim, bool meleeAttack)
     return true;
 }
 
-void Unit::AttackedBy(Unit *attacker)
+void Unit::AttackedBy(Unit* attacker)
 {
     if (IsFriendlyTo(attacker) || attacker->IsFriendlyTo(this))
         return;
 
-    // trigger AI reaction
-    if (GetTypeId() == TYPEID_UNIT && ((Creature*)this)->AI())
+    if (!isInCombat() || !getVictim())
     {
-        ((Creature*)this)->AI()->AttackedBy(attacker);
+        // trigger AI reaction
+        if (GetTypeId() == TYPEID_UNIT && ((Creature*)this)->AI())
+            ((Creature*)this)->AI()->AttackedBy(attacker);
     }
 
     if (!isInCombat())
     {
-        if (GetTypeId() == TYPEID_UNIT  && !GetObjectGuid().IsPet())
+        if (CanHaveThreatList())
             AddThreat(attacker);
 
         if (Player* attackedPlayer = GetCharmerOrOwnerPlayerOrPlayerItself())
@@ -6969,11 +6970,8 @@ void Unit::AttackedBy(Unit *attacker)
 
         SetInCombatWith(attacker);
         attacker->SetInCombatWith(this);
-    }
 
-    // do not pet reaction for self inflicted damage (like environmental)
-    if (attacker == this)
-        return;
+    }
 
     // trigger pet AI reaction
     if (attacker->IsHostileTo(this))
@@ -6986,6 +6984,8 @@ void Unit::AttackedBy(Unit *attacker)
                     _pet->AttackedBy(attacker);
         }
     }
+
+    // Place reaction on attacks in combat state here
 }
 
 bool Unit::AttackStop(bool targetSwitch /*=false*/)
@@ -8755,7 +8755,7 @@ bool Unit::IsImmunedToSchool(SpellSchoolMask schoolMask) const
     return false;
 }
 
-bool Unit::IsImmuneToSpell(SpellEntry const* spellInfo) const
+bool Unit::IsImmuneToSpell(SpellEntry const* spellInfo, bool isFriendly) const
 {
     if (!spellInfo)
         return false;
@@ -8781,8 +8781,8 @@ bool Unit::IsImmuneToSpell(SpellEntry const* spellInfo) const
     {
         SpellImmuneList const& schoolList = m_spellImmune[IMMUNITY_SCHOOL];
         for(SpellImmuneList::const_iterator itr = schoolList.begin(); itr != schoolList.end(); ++itr)
-            if (!(IsPositiveSpell(itr->spellId) && IsPositiveSpell(spellInfo->Id)) &&
-                (itr->type & GetSpellSchoolMask(spellInfo)))
+            if ((!(IsPositiveSpell(itr->spellId) && IsPositiveSpell(spellInfo->Id)) || (!isFriendly && IsPositiveSpell(itr->spellId) && IsNonPositiveSpell(spellInfo)))
+                && (itr->type & GetSpellSchoolMask(spellInfo)))
                 return true;
     }
 
@@ -9542,7 +9542,7 @@ void Unit::ClearInCombat()
 
 bool Unit::isTargetableForAttack(bool inverseAlive /*=false*/) const
 {
-    if (GetTypeId()==TYPEID_PLAYER && ((Player *)this)->isGameMaster())
+    if (GetTypeId() == TYPEID_PLAYER && ((Player*)this)->isGameMaster())
         return false;
 
     if (HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE))
