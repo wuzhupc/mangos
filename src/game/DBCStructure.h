@@ -2098,7 +2098,7 @@ struct SpellEntry
 
     bool IsFitToFamilyMask(uint64 familyFlags, uint32 familyFlags2 = 0) const
     {
-        return SpellFamilyFlags.IsFitToFamilyMask(familyFlags, familyFlags2);
+        return GetSpellFamilyFlags().IsFitToFamilyMask(familyFlags, familyFlags2);
     }
 
     bool IsFitToFamily(SpellFamily family, uint64 familyFlags, uint32 familyFlags2 = 0) const
@@ -2108,7 +2108,7 @@ struct SpellEntry
 
     bool IsFitToFamilyMask(ClassFamilyMask const& mask) const
     {
-        return SpellFamilyFlags.IsFitToFamilyMask(mask);
+        return GetSpellFamilyFlags().IsFitToFamilyMask(mask);
     }
 
     bool IsFitToFamily(SpellFamily family, ClassFamilyMask const& mask) const
@@ -2207,7 +2207,6 @@ struct SpellEntry
         template<typename T>
         bool IsFitToFamilyMask(SpellFamily family, T t) const;
 };
-
 
 // A few fields which are required for automated convertion
 // NOTE that these fields are count by _skipping_ the fields that are unused!

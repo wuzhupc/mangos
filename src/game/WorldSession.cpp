@@ -529,7 +529,7 @@ void WorldSession::LogoutPlayer(bool Save)
             {
                 bool dismiss = true;
                 if (!base->IsTemporarySummon() ||
-                    base->GetVehicleInfo()->GetEntry()->m_flags & (VEHICLE_FLAG_NOT_DISMISS | VEHICLE_FLAG_ACCESSORY))
+                    (base->GetVehicleInfo()->GetEntry()->m_flags & (VEHICLE_FLAG_NOT_DISMISS | VEHICLE_FLAG_ACCESSORY)))
                     dismiss = false;
 
                 if (!base->RemoveSpellsCausingAuraByCaster(SPELL_AURA_CONTROL_VEHICLE, GetPlayer()->GetObjectGuid()))
@@ -902,6 +902,23 @@ void WorldSession::SaveTutorialsData()
     }
 
     m_tutorialState = TUTORIALDATA_UNCHANGED;
+}
+
+// Send chat information about aborted transfer (mostly used by Player::SendTransferAbortedByLockstatus())
+void WorldSession::SendTransferAborted(uint32 mapid, uint8 reason, uint8 arg)
+{
+    WorldPacket data(SMSG_TRANSFER_ABORTED, 4 + 2);
+    data << uint32(mapid);
+    data << uint8(reason);                                  // transfer abort reason
+    switch (reason)
+    {
+        case TRANSFER_ABORT_INSUF_EXPAN_LVL:
+        case TRANSFER_ABORT_DIFFICULTY:
+        case TRANSFER_ABORT_UNIQUE_MESSAGE:
+            data << uint8(arg);
+            break;
+    }
+    SendPacket(&data);
 }
 
 void WorldSession::ReadAddonsInfo(WorldPacket &data)
