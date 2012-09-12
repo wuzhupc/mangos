@@ -257,6 +257,7 @@ extern void AddSC_boss_noxxion();                           // maraudon
 extern void AddSC_boss_onyxia();                            // onyxias_lair
 extern void AddSC_instance_onyxias_lair();
 extern void AddSC_razorfen_downs();                         // razorfen_downs
+extern void AddSC_boss_tuten_kash();
 extern void AddSC_instance_razorfen_kraul();                // razorfen_kraul
 extern void AddSC_razorfen_kraul();
 extern void AddSC_boss_ayamiss();                           // ruins_of_ahnqiraj
@@ -827,6 +828,7 @@ void AddScripts()
     AddSC_boss_onyxia();                                    // onyxias_lair
     AddSC_instance_onyxias_lair();
     AddSC_razorfen_downs();                                 // razorfen_downs
+    AddSC_boss_tuten_kash();
     AddSC_instance_razorfen_kraul();                        // razorfen_kraul
     AddSC_razorfen_kraul();
     AddSC_boss_ayamiss();                                   // ruins_of_ahnqiraj

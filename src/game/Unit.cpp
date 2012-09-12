@@ -6974,15 +6974,7 @@ void Unit::AttackedBy(Unit* attacker)
 
     // trigger pet AI reaction
     if (attacker->IsHostileTo(this))
-    {
-        GroupPetList m_groupPets = GetPets();
-        if (!m_groupPets.empty())
-        {
-            for (GroupPetList::const_iterator itr = m_groupPets.begin(); itr != m_groupPets.end(); ++itr)
-                if (Pet* _pet = GetMap()->GetPet(*itr))
-                    _pet->AttackedBy(attacker);
-        }
-    }
+        CallForAllControlledUnits(AttackedByHelper(attacker),CONTROLLED_PET|CONTROLLED_GUARDIANS|CONTROLLED_CHARM);
 
     // Place reaction on attacks in combat state here
 }
@@ -11619,8 +11611,6 @@ void Unit::DoPetAction( Player* owner, uint8 flag, uint32 spellid, ObjectGuid pe
                         }
                         else
                         {
-                            GetMotionMaster()->Clear();
-
                             if (((Creature*)this)->AI())
                                 ((Creature*)this)->AI()->AttackStart(TargetUnit);
 

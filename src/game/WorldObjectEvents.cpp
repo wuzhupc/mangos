@@ -66,7 +66,7 @@ void WorldObjectEventProcessor::RenewEvents()
         {
             switch (m_queue.front().second->GetType())
             {
-                case WORLDOBJECT_EVENT_TYPE_UNIQUE:
+                WORLDOBJECT_EVENT_TYPE_UNIQUE:
                 {
                     bool needInsert = true;
                     for (EventList::const_iterator i = m_events.begin(); i != m_events.end(); ++i)
@@ -83,9 +83,9 @@ void WorldObjectEventProcessor::RenewEvents()
                         m_events.insert(m_queue.front());
                     break;
                 }
-                case WORLDOBJECT_EVENT_TYPE_REPEATABLE:
-                case WORLDOBJECT_EVENT_TYPE_DEATH:
-                case WORLDOBJECT_EVENT_TYPE_COMMON:
+                WORLDOBJECT_EVENT_TYPE_REPEATABLE:
+                WORLDOBJECT_EVENT_TYPE_DEATH:
+                WORLDOBJECT_EVENT_TYPE_COMMON:
                 default:
                     m_events.insert(m_queue.front());
                     break;
@@ -373,6 +373,9 @@ bool EvadeDelayEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
         {
             Creature* c_owner = (Creature*)(&m_owner);
             if (!c_owner)
+                return true;
+
+            if (m_owner.GetOwner() && m_owner.GetOwner()->SelectHostileTarget(false))
                 return true;
 
             if (c_owner->IsAILocked())

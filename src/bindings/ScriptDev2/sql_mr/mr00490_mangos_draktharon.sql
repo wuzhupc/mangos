@@ -27,6 +27,6 @@ UPDATE `creature_template` SET AIName = '', ScriptName = '' where entry = 26627;
 DELETE FROM `creature_ai_scripts` WHERE (`creature_id`=26627);
 */
 UPDATE `creature_template` SET AIName = '', ScriptName = 'npc_crystal_channel_target' WHERE entry = 26712;
-UPDATE `creature_template` SET AIName = '', ScriptName = 'risen_shadowcaster' where entry = 27600;
+UPDATE `creature_template` SET AIName = 'EventAI', ScriptName = '' where entry = 27600;
 UPDATE `creature_template` SET AIName = '', ScriptName = 'boss_dred' where entry = 27483;
 UPDATE `creature_template` SET AIName = '', ScriptName = 'boss_tharonja' where entry = 26632;
