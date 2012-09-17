@@ -72,6 +72,7 @@ void WorldStateMgr::Update()
                                 state->SetValue(WORLD_STATE_REMOVE);
                         }
                     }
+                    break;
                 }
                 case WORLD_STATE_TYPE_CUSTOM:
                 case WORLD_STATE_TYPE_WORLD:
@@ -409,13 +410,13 @@ void WorldStateMgr::LoadFromDB()
         }
         else if (type == WORLD_STATE_TYPE_CUSTOM)
         {
-            DEBUG_FILTER_LOG(LOG_FILTER_DB_STRICTED_CHECK,"WorldStateMgr::LoadFromDB loaded custom state %u (%u %u %u %u %u)",
+            DEBUG_FILTER_LOG(LOG_FILTER_DB_STRICTED_CHECK,"WorldStateMgr::LoadFromDB loaded custom state %u (%u %u %u %u %u %ld)",
                 stateId, instanceId, type, condition, flags, _value, renewtime);
             m_worldState.insert(WorldStateMap::value_type(stateId, WorldState(stateId, instanceId, flags, _value, renewtime)));
         }
         else
         {
-            sLog.outError("WorldStateMgr::LoadFromDB unknown state %u (%u %u %u %u %u)",
+            sLog.outError("WorldStateMgr::LoadFromDB unknown state %u (%u %u %u %u %u %ld)",
                 stateId, instanceId, type, condition, flags, _value, renewtime);
         }
     }
@@ -463,8 +464,8 @@ void WorldStateMgr::CreateLinkedWorldStatesIfNeed(WorldObject* object)
                     // state 1
                     if (goInfo->capturePoint.worldState1)
                     {
-                        WorldState const* _state = NULL;
-                        if (_state  = GetWorldState(goInfo->capturePoint.worldState1, instanceId, WORLD_STATE_TYPE_CAPTURE_POINT))
+                        WorldState const* _state = GetWorldState(goInfo->capturePoint.worldState1, instanceId, WORLD_STATE_TYPE_CAPTURE_POINT);
+                        if (_state)
                         {
                             if (_state->GetValue() != WORLD_STATE_ADD)
                                 DEBUG_LOG("WorldStateMgr::CreateLinkedWorldStatesIfNeed Warning - at load WorldState %u for %s current value %u not equal default %u!", 
@@ -483,8 +484,8 @@ void WorldStateMgr::CreateLinkedWorldStatesIfNeed(WorldObject* object)
                     // state 2
                     if (goInfo->capturePoint.worldState2)
                     {
-                        WorldState const* _state = NULL;
-                        if (_state  = GetWorldState(goInfo->capturePoint.worldState2, instanceId, WORLD_STATE_TYPE_CAPTURE_POINT))
+                        WorldState const* _state = GetWorldState(goInfo->capturePoint.worldState2, instanceId, WORLD_STATE_TYPE_CAPTURE_POINT);
+                        if (_state)
                         {
                             if (_state->GetValue() != CAPTURE_SLIDER_NEUTRAL)
                                 DEBUG_LOG("WorldStateMgr::CreateLinkedWorldStatesIfNeed Warning - at load WorldState %u for %s current value %u not equal default %u!", 
@@ -503,8 +504,8 @@ void WorldStateMgr::CreateLinkedWorldStatesIfNeed(WorldObject* object)
                     // state 3
                     if (goInfo->capturePoint.worldState3)
                     {
-                        WorldState const* _state = NULL;
-                        if (_state  = GetWorldState(goInfo->capturePoint.worldState3, instanceId, WORLD_STATE_TYPE_CAPTURE_POINT))
+                        WorldState const* _state = GetWorldState(goInfo->capturePoint.worldState3, instanceId, WORLD_STATE_TYPE_CAPTURE_POINT);
+                        if (_state)
                         {
                             if (_state->GetValue() != goInfo->capturePoint.neutralPercent)
                                 DEBUG_LOG("WorldStateMgr::CreateLinkedWorldStatesIfNeed Warning - at load WorldState %u for %s current value %u not equal default %u!", 
@@ -525,8 +526,8 @@ void WorldStateMgr::CreateLinkedWorldStatesIfNeed(WorldObject* object)
                 {
                     if (goInfo->destructibleBuilding.linkedWorldState)
                     {
-                        WorldState const* _state = NULL;
-                        if (_state  = GetWorldState(goInfo->destructibleBuilding.linkedWorldState, instanceId, WORLD_STATE_TYPE_DESTRUCTIBLE_OBJECT))
+                        WorldState const* _state = GetWorldState(goInfo->destructibleBuilding.linkedWorldState, instanceId, WORLD_STATE_TYPE_DESTRUCTIBLE_OBJECT);
+                        if (_state)
                         {
                             if (_state->GetValue() != OBJECT_STATE_NONE)
                                 DEBUG_LOG("WorldStateMgr::CreateLinkedWorldStatesIfNeed Warning - at load WorldState %u for %s current value %u not equal default %u!", 
@@ -1346,7 +1347,7 @@ WorldStateSet WorldStateMgr::GetInstanceStates(uint32 mapId, uint32 instanceId, 
     ReadGuard guard(GetLock());
     for (WorldStateMap::iterator itr = m_worldState.begin(); itr != m_worldState.end(); ++itr)
     {
-        if (!flags || itr->second.GetFlags() & flags)
+        if (!flags || (itr->second.GetFlags() & flags))
         {
             if (itr->second.GetType() == WORLD_STATE_TYPE_MAP &&
                 itr->second.GetCondition() == mapId &&
