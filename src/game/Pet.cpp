@@ -1343,7 +1343,9 @@ void Pet::_SaveSpells()
 
 void Pet::_LoadAuras(uint32 timediff)
 {
-    RemoveAllAuras();
+    // Remove auras before load only for permanent pets! Some temp pets has additional auras in creature_addon
+    if (getPetType() == HUNTER_PET || m_duration == 0 )
+        RemoveAllAuras();
 
     QueryResult *result = CharacterDatabase.PQuery("SELECT caster_guid,item_guid,spell,stackcount,remaincharges,basepoints0,basepoints1,basepoints2,periodictime0,periodictime1,periodictime2,maxduration,remaintime,effIndexMask FROM pet_aura WHERE guid = '%u'", m_charmInfo->GetPetNumber());
 
@@ -2143,10 +2145,10 @@ bool Pet::HasSpell(uint32 spellId) const
     uint32 parentSpell = 0;
     switch (spellId)
     {
-        case 54045:
+        case 54045:                  // Carrion feeder - not triggered spell
             parentSpell = 54044;
             break;
-        case 52749:
+        case 52749:                  // Voracious appetite - not triggered spell
             parentSpell = 52748;
             break;
         default:

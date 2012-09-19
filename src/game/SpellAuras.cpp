@@ -8950,6 +8950,11 @@ void Aura::PeriodicTick()
                 if (Aura *aur = GetHolder()->GetAuraByEffectIndex(EFFECT_INDEX_1))
                     aur->GetModifier()->m_amount = int32(target->GetHealthPercent());
             }
+            else if (GetId() == 20578 || GetId() == 52749 || GetId() == 54045)
+            {
+                // cannibalize anim
+                target->HandleEmoteCommand(EMOTE_STATE_CANNIBALIZE);
+            }
 
 //            uint32 procAttacker = PROC_FLAG_ON_DO_PERIODIC;//   | PROC_FLAG_SUCCESSFUL_HEAL;
 //            uint32 procVictim   = 0;//ROC_FLAG_ON_TAKE_PERIODIC | PROC_FLAG_TAKEN_HEAL;
@@ -9242,11 +9247,6 @@ void Aura::PeriodicTick()
             {
                 // eating anim
                 target->HandleEmoteCommand(EMOTE_ONESHOT_EAT);
-            }
-            else if ( GetId() == 20577 )
-            {
-                // cannibalize anim
-                target->HandleEmoteCommand(EMOTE_STATE_CANNIBALIZE);
             }
 
             // Anger Management
