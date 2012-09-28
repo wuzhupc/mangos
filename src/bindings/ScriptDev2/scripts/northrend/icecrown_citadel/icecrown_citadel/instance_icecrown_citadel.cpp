@@ -227,6 +227,14 @@ void instance_icecrown_citadel::OnObjectCreate(GameObject* pGo)
             pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NO_INTERACT);
             m_mGoEntryGuidStore[pGo->GetEntry()] = pGo->GetObjectGuid();
             break;
+        case GO_ARTHAS_PLATFORM:
+            pGo->SetUInt32Value(GAMEOBJECT_PARENTROTATION, 5535469);
+            m_mGoEntryGuidStore[pGo->GetEntry()] = pGo->GetObjectGuid();
+            break;
+        case GO_ARTHAS_PRECIPICE:
+            pGo->SetUInt32Value(GAMEOBJECT_PARENTROTATION, 4178312);
+            m_mGoEntryGuidStore[pGo->GetEntry()] = pGo->GetObjectGuid();
+            break;
         case GO_SAURFANG_CACHE_10:
         case GO_SAURFANG_CACHE_25:
         case GO_SAURFANG_CACHE_10_H:
@@ -250,8 +258,6 @@ void instance_icecrown_citadel::OnObjectCreate(GameObject* pGo)
         case GO_FROSTY_WIND:
         case GO_FROSTY_EDGE:
         case GO_SNOW_EDGE:
-        case GO_ARTHAS_PLATFORM:
-        case GO_ARTHAS_PRECIPICE:
         case GO_GAS_RELEASE_VALVE:
         case GO_MARROWGAR_DOOR:
         case GO_BLOODPRINCE_DOOR:
@@ -267,6 +273,8 @@ void instance_icecrown_citadel::OnObjectCreate(GameObject* pGo)
         case GO_ORATORY_DOOR:
         case GO_SINDRAGOSA_ICE_WALL:
             m_mGoEntryGuidStore[pGo->GetEntry()] = pGo->GetObjectGuid();
+            break;
+        default:
             break;
     }
 }
