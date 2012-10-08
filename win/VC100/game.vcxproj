@@ -735,6 +735,7 @@
     <ClInclude Include="..\..\src\game\OutdoorPvP\OutdoorPvPSI.h" />
     <ClInclude Include="..\..\src\game\OutdoorPvP\OutdoorPvPTF.h" />
     <ClInclude Include="..\..\src\game\OutdoorPvP\OutdoorPvPZM.h" />
+    <ClInclude Include="..\..\src\game\WorldLocation.h" />
     <ClInclude Include="..\..\src\game\WorldObjectEvents.h" />
     <ClInclude Include="..\..\src\game\WorldSession.h" />
     <ClInclude Include="..\..\src\game\WorldSocket.h" />

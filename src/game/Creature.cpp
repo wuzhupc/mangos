@@ -322,7 +322,7 @@ bool Creature::InitEntry(uint32 Entry, CreatureData const* data /*=NULL*/, GameE
     UpdateSpeed(MOVE_WALK, false);
     UpdateSpeed(MOVE_RUN,  false);
 
-    SetLevitate(CanFly());
+    SetLevitate(cinfo->InhabitType & INHABIT_AIR);
 
     // checked at loading
     m_defaultMovementType = MovementGeneratorType(cinfo->MovementType);
@@ -1193,7 +1193,7 @@ void Creature::SelectLevel(const CreatureInfo* cinfo, float percentHealth, float
         }
         case POWER_ENERGY:
         {
-            maxPower = uint32(GetCreatePowers(powerType) * cinfo->power_mod);
+            maxPower = uint32(GetCreatePowers(powerType) * cinfo->powerModifier);
             break;
         }
         default:

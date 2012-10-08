@@ -20,11 +20,11 @@
 #define __BATTLEGROUND_H
 
 #include "Common.h"
-#include "SharedDefines.h"
-#include "Map.h"
+#include "..\SharedDefines.h"
+#include "..\Map.h"
 #include "ByteBuffer.h"
-#include "ObjectGuid.h"
-#include "WorldStateMgr.h"
+#include "..\ObjectGuid.h"
+#include "..\WorldStateMgr.h"
 
 // magic event-numbers
 #define BG_EVENT_NONE 255

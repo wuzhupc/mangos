@@ -22,9 +22,6 @@ SDCategory: Naxxramas
 EndScriptData */
 
 /* Additional comments:
- * Bugged spells:   28560 (needs maxTarget = 1, Summon of 16474 implementation, TODO, 30s duration)
- *                  28526 (needs ScriptEffect to cast 28522 onto random target)
- *
  * Achievement-criteria check needs implementation
  *
  * Frost-Breath ability: the dummy spell 30101 is self cast, so it won't take the needed delay of ~7s until it reaches its target
@@ -210,7 +207,7 @@ struct MANGOS_DLL_DECL boss_sapphironAI : public ScriptedAI
                         m_Phase = PHASE_LIFT_OFF;
                         m_creature->InterruptNonMeleeSpells(false);
                         SetCombatMovement(false);
-                        m_creature->GetMotionMaster()->Clear(false);
+                        m_creature->GetMotionMaster()->Clear();
                         m_creature->GetMotionMaster()->MovePoint(1, aLiftOffPosition[0], aLiftOffPosition[1], aLiftOffPosition[2]);
                         // TODO This should clear the target, too
 
@@ -291,7 +288,7 @@ struct MANGOS_DLL_DECL boss_sapphironAI : public ScriptedAI
                     m_Phase = PHASE_GROUND;
 
                     SetCombatMovement(true);
-                    m_creature->GetMotionMaster()->Clear(false);
+                    m_creature->GetMotionMaster()->Clear();
                     m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
 
                     m_uiFlyTimer = 67000;
