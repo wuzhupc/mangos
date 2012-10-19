@@ -168,7 +168,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>mangosd.lib;ACE.lib;framework.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\..\..\..\win\VC100\mangosd__Win32_Release;..\..\..\..\win\VC100\framework__Win32_Release;..\..\..\..\dep\lib\win32_release\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\..\win\VC100\mangosd__Win32_Release;..\..\..\..\win\VC100\framework__Win32_Release;..\..\..\..\dep\lib\win32_release\;D:\Source\WOW\Mangos_WUZHU\win\VC100\game__Win32_Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>

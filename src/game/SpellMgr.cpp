@@ -2543,6 +2543,8 @@ uint32 SpellMgr::GetSpellMaxTargetsWithCustom(SpellEntry const* spellInfo, Unit 
                 case 804:                                   // Explode Bug
                 case 23138:                                 // Gate of Shazzrah
                 case 28560:                                 // Summon Blizzard
+                case 30541:                                 // Blaze (Magtheridon)
+                case 30572:                                 // Quake (Magtheridon)
                 case 30769:                                 // Pick Red Riding Hood
                 case 30835:                                 // Infernal Relay
                 case 31347:                                 // Doom TODO: exclude top threat target from target selection
@@ -3880,15 +3882,15 @@ void SpellMgr::LoadPetDefaultSpells()
                     continue;
                 PetDefaultSpellsEntry petDefSpells;
 
-                CreatureSpellsList const* spellList = sObjectMgr.GetCreatureSpells(creature_id);
+                CreatureSpellsList const* spellList = sObjectMgr.GetCreatureSpells(cInfo->Entry);
                 if (spellList && !spellList->empty())
                 {
                     for (CreatureSpellsList::const_iterator itr = spellList->begin(); (itr != spellList->end() && itr->first < MAX_CREATURE_SPELL_DATA_SLOT); ++itr)
                     {
                         if (itr->second.disabled || !itr->second.spell)
-                            continue;
-
-                        petDefSpells.spellid[itr->first] = itr->second.spell;
+                            petDefSpells.spellid[itr->first] = 0;
+                        else
+                            petDefSpells.spellid[itr->first] = itr->second.spell;
                     }
                 }
 
