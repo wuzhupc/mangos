@@ -142,11 +142,10 @@ void instance_draktharon_keep::DoSortNovosDummies()
         if (pDummy->IsWithinDist2d(fNovosX, fNovosY, 5.0f))
         {
             m_novosChannelGuid = pDummy->GetObjectGuid();
-            m_lNovosDummyGuids.erase(itr);
-            break;
+            itr = m_lNovosDummyGuids.erase(itr);
         }
-
-        ++itr;
+        else
+            ++itr;
     }
 
     // Summon positions (at end of stairs)
@@ -163,7 +162,7 @@ void instance_draktharon_keep::DoSortNovosDummies()
         if (pDummy->GetPositionZ() > fNovosZ + 20.0f)
         {
             m_vSummonDummyGuids.push_back(pDummy->GetObjectGuid());
-            m_lNovosDummyGuids.erase(itr++);
+            itr = m_lNovosDummyGuids.erase(itr);
         }
         else
             ++itr;
@@ -225,7 +224,7 @@ bool instance_draktharon_keep::CheckAchievementCriteriaMeet(uint32 uiCriteriaId,
 
 void instance_draktharon_keep::SetData(uint32 uiType, uint32 uiData)
 {
-    switch(uiType)
+    switch (uiType)
     {
         case TYPE_TROLLGORE:
             if (uiData == IN_PROGRESS)
@@ -235,7 +234,7 @@ void instance_draktharon_keep::SetData(uint32 uiType, uint32 uiData)
             m_auiEncounter[uiType] = uiData;
             break;
         case TYPE_NOVOS:
-            if (uiData == IN_PROGRESS)
+            if (uiData == IN_PROGRESS && m_auiEncounter[uiType] != IN_PROGRESS)
             {
                 // Sort the dummies
                 DoSortNovosDummies();
@@ -282,6 +281,8 @@ void instance_draktharon_keep::SetData(uint32 uiType, uint32 uiData)
         case TYPE_THARONJA:
             m_auiEncounter[uiType] = uiData;
             break;
+        default:
+            return;
     }
 
     if (uiData == DONE)

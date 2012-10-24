@@ -1803,7 +1803,8 @@ bool Player::TeleportTo(WorldLocation const& loc, uint32 options)
     if (!InBattleGround() && mEntry->IsBattleGroundOrArena())
         return false;
 
-    // client without expansion support
+    if (!GetMap())
+        options |= TELE_TO_NODELAY;
 
     if (Group* grp = GetGroup())
         grp->SetPlayerMap(GetObjectGuid(), loc.mapid);
@@ -1838,7 +1839,7 @@ bool Player::TeleportTo(WorldLocation const& loc, uint32 options)
         SetSemaphoreTeleportFar(false);
 
         // try preload grid, targeted for teleport
-        if (!GetMap()->PreloadGrid(loc.coord_x, loc.coord_y))
+        if (!(options & TELE_TO_NODELAY) && !GetMap()->PreloadGrid(loc.coord_x, loc.coord_y))
         {
             // If loading grid not finished, delay teleport on one update tick
             AddEvent(new TeleportDelayEvent(*this, loc, options),
@@ -1916,7 +1917,7 @@ bool Player::TeleportTo(WorldLocation const& loc, uint32 options)
             }
 
             // try preload grid, targeted for teleport
-            if (!map->PreloadGrid(loc.coord_x, loc.coord_y))
+            if (!(options & TELE_TO_NODELAY) && !map->PreloadGrid(loc.coord_x, loc.coord_y))
             {
                 // If loading grid not finished, delay teleport 5 map update ticks
                 AddEvent(new TeleportDelayEvent(*this, WorldLocation(loc.coord_x, loc.coord_y, loc.coord_z, loc.orientation, loc.mapid, map->GetInstanceId(), sWorld.getConfig(CONFIG_UINT32_REALMID)), options),
@@ -21073,20 +21074,9 @@ void Player::SendInitialPacketsAfterAddToMap()
         SetRoot(true);
 
     // manual send package (have code in ApplyModifier(true,true); that don't must be re-applied.
-    if (HasAuraType(SPELL_AURA_MOD_ROOT))
+    if (HasAuraType(SPELL_AURA_MOD_ROOT) || GetVehicle())
     {
-        WorldPacket data2(SMSG_FORCE_MOVE_ROOT, 10);
-        data2 << GetPackGUID();
-        data2 << (uint32)2;
-        SendMessageToSet(&data2,true);
-    }
-
-    if (GetVehicle())
-    {
-        WorldPacket data3(SMSG_FORCE_MOVE_ROOT, 10);
-        data3 << GetPackGUID();
-        data3 << uint32((m_movementInfo.GetVehicleSeatFlags() & SEAT_FLAG_CAN_CAST) ? 2 : 0);
-        SendMessageToSet(&data3,true);
+        SetRoot(true);
     }
 
     SendAurasForTarget(this);

@@ -222,6 +222,10 @@ enum
     GO_TOWER_OF_LIFE            = 194375,
     GO_TOWER_OF_STORMS          = 194377,
 
+    // Repair
+    RX_214_REPAIR               = 194261,
+    RX_214_REPAIR_TRAP          = 194262,
+
     ACHIEV_IRON_COUNCIL         = 2888,
     ACHIEV_IRON_COUNCIL_H       = 2889,
 

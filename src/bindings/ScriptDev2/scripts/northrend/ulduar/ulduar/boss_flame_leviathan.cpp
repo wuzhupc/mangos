@@ -101,9 +101,9 @@ enum spells
 
 enum Mobs
 {
-    MOB_MECHANOLIFT     = 33214,
-    MOB_LIQUID          = 33189,
-    MOB_CONTAINER       = 33218,
+    MOB_MECHANOLIFT             = 33214,
+    MOB_LIQUID                  = 33189,
+    MOB_CONTAINER               = 33218,
     
     MOB_THORIM_BEACON           = 33365,
     MOB_MIMIRON_BEACON          = 33370,
@@ -114,8 +114,8 @@ enum Mobs
     NPC_HODIR_TARGET_BEACON     = 33108,
     NPC_FREYA_TARGET_BEACON     = 33366,
 
-    DEFENSE_TURRET      = 33142,
-    KEEPER_OF_NORGANNON = 33686
+    DEFENSE_TURRET              = 33142,
+    KEEPER_OF_NORGANNON         = 33686
 };
 
 enum Seats
@@ -128,8 +128,8 @@ enum Seats
 
 enum Vehicles
 {
-    VEHICLE_SIEGE = 33060,
-    VEHICLE_CHOPPER = 33062,
+    VEHICLE_SIEGE      = 33060,
+    VEHICLE_CHOPPER    = 33062,
     VEHICLE_DEMOLISHER = 33109,
 };
 
@@ -139,10 +139,10 @@ enum eAchievementData
     ACHIEV_25_ORBITAL_BOMBARDMENT = 2918,
     ACHIEV_10_ORBITAL_DEVASTATION = 2914, // two Towers
     ACHIEV_25_ORBITAL_DEVASTATION = 2916,
-    ACHIEV_10_NUKED_FROM_ORBIT = 2915,    // three Towers
-    ACHIEV_25_NUKED_FROM_ORBIT = 2917,
-    ACHIEV_10_ORBIT_UARY = 3056,
-    ACHIEV_25_ORBIT_UARY = 3057,
+    ACHIEV_10_NUKED_FROM_ORBIT    = 2915, // three Towers
+    ACHIEV_25_NUKED_FROM_ORBIT    = 2917,
+    ACHIEV_10_ORBIT_UARY          = 3056,
+    ACHIEV_25_ORBIT_UARY          = 3057,
 /* Nicht implementiert
     ACHIEV_10_SHUTOUT = 2911,
     ACHIEV_25_SHUTOUT = 2912,
@@ -215,16 +215,13 @@ struct MANGOS_DLL_DECL boss_flame_leviathan : public ScriptedAI
     uint32 m_uiPursueTimer;
     uint32 m_uiGatheringSpeedTimer;
     uint32 m_uiSummonFlyerTimer;
-    uint8 maxFlyers;
 
-    uint8 uiActiveTowers;
-    uint8 uiShutdown;
+    uint8  m_uiActiveTowers;
 
-    bool isHardMode;
-    bool isHodirsTower;
-    bool isFreyasTower;
-    bool isMimironsTower;
-    bool isThorimsTower;
+    bool m_bAliveHodirsTower;
+    bool m_bAliveFreyasTower;
+    bool m_bAliveMimironsTower;
+    bool m_bAliveThorimsTower;
 
     uint32 m_uiFreyaWardTimer;
     uint32 m_uiMimironInfernoTimer;
@@ -250,15 +247,13 @@ struct MANGOS_DLL_DECL boss_flame_leviathan : public ScriptedAI
         m_uiPursueTimer         = 0;
         m_uiGatheringSpeedTimer = 50000;
         m_uiSummonFlyerTimer    = 2000;
-        maxFlyers = 10;
 
-        uiActiveTowers = 0;
+        m_uiActiveTowers = 0;
 
-        isHardMode      = false;
-        isHodirsTower   = false;
-        isFreyasTower   = false;
-        isMimironsTower = false;
-        isThorimsTower  = false;
+        m_bAliveHodirsTower   = false;
+        m_bAliveFreyasTower   = false;
+        m_bAliveMimironsTower = false;
+        m_bAliveThorimsTower  = false;
 
         m_uiFreyaWardTimer      = urand(1000, 10000);
         m_uiMimironInfernoTimer = urand(1000, 10000);
@@ -270,40 +265,40 @@ struct MANGOS_DLL_DECL boss_flame_leviathan : public ScriptedAI
 
     void StartFreyaEvent()//summon these 4 on each corner wich wil spawn additional hostile mobs
     {
-        if (Creature* pFreayaBeacon = m_creature->SummonCreature(MOB_FREYA_BEACON, 377.02f, -119.10f, 409.81f, 0.0f ,TEMPSUMMON_MANUAL_DESPAWN, 0))
-            DoCast(pFreayaBeacon,AURA_DUMMY_GREEN, true);
-        if (Creature* pFreayaBeacon = m_creature->SummonCreature(MOB_FREYA_BEACON, 377.02f, 54.78f, 409.81f, 0.0f ,TEMPSUMMON_MANUAL_DESPAWN, 0))
-            DoCast(pFreayaBeacon,AURA_DUMMY_GREEN, true);
-        if (Creature* pFreayaBeacon = m_creature->SummonCreature(MOB_FREYA_BEACON, 185.62f, 54.78f, 409.81f, 0.0f ,TEMPSUMMON_MANUAL_DESPAWN, 0))
-            DoCast(pFreayaBeacon,AURA_DUMMY_GREEN, true);
-        if (Creature* pFreayaBeacon = m_creature->SummonCreature(MOB_FREYA_BEACON, 185.62f, -119.10f, 409.81f, 0.0f ,TEMPSUMMON_MANUAL_DESPAWN, 0))
-            DoCast(pFreayaBeacon,AURA_DUMMY_GREEN, true);
+        if (Creature* pFreayaBeacon = m_creature->SummonCreature(MOB_FREYA_BEACON, 377.02f, -119.10f, 409.81f, 0.0f, TEMPSUMMON_MANUAL_DESPAWN, 0))
+            DoCast(pFreayaBeacon, AURA_DUMMY_GREEN, true);
+        if (Creature* pFreayaBeacon = m_creature->SummonCreature(MOB_FREYA_BEACON, 377.02f, 54.78f, 409.81f, 0.0f, TEMPSUMMON_MANUAL_DESPAWN, 0))
+            DoCast(pFreayaBeacon, AURA_DUMMY_GREEN, true);
+        if (Creature* pFreayaBeacon = m_creature->SummonCreature(MOB_FREYA_BEACON, 185.62f, 54.78f, 409.81f, 0.0f, TEMPSUMMON_MANUAL_DESPAWN, 0))
+            DoCast(pFreayaBeacon, AURA_DUMMY_GREEN, true);
+        if (Creature* pFreayaBeacon = m_creature->SummonCreature(MOB_FREYA_BEACON, 185.62f, -119.10f, 409.81f, 0.0f, TEMPSUMMON_MANUAL_DESPAWN, 0))
+            DoCast(pFreayaBeacon, AURA_DUMMY_GREEN, true);
     }
 
-    void Aggro(Unit *who) 
+    void Aggro(Unit* who)
     {
         CheckForTowers();
-        if(m_pInstance) 
+        if (m_pInstance)
         {
             m_pInstance->SetData(TYPE_LEVIATHAN, IN_PROGRESS);
-            if(m_pInstance->GetData(TYPE_LEVIATHAN_TP) != DONE)
+            if (m_pInstance->GetData(TYPE_LEVIATHAN_TP) != DONE)
                 m_pInstance->SetData(TYPE_LEVIATHAN_TP, DONE);
         }
 
         DoScriptText(SAY_AGGRO, m_creature);
     }
 
-    void JustDied(Unit *killer)
+    void JustDied(Unit* killer)
     {
-        if(m_pInstance) 
+        if (m_pInstance)
         {
             m_pInstance->SetData(TYPE_LEVIATHAN, DONE);
-            if(isHardMode)
+            if (m_uiActiveTowers)
                 m_pInstance->SetData(TYPE_LEVIATHAN_HARD, DONE);
             
-            if (uiActiveTowers)
+            if (m_uiActiveTowers)
             {
-                switch (uiActiveTowers)
+                switch (m_uiActiveTowers)
                 {
                     case 4:
                         m_pInstance->DoCompleteAchievement(m_bIsRegularMode ? ACHIEV_10_ORBIT_UARY : ACHIEV_25_ORBIT_UARY);
@@ -326,30 +321,31 @@ struct MANGOS_DLL_DECL boss_flame_leviathan : public ScriptedAI
             m_pInstance->SetData(TYPE_LEVIATHAN, FAIL);
     }
 
-    void KilledUnit(Unit *who)
+    void KilledUnit(Unit* who)
     {
         DoScriptText(SAY_SLAY, m_creature);
     }
 
     // TODO: effect 0 and effect 1 may be on different target
-    void SpellHitTarget(Unit *pTarget, const SpellEntry *spell)
+    void SpellHitTarget(Unit* pTarget, const SpellEntry* spell)
     {
         if (spell->Id == SPELL_PURSUED)
             AttackStart(pTarget);
     }
 
-    void SpellHit(Unit *caster, const SpellEntry *spell)
+    void SpellHit(Unit* caster, const SpellEntry* spell)
     {
-        /*if(spell->Id == 62472)
-        vehicle->InstallAllAccessories();
-        else if(spell->Id == SPELL_ELECTROSHOCK)
-        m_creature->InterruptSpell(CURRENT_CHANNELED_SPELL);*/
+        /*if (spell->Id == 62472)
+            vehicle->InstallAllAccessories();
+        else
+            if (spell->Id == SPELL_ELECTROSHOCK)
+                m_creature->InterruptSpell(CURRENT_CHANNELED_SPELL);*/
     }
 
-    void DamageTaken(Unit *pDoneBy, uint32 &uiDamage)
+    void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
     {
         uiDamage *= 4;
-        if(m_creature->HasAura(SPELL_SYSTEMS_SHUTDOWN, EFFECT_INDEX_0))
+        if (m_creature->HasAura(SPELL_SYSTEMS_SHUTDOWN, EFFECT_INDEX_0))
             uiDamage += uiDamage/2;
     }
 
@@ -367,48 +363,44 @@ struct MANGOS_DLL_DECL boss_flame_leviathan : public ScriptedAI
 
     void CheckForTowers()
     {
-        if (!isHodirsTower)
+        if (!m_bAliveHodirsTower)
         {
             if (GameObject* pTower = m_pInstance->GetSingleGameObjectFromStorage(GO_TOWER_OF_FROST))
                 if (pTower->GetHealth())
                 {
-                    isHodirsTower = true;
+                    m_bAliveHodirsTower = true;
                     m_creature->CastSpell(m_creature, SPELL_TOWER_OF_FROST,true);
-                    isHardMode = true;
-                    uiActiveTowers++;
+                    m_uiActiveTowers++;
                 }
         }
-        if (!isFreyasTower)
+        if (!m_bAliveFreyasTower)
         {
             if (GameObject* pTower = m_pInstance->GetSingleGameObjectFromStorage(GO_TOWER_OF_LIFE))
                 if (pTower->GetHealth())
                 {
-                    isFreyasTower = true;
+                    m_bAliveFreyasTower = true;
                     m_creature->CastSpell(m_creature, SPELL_TOWER_OF_LIFE,true);
-                    isHardMode = true;
-                    uiActiveTowers++;
+                    m_uiActiveTowers++;
                 }
         }
-        if (!isMimironsTower)
+        if (!m_bAliveMimironsTower)
         {
             if (GameObject* pTower = m_pInstance->GetSingleGameObjectFromStorage(GO_TOWER_OF_FLAME))
                 if (pTower->GetHealth())
                 {
-                    isMimironsTower = true;
+                    m_bAliveMimironsTower = true;
                     m_creature->CastSpell(m_creature, SPELL_TOWER_OF_FLAMES,true);
-                    isHardMode = true;
-                    uiActiveTowers++;
+                    m_uiActiveTowers++;
                 }
         }
-        if (!isThorimsTower)
+        if (!m_bAliveThorimsTower)
         {
             if (GameObject* pTower = m_pInstance->GetSingleGameObjectFromStorage(GO_TOWER_OF_STORMS))
                 if (pTower->GetHealth())
                 {
-                    isThorimsTower = true;
+                    m_bAliveThorimsTower = true;
                     m_creature->CastSpell(m_creature, SPELL_TOWER_OF_STORMS,true);
-                    isHardMode = true;
-                    uiActiveTowers++;
+                    m_uiActiveTowers++;
                 }
         }
         m_creature->SetHealth(m_creature->GetMaxHealth());
@@ -417,18 +409,20 @@ struct MANGOS_DLL_DECL boss_flame_leviathan : public ScriptedAI
 
     void UpdateAI(const uint32 uiDiff)
     {
-        if(m_pInstance && (m_pInstance->GetData(TYPE_LEVIATHAN) == NOT_STARTED || m_pInstance->GetData(TYPE_LEVIATHAN) == FAIL))
+        if (m_pInstance && (m_pInstance->GetData(TYPE_LEVIATHAN) == NOT_STARTED || m_pInstance->GetData(TYPE_LEVIATHAN) == FAIL))
+        {
             if (CollossusDead())
             {
-                m_creature->GetMotionMaster()->MovePoint(1,342.896f , -14.113f, 409.804f);
+                m_creature->GetMotionMaster()->MovePoint(1, 342.896f, -14.113f, 409.804f);
                 m_pInstance->SetData(TYPE_LEVIATHAN, SPECIAL);
             }
+        }
 
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
 
         // pursue
-        if(m_uiPursueTimer < uiDiff)
+        if (m_uiPursueTimer < uiDiff)
         {
             switch(urand(0, 3))
             {
@@ -445,66 +439,73 @@ struct MANGOS_DLL_DECL boss_flame_leviathan : public ScriptedAI
 
             m_uiPursueTimer = 30000;
         }
-        else m_uiPursueTimer -= uiDiff;
+        else
+            m_uiPursueTimer -= uiDiff;
 
         // flame vents
-        if(m_uiFlameVentsTimer < uiDiff)
+        if (m_uiFlameVentsTimer < uiDiff)
         {
             DoCast(m_creature->getVictim(), SPELL_FLAME_VENTS);
             m_uiFlameVentsTimer = 30000 + rand()%20000;
         }
-        else m_uiFlameVentsTimer -= uiDiff;
+        else
+            m_uiFlameVentsTimer -= uiDiff;
 
         // battering ram
-        if(m_uiBatteringRamTimer < uiDiff)
+        if (m_uiBatteringRamTimer < uiDiff)
         {
             DoCast(m_creature->getVictim(), SPELL_BATTERING_RAM);
             m_uiBatteringRamTimer = 25000 + rand()%15000;
         }
-        else m_uiBatteringRamTimer -= uiDiff;
+        else
+            m_uiBatteringRamTimer -= uiDiff;
 
         /* flyers
         it should summon some flyers. needs more research!
-        if(m_uiSummonFlyerTimer < uiDiff)
+        if (m_uiSummonFlyerTimer < uiDiff)
         {
             m_creature->SummonCreature(MOB_MECHANOLIFT, m_creature->GetPositionX() + rand()%20, m_creature->GetPositionY() + rand()%20, m_creature->GetPositionZ() + 50, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 40000);
             m_uiSummonFlyerTimer = 2000;
         }
-        else m_uiSummonFlyerTimer -= uiDiff;*/
+        else
+            m_uiSummonFlyerTimer -= uiDiff;*/
 
         // missile barrage
-        if(m_uiMissileBarrageTimer < uiDiff)
+        if (m_uiMissileBarrageTimer < uiDiff)
         {
             DoCast(m_creature, SPELL_MISSILE_BARRAGE);
             m_uiMissileBarrageTimer = 3000 + rand()%2000;
         }
-        else m_uiMissileBarrageTimer -= uiDiff;
+        else
+            m_uiMissileBarrageTimer -= uiDiff;
 
-        if(m_uiGatheringSpeedTimer < uiDiff)
+        if (m_uiGatheringSpeedTimer < uiDiff)
         {
             DoCast(m_creature, SPELL_GATHERING_SPEED);
             m_uiGatheringSpeedTimer = urand(50000, 60000);
         }
-        else m_uiGatheringSpeedTimer -= uiDiff;
+        else
+            m_uiGatheringSpeedTimer -= uiDiff;
 
         // Hard mode event. need more research and scripting
         // this part should be done in other way
 
         // tower of freya
-        if(isFreyasTower && m_uiFreyaWardTimer)
+        if (m_bAliveFreyasTower && m_uiFreyaWardTimer)
         {
-            if(m_uiFreyaWardTimer < uiDiff)
+            if (m_uiFreyaWardTimer < uiDiff)
             {
                 StartFreyaEvent();   
                 m_uiFreyaWardTimer = 0;                
             }
-            else m_uiFreyaWardTimer -= uiDiff;
+            else
+                m_uiFreyaWardTimer -= uiDiff;
         }
 
         // tower of mimiron
-        if(isMimironsTower && m_uiMimironInfernoTimer)
+        if (m_bAliveMimironsTower && m_uiMimironInfernoTimer)
         {
-            if(m_uiMimironInfernoTimer < uiDiff)
+            if (m_uiMimironInfernoTimer < uiDiff)
             {
                 if (Creature* pMimironBeacon = m_creature->SummonCreature(MOB_MIMIRON_BEACON, WayMimironBeacon[0][0], WayMimironBeacon[0][1], WayMimironBeacon[0][2],0, TEMPSUMMON_MANUAL_DESPAWN, 0))
                 {
@@ -512,13 +513,14 @@ struct MANGOS_DLL_DECL boss_flame_leviathan : public ScriptedAI
                     m_uiMimironInfernoTimer = 0;
                 }
             }        
-            else m_uiMimironInfernoTimer -= uiDiff;
+            else
+                m_uiMimironInfernoTimer -= uiDiff;
         }
 
         // tower of hodir
-        if(isHodirsTower && m_uiHodirFuryTimer)
+        if (m_bAliveHodirsTower && m_uiHodirFuryTimer)
         {
-            if(m_uiHodirFuryTimer < uiDiff)
+            if (m_uiHodirFuryTimer < uiDiff)
             {
                 for (uint8 i = 0; i < 3; ++i)
                 {
@@ -527,13 +529,14 @@ struct MANGOS_DLL_DECL boss_flame_leviathan : public ScriptedAI
                 }
                 m_uiHodirFuryTimer = 0;
             }
-            else m_uiHodirFuryTimer -= uiDiff;
+            else
+                m_uiHodirFuryTimer -= uiDiff;
         }
 
         // tower of thorim
-        if(isThorimsTower && m_uiThorimHammerTimer)
+        if (m_bAliveThorimsTower && m_uiThorimHammerTimer)
         {
-            if(m_uiThorimHammerTimer < uiDiff)
+            if (m_uiThorimHammerTimer < uiDiff)
             {
                 for (uint8 i = 0; i < 3; ++i)
                 {
@@ -542,7 +545,8 @@ struct MANGOS_DLL_DECL boss_flame_leviathan : public ScriptedAI
                 }
                 m_uiThorimHammerTimer = 0;
             }
-            else m_uiThorimHammerTimer -= uiDiff;
+            else
+                m_uiThorimHammerTimer -= uiDiff;
         }
         DoMeleeAttackIfReady();
     }
@@ -559,9 +563,9 @@ struct MANGOS_DLL_DECL mob_defense_turretAI : public ScriptedAI
         m_uiSpell_Timer = urand(10000, 15000);
     }
 
-    void SpellHit(Unit *caster, const SpellEntry *spell)
+    void SpellHit(Unit* caster, const SpellEntry* spell)
     {
-        if(spell->Id == SPELL_SYSTEMS_SHUTDOWN)
+        if (spell->Id == SPELL_SYSTEMS_SHUTDOWN)
             m_creature->ForcedDespawn();
     }
 
@@ -574,7 +578,9 @@ struct MANGOS_DLL_DECL mob_defense_turretAI : public ScriptedAI
         {
             DoCast(m_creature, SPELL_SEARING_FLAME);
             m_uiSpell_Timer = urand(10000, 15000);
-        }else m_uiSpell_Timer -= uiDiff;
+        }
+        else
+            m_uiSpell_Timer -= uiDiff;
     }
 };
 
@@ -589,12 +595,12 @@ struct MANGOS_DLL_DECL mob_pool_of_tarAI : public ScriptedAI
         SetCombatMovement(false);        
     }
 
-    void SpellHit(Unit *caster, const SpellEntry *spell)
+    void SpellHit(Unit* caster, const SpellEntry* spell)
     {
-        if(spell->SchoolMask & SPELL_SCHOOL_MASK_FIRE && !m_creature->HasAura(SPELL_BLAZE))
+        if (spell->SchoolMask & SPELL_SCHOOL_MASK_FIRE && !m_creature->HasAura(SPELL_BLAZE))
             DoCast(m_creature,SPELL_BLAZE,true);
     }
-    void DamageTaken(Unit * killer, uint32 &uidamage)
+    void DamageTaken(Unit*  killer, uint32 &uidamage)
     {
         uidamage = 0;
     }
@@ -637,7 +643,7 @@ struct MANGOS_DLL_DECL mob_freyas_wardAI : public ScriptedAI
 
     void UpdateAI(const uint32 uiDiff)
     {
-        if(summonTimer <= uiDiff)
+        if (summonTimer <= uiDiff)
         {
             DoCast(m_creature,SPELL_FREYA_WARD, true);
             summonTimer = 20000;
@@ -700,7 +706,7 @@ struct MANGOS_DLL_DECL mob_hodirs_furyAI : public ScriptedAI
 
         if (!m_bHodirFuryReady)
         {
-            if(m_uiHodirFuryTimer <= uiDiff)
+            if (m_uiHodirFuryTimer <= uiDiff)
             {
                 m_bHodirFuryReady = true;
             }
@@ -709,7 +715,7 @@ struct MANGOS_DLL_DECL mob_hodirs_furyAI : public ScriptedAI
         }
 
         
-        if(m_uiSwitchTargetTimer <= uiDiff)
+        if (m_uiSwitchTargetTimer <= uiDiff)
         {
             SwitchTarget();
         }
@@ -764,10 +770,12 @@ struct MANGOS_DLL_DECL mob_mimirons_infernoAI : public ScriptedAI
             {
                 m_creature->GetMotionMaster()->MovePoint(waypointId,WayMimironBeacon[waypointId][0],WayMimironBeacon[waypointId][1],WayMimironBeacon[waypointId][2]);
                 m_uiWalkTimer = 0;
-            }else m_uiWalkTimer -= uiDiff;
+            }
+            else
+                m_uiWalkTimer -= uiDiff;
         }
         
-        if(infernoTimer <= uiDiff)
+        if (infernoTimer <= uiDiff)
         {
             if (Creature* pTrigger = DoSpawnCreature(NPC_MIMIRON_TARGET_BEACON, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 30000))
             {
@@ -813,7 +821,7 @@ struct MANGOS_DLL_DECL mob_thorims_hammerAI : public ScriptedAI
     {
         if (who->GetTypeId() == TYPEID_PLAYER && m_creature->IsInRange(who,0,10,false) && m_bHammerReady)
         {
-            if (Creature* pTrigger = DoSpawnCreature(NPC_THORIM_TARGET_BEACON,0 ,0 ,0 ,0 , TEMPSUMMON_TIMED_DESPAWN, 1000))
+            if (Creature* pTrigger = DoSpawnCreature(NPC_THORIM_TARGET_BEACON, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 1000))
                     pTrigger->CastSpell(who, SPELL_THORIMS_HAMMER, true);
             m_bHammerReady = false;
             m_uiHammerTimer = 4000;
@@ -824,7 +832,7 @@ struct MANGOS_DLL_DECL mob_thorims_hammerAI : public ScriptedAI
     {
         if (!m_bHammerReady)
         {
-            if(m_uiHammerTimer <= uiDiff)
+            if (m_uiHammerTimer <= uiDiff)
             {
                 m_bHammerReady = true;
             }
@@ -832,7 +840,7 @@ struct MANGOS_DLL_DECL mob_thorims_hammerAI : public ScriptedAI
                 m_uiHammerTimer -= uiDiff;
         }
 
-        if(m_uiSwitchTargetTimer <= uiDiff)
+        if (m_uiSwitchTargetTimer <= uiDiff)
         {
             SwitchTarget();
         }
@@ -898,7 +906,7 @@ CreatureAI* GetAI_mob_thorims_hammer(Creature* pCreature)
     return new mob_thorims_hammerAI(pCreature);
 }
 
-bool GossipHello_mob_lorekeeper(Player *player, Creature *pCreature)
+bool GossipHello_mob_lorekeeper(Player* player, Creature* pCreature)
 {
     player->ADD_GOSSIP_ITEM( GOSSIP_ICON_CHAT, "Gib mir Macht mit einen Zerstörer."            , GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
     player->ADD_GOSSIP_ITEM( GOSSIP_ICON_CHAT, "Gib mir Stärke mit einer Belagerungsmaschine." , GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
@@ -907,7 +915,7 @@ bool GossipHello_mob_lorekeeper(Player *player, Creature *pCreature)
     return true;
 }
 
-bool GossipSelect_mob_lorekeeper(Player *pPlayer, Creature *pCreature, uint32 sender, uint32 uiAction )
+bool GossipSelect_mob_lorekeeper(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 uiAction)
 {
     uint32 i = urand(0,4);
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
@@ -924,57 +932,56 @@ bool GossipSelect_mob_lorekeeper(Player *pPlayer, Creature *pCreature, uint32 se
     {
         pPlayer->CLOSE_GOSSIP_MENU();
         pCreature->SummonCreature(VEHICLE_CHOPPER, PosChopper[i].x, PosChopper[i].y, PosChopper[i].z, PosChopper[i].o, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
-
     }
     return true;
 }
 
 void AddSC_boss_leviathan()
 {
-    Script *newscript;
-    newscript = new Script;
-    newscript->Name = "boss_flame_leviathan";
-    newscript->GetAI = &GetAI_boss_flame_leviathan;
-    newscript->RegisterSelf();
+    Script* pNewScript;
+    pNewScript = new Script;
+    pNewScript->Name = "boss_flame_leviathan";
+    pNewScript->GetAI = &GetAI_boss_flame_leviathan;
+    pNewScript->RegisterSelf();
 
-    newscript = new Script;
-    newscript->Name = "mob_defense_turret";
-    newscript->GetAI = &GetAI_mob_defense_turret;
-    newscript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "mob_defense_turret";
+    pNewScript->GetAI = &GetAI_mob_defense_turret;
+    pNewScript->RegisterSelf();
 
-    newscript = new Script;
-    newscript->Name = "mob_pool_of_tar";
-    newscript->GetAI = &GetAI_mob_pool_of_tar;
-    newscript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "mob_pool_of_tar";
+    pNewScript->GetAI = &GetAI_mob_pool_of_tar;
+    pNewScript->RegisterSelf();
 
-    newscript = new Script;
-    newscript->Name = "mob_mechanolift";
-    newscript->GetAI = &GetAI_mob_mechanolift;
-    newscript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "mob_mechanolift";
+    pNewScript->GetAI = &GetAI_mob_mechanolift;
+    pNewScript->RegisterSelf();
 
-    newscript = new Script;
-    newscript->Name = "mob_freyas_ward";
-    newscript->GetAI = &GetAI_mob_freyas_ward;
-    newscript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "mob_freyas_ward";
+    pNewScript->GetAI = &GetAI_mob_freyas_ward;
+    pNewScript->RegisterSelf();
 
-    newscript = new Script;
-    newscript->Name = "mob_hodirs_fury";
-    newscript->GetAI = &GetAI_mob_hodirs_fury;
-    newscript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "mob_hodirs_fury";
+    pNewScript->GetAI = &GetAI_mob_hodirs_fury;
+    pNewScript->RegisterSelf();
 
-    newscript = new Script;
-    newscript->Name = "mob_mimiron_inferno";
-    newscript->GetAI = &GetAI_mob_mimirons_inferno;
-    newscript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "mob_mimiron_inferno";
+    pNewScript->GetAI = &GetAI_mob_mimirons_inferno;
+    pNewScript->RegisterSelf();
 
-    newscript = new Script;
-    newscript->Name = "mob_thorims_hammer";
-    newscript->GetAI = &GetAI_mob_thorims_hammer;
-    newscript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "mob_thorims_hammer";
+    pNewScript->GetAI = &GetAI_mob_thorims_hammer;
+    pNewScript->RegisterSelf();
 
-    newscript = new Script;
-    newscript->Name = "mob_lorekeeper";
-    newscript->pGossipHello = &GossipHello_mob_lorekeeper;
-    newscript->pGossipSelect = &GossipSelect_mob_lorekeeper;
-    newscript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "mob_lorekeeper";
+    pNewScript->pGossipHello = &GossipHello_mob_lorekeeper;
+    pNewScript->pGossipSelect = &GossipSelect_mob_lorekeeper;
+    pNewScript->RegisterSelf();
 }

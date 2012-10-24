@@ -9406,16 +9406,8 @@ void Unit::Unmount(bool from_aura)
             ((Player*)this)->ResummonPetTemporaryUnSummonedIfAny();
     }
 
-    if (GetTypeId() == TYPEID_PLAYER && GetVehicleKit())
-    {
-        // Send other players that we are no longer a vehicle
-        WorldPacket data(SMSG_SET_VEHICLE_REC_ID, 8+4);
-        data << GetPackGUID();
-        data << uint32(0);
-        ((Player*)this)->SendMessageToSet(&data, true);
-
-        RemoveVehicleKit();
-    }
+    if (GetVehicleKit())
+        SetVehicleId(0);
 }
 
 void Unit::SetInCombatWith(Unit* enemy)
@@ -13575,6 +13567,7 @@ void Unit::SetVehicleId(uint32 entry)
     {
         m_vehicleInfo = NULL;
         m_updateFlag &= ~UPDATEFLAG_VEHICLE;
+        m_pVehicleKit = VehicleKitPtr(NULL);
     }
 
     if (GetTypeId() == TYPEID_PLAYER)
@@ -13583,6 +13576,12 @@ void Unit::SetVehicleId(uint32 entry)
         data << GetPackGUID();
         data << uint32(entry);
         SendMessageToSet(&data, true);
+
+        if (entry)
+        {
+            WorldPacket data(SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA);
+            ((Player*)this)->GetSession()->SendPacket(&data);
+        }
     }
 }
 

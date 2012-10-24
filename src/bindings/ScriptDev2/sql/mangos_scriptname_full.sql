@@ -307,7 +307,7 @@ UPDATE creature_template SET ScriptName='molten_flame' WHERE entry=23095; -- Mol
 UPDATE creature_template SET ScriptName='mob_ashtongue_channeler' WHERE entry=23421; -- Ashtongue CHanneler in Shade of AKama
 UPDATE creature_template SET ScriptName='mob_ashtongue_sorcerer' WHERE entry=23215; -- Ashtongue Sorcerer in Shade of Akama
 UPDATE creature_template SET ScriptName='npc_spirit_of_olum' WHERE entry=23411;
--- UPDATE creature_template SET ScriptName='mob_shadowy_construct' WHERE entry=23111; -- Shadowy Construct in Teron Gorefiend's encounter. Commented until Mind Control is implemented.
+UPDATE creature_template SET ScriptName='npc_enslaved_soul' WHERE entry=23469;
 
 /* BLACKFATHOM DEPTHS */
 UPDATE instance_template SET ScriptName='instance_blackfathom_deeps' WHERE map=48;
@@ -629,6 +629,7 @@ UPDATE gameobject_template SET ScriptName='go_manticron_cube' WHERE entry=181713
 UPDATE creature_template SET ScriptName='boss_magtheridon' WHERE entry=17257;
 UPDATE creature_template SET ScriptName='mob_abyssal' WHERE entry=17454;
 UPDATE creature_template SET ScriptName='mob_hellfire_channeler' WHERE entry=17256;
+UPDATE creature_template SET ScriptName='npc_target_trigger' WHERE entry=17474;
 
 /* HELLFIRE PENINSULA */
 UPDATE creature_template SET ScriptName='boss_doomlord_kazzak' WHERE entry=18728;
@@ -813,6 +814,8 @@ UPDATE creature_template SET ScriptName='npc_commander_dawnforge' WHERE entry=19
 UPDATE creature_template SET ScriptName='npc_bessy' WHERE entry=20415;
 UPDATE creature_template SET ScriptName='npc_maxx_a_million' WHERE entry=19589;
 UPDATE creature_template SET ScriptName='npc_zeppit' WHERE entry=22484;
+UPDATE creature_template SET ScriptName='npc_protectorate_demolitionist' WHERE entry=20802;
+UPDATE creature_template SET ScriptName='npc_captured_vanguard' WHERE entry=20763;
 
 /*  */
 /* THE NEXUS */

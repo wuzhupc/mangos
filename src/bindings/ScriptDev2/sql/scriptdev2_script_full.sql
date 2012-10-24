@@ -955,7 +955,23 @@ INSERT INTO script_texts (entry,content_default,sound,type,language,emote,commen
 (-1000887,'End him...',0,0,0,0,'lexlort SAY_LEXLORT_3'),
 (-1000888,'You, soldier, report back to Kargath at once!',0,0,0,1,'lexlort SAY_LEXLORT_4'),
 (-1000889,'%s submits.',0,2,0,0,'grark EMOTE_SUBMIT'),
-(-1000890,'You have come to play? Then let us play!',0,0,0,0,'grark SAY_AGGRO');
+(-1000890,'You have come to play? Then let us play!',0,0,0,0,'grark SAY_AGGRO'),
+
+(-1000891,'Let\'s do this... Just keep me covered and I\'ll deliver the package.',0,0,0,0,'demolitionist SAY_INTRO'),
+(-1000892,'I\'m under attack! I repeat, I am under attack!',0,0,0,0,'demolitionist SAY_ATTACK_1'),
+(-1000893,'I need to find a new line of work.',0,0,0,0,'demolitionist SAY_ATTACK_2'),
+(-1000894,'By the second sun of K\'aresh, look at this place! I can only imagine what Salhadaar is planning. Come on, let\'s keep going.',0,0,0,1,'demolitionist SAY_STAGING_GROUNDS'),
+(-1000895,'With this much void waste and run off, a toxic void horror can\'t be too far behind.',0,0,0,0,'demolitionist SAY_TOXIC_HORROR'),
+(-1000896,'Look there, fleshling! Salhadaar\'s conduits! He\'s keeping well fed...',0,0,0,1,'demolitionist SAY_SALHADAAR'),
+(-1000897,'Alright, keep me protected while I plant this disruptor. This shouldn\'t take very long...',0,0,0,0,'demolitionist SAY_DISRUPTOR'),
+(-1000898,'Protect the conduit! Stop the intruders!',0,0,0,0,'nexus stalkers SAY_PROTECT'),
+(-1000899,'Done! Back up! Back up!',0,0,0,0,'demolitionist SAY_FINISH_1'),
+(-1000900,'Looks like my work here is done. Report to the holo-image of Ameer over at the transporter.',0,0,0,1,'demolitionist SAY_FINISH_2'),
+
+(-1000901,'Thanks, friend. Will you help me get out of here?',0,0,0,1,'vanguard SAY_VANGUARD_INTRO'),
+(-1000902,'We\'re not too far from the Protectorate Watch Post, $N. This way!',0,0,0,1,'vanguard SAY_VANGUARD_START'),
+(-1000903,'Commander! This fleshling rescued me!',0,0,0,0,'vanguard SAY_VANGUARD_FINISH'),
+(-1000904,'%s salutes $N.',0,2,0,0,'vanguard EMOTE_VANGUARD_FINISH');
 
 -- -1 033 000 SHADOWFANG KEEP
 INSERT INTO script_texts (entry,content_default,sound,type,language,emote,comment) VALUES
@@ -2501,8 +2517,8 @@ INSERT INTO script_texts (entry,content_default,sound,type,language,emote,commen
 (-1564011,'%s punches the ground in anger!',0,3,0,0,'supremus EMOTE_PUNCH_GROUND'),
 (-1564012,'The ground begins to crack open!',0,3,0,0,'supremus EMOTE_GROUND_CRACK'),
 
-(-1564013,'No! Not yet...',11385,1,0,0,'akama shade SAY_LOW_HEALTH'),
-(-1564014,'I will not last much longer...',11386,1,0,0,'akama shade SAY_DEATH'),
+(-1564013,'No! Not yet...',11386,1,0,0,'akama shade SAY_LOW_HEALTH'),
+(-1564014,'I will not last much longer...',11385,1,0,0,'akama shade SAY_DEATH'),
 (-1564015,'Come out from the shadows! I\'ve returned to lead you against our true enemy! Shed your chains and raise your weapons against your Illidari masters!',0,1,0,0,'akama shade SAY_FREE'),
 (-1564016,'Hail our leader! Hail Akama!',0,1,0,0,'akama shade broken SAY_BROKEN_FREE_01'),
 (-1564017,'Hail Akama!',0,1,0,0,'akama shade broken SAY_BROKEN_FREE_02'),
@@ -2631,7 +2647,9 @@ INSERT INTO script_texts (entry,content_default,sound,type,language,emote,commen
 (-1564126,'Behold the flames of Azzinoth!',11480,1,0,0,'illidan SAY_SUMMONFLAMES'),
 (-1564127,'Stare into the eyes of the Betrayer!',11481,1,0,0,'illidan SAY_EYE_BLAST'),
 (-1564128,'Behold the power... of the demon within!',11475,1,0,0,'illidan SAY_MORPH'),
-(-1564129,'You\'ve wasted too much time mortals, now you shall fall!',11474,1,0,0,'illidan SAY_ENRAGE');
+(-1564129,'You\'ve wasted too much time mortals, now you shall fall!',11474,1,0,0,'illidan SAY_ENRAGE'),
+
+(-1564130,'Broken of the Ashtongue tribe, your leader speaks!',0,1,0,0,'akama shade SAY_FREE_1');
 
 -- -1 565 000 GRUUL'S LAIR
 INSERT INTO script_texts (entry,content_default,sound,type,language,emote,comment) VALUES
@@ -4403,7 +4421,7 @@ INSERT INTO gossip_texts (entry,content_default,comment) VALUES
 
 -- -3 564 000 BLACK TEMPLE
 INSERT INTO gossip_texts (entry,content_default,comment) VALUES
-(-3564000,'We are ready to fight alongside you, Akama','akama(shade) GOSSIP_ITEM_START_ENCOUNTER');
+(-3564000,'I\'m with you, Akama.','akama(shade) GOSSIP_ITEM_START_ENCOUNTER');
 
 -- -3 595 000 CULLING OF STRATHOLME
 INSERT INTO gossip_texts (entry,content_default,comment) VALUES
@@ -6966,5 +6984,44 @@ INSERT INTO script_waypoint VALUES
 (17225, 29, -11121.31, -1890.25, 111.643, 0, ''),
 (17225, 30, -11118.22, -1883.83, 110.595, 3000, ''),
 (17225, 31, -11118.45, -1883.68, 91.473, 0, 'start combat');
+
+DELETE FROM script_waypoint WHERE entry=20802;
+INSERT INTO script_waypoint VALUES
+(20802, 0, 4017.864, 2325.038, 114.029, 3000, 'SAY_INTRO'),
+(20802, 1, 4006.373, 2324.593, 111.455, 0, ''),
+(20802, 2, 3998.391, 2326.364, 113.164, 0, ''),
+(20802, 3, 3982.309, 2330.261, 113.846, 7000, 'SAY_STAGING_GROUNDS'),
+(20802, 4, 3950.646, 2329.249, 113.924, 0, 'SAY_TOXIC_HORROR'),
+(20802, 5, 3939.229, 2330.994, 112.197, 0, ''),
+(20802, 6, 3927.858, 2333.644, 111.330, 0, ''),
+(20802, 7, 3917.851, 2337.696, 113.493, 0, ''),
+(20802, 8, 3907.743, 2343.336, 114.062, 0, ''),
+(20802, 9, 3878.760, 2378.611, 114.037, 8000, 'SAY_SALHADAAR'),
+(20802, 10, 3863.153, 2355.876, 114.987, 0, ''),
+(20802, 11, 3861.241, 2344.893, 115.201, 0, ''),
+(20802, 12, 3872.463, 2323.114, 114.671, 0, 'escort paused - SAY_DISRUPTOR'),
+(20802, 13, 3863.740, 2349.790, 115.382, 0, 'SAY_FINISH_2');
+
+DELETE FROM script_waypoint WHERE entry=20763;
+INSERT INTO script_waypoint VALUES
+(20763, 0, 4084.092, 2297.254, 110.277, 0, ''),
+(20763, 1, 4107.174, 2294.916, 106.625, 0, ''),
+(20763, 2, 4154.129, 2296.789, 102.331, 0, ''),
+(20763, 3, 4166.021, 2302.819, 103.422, 0, ''),
+(20763, 4, 4195.039, 2301.094, 113.786, 0, ''),
+(20763, 5, 4205.246, 2297.116, 117.992, 0, ''),
+(20763, 6, 4230.429, 2294.642, 127.307, 0, ''),
+(20763, 7, 4238.981, 2293.579, 129.332, 0, ''),
+(20763, 8, 4250.184, 2293.272, 129.009, 0, ''),
+(20763, 9, 4262.810, 2290.768, 126.485, 0, ''),
+(20763, 10, 4265.845, 2278.562, 128.235, 0, ''),
+(20763, 11, 4265.609, 2265.734, 128.452, 0, ''),
+(20763, 12, 4258.838, 2245.354, 132.804, 0, ''),
+(20763, 13, 4247.976, 2221.211, 137.668, 0, ''),
+(20763, 14, 4247.973, 2213.876, 137.721, 0, ''),
+(20763, 15, 4249.876, 2204.265, 137.121, 4000, ''),
+(20763, 16, 4249.876, 2204.265, 137.121, 0, 'SAY_VANGUARD_FINISH'),
+(20763, 17, 4252.455, 2170.885, 137.677, 3000, 'EMOTE_VANGUARD_FINISH'),
+(20763, 18, 4252.455, 2170.885, 137.677, 5000, '');
 
 -- EOF
