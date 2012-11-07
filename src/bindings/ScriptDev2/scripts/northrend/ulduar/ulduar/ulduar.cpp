@@ -42,9 +42,9 @@ EndScriptData */
 // HODIR
 bool GossipHello_hodir_image(Player* pPlayer, Creature* pCreature)
 {
-    instance_ulduar *m_pInstance = (instance_ulduar *) pCreature->GetInstanceData();
+    instance_ulduar* m_pInstance = (instance_ulduar*) pCreature->GetInstanceData();
 
-    if(m_pInstance && m_pInstance->GetData(TYPE_KEEPER_HODIR) != DONE && m_pInstance->GetData(TYPE_KEEPER_HODIR) != FAIL)
+    if (m_pInstance && m_pInstance->GetData(TYPE_KEEPER_HODIR) != DONE && m_pInstance->GetData(TYPE_KEEPER_HODIR) != FAIL)
     {
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, REQUEST_HELP, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, DENY_HELP, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
@@ -56,17 +56,17 @@ bool GossipHello_hodir_image(Player* pPlayer, Creature* pCreature)
 
 bool GossipSelect_hodir_image(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    instance_ulduar *m_pInstance = (instance_ulduar *) pCreature->GetInstanceData();
+    instance_ulduar* m_pInstance = (instance_ulduar*) pCreature->GetInstanceData();
     pPlayer->CLOSE_GOSSIP_MENU();
 
     if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
     {
-        if(m_pInstance)
+        if (m_pInstance)
             m_pInstance->SetData(TYPE_KEEPER_HODIR, DONE);
     }
     if (uiAction == GOSSIP_ACTION_INFO_DEF+2)
     {
-        if(m_pInstance)
+        if (m_pInstance)
             m_pInstance->SetData(TYPE_KEEPER_HODIR, FAIL);
     }
     return true;
@@ -75,9 +75,9 @@ bool GossipSelect_hodir_image(Player* pPlayer, Creature* pCreature, uint32 uiSen
 // FREYA
 bool GossipHello_freya_image(Player* pPlayer, Creature* pCreature)
 {
-    instance_ulduar *m_pInstance = (instance_ulduar *) pCreature->GetInstanceData();
+    instance_ulduar* m_pInstance = (instance_ulduar*) pCreature->GetInstanceData();
 
-    if(m_pInstance && m_pInstance->GetData(TYPE_KEEPER_FREYA) != DONE && m_pInstance->GetData(TYPE_KEEPER_FREYA) != FAIL)
+    if (m_pInstance && m_pInstance->GetData(TYPE_KEEPER_FREYA) != DONE && m_pInstance->GetData(TYPE_KEEPER_FREYA) != FAIL)
     {
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, REQUEST_HELP, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, DENY_HELP, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
@@ -89,17 +89,17 @@ bool GossipHello_freya_image(Player* pPlayer, Creature* pCreature)
 
 bool GossipSelect_freya_image(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    instance_ulduar *m_pInstance = (instance_ulduar *) pCreature->GetInstanceData();
+    instance_ulduar* m_pInstance = (instance_ulduar*) pCreature->GetInstanceData();
     pPlayer->CLOSE_GOSSIP_MENU();
 
     if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
     {
-        if(m_pInstance)
+        if (m_pInstance)
             m_pInstance->SetData(TYPE_KEEPER_FREYA, DONE);
     }
     if (uiAction == GOSSIP_ACTION_INFO_DEF+2)
     {
-        if(m_pInstance)
+        if (m_pInstance)
             m_pInstance->SetData(TYPE_KEEPER_FREYA, FAIL);
     }
     return true;
@@ -107,9 +107,9 @@ bool GossipSelect_freya_image(Player* pPlayer, Creature* pCreature, uint32 uiSen
 // MIMIRON
 bool GossipHello_mimiron_image(Player* pPlayer, Creature* pCreature)
 {
-    instance_ulduar *m_pInstance = (instance_ulduar *) pCreature->GetInstanceData();
+    instance_ulduar* m_pInstance = (instance_ulduar*) pCreature->GetInstanceData();
 
-    if(m_pInstance && m_pInstance->GetData(TYPE_KEEPER_MIMIRON) != DONE && m_pInstance->GetData(TYPE_KEEPER_MIMIRON) != FAIL)
+    if (m_pInstance && m_pInstance->GetData(TYPE_KEEPER_MIMIRON) != DONE && m_pInstance->GetData(TYPE_KEEPER_MIMIRON) != FAIL)
     {
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, REQUEST_HELP, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, DENY_HELP, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
@@ -121,17 +121,17 @@ bool GossipHello_mimiron_image(Player* pPlayer, Creature* pCreature)
 
 bool GossipSelect_mimiron_image(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    instance_ulduar *m_pInstance = (instance_ulduar *) pCreature->GetInstanceData();
+    instance_ulduar* m_pInstance = (instance_ulduar*) pCreature->GetInstanceData();
     pPlayer->CLOSE_GOSSIP_MENU();
 
     if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
     {
-        if(m_pInstance)
+        if (m_pInstance)
             m_pInstance->SetData(TYPE_KEEPER_MIMIRON, DONE);
     }
     if (uiAction == GOSSIP_ACTION_INFO_DEF+2)
     {
-        if(m_pInstance)
+        if (m_pInstance)
             m_pInstance->SetData(TYPE_KEEPER_MIMIRON, FAIL);
     }
     return true;
@@ -140,9 +140,9 @@ bool GossipSelect_mimiron_image(Player* pPlayer, Creature* pCreature, uint32 uiS
 // THORIM
 bool GossipHello_thorim_image(Player* pPlayer, Creature* pCreature)
 {
-    instance_ulduar *m_pInstance = (instance_ulduar *) pCreature->GetInstanceData();
+    instance_ulduar* m_pInstance = (instance_ulduar*) pCreature->GetInstanceData();
 
-    if(m_pInstance && m_pInstance->GetData(TYPE_KEEPER_THORIM) != DONE && m_pInstance->GetData(TYPE_KEEPER_THORIM) != FAIL)
+    if (m_pInstance && m_pInstance->GetData(TYPE_KEEPER_THORIM) != DONE && m_pInstance->GetData(TYPE_KEEPER_THORIM) != FAIL)
     {
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, REQUEST_HELP, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, DENY_HELP, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
@@ -154,17 +154,17 @@ bool GossipHello_thorim_image(Player* pPlayer, Creature* pCreature)
 
 bool GossipSelect_thorim_image(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    instance_ulduar *m_pInstance = (instance_ulduar *) pCreature->GetInstanceData();
+    instance_ulduar* m_pInstance = (instance_ulduar*) pCreature->GetInstanceData();
     pPlayer->CLOSE_GOSSIP_MENU();
 
     if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
     {
-        if(m_pInstance)
+        if (m_pInstance)
             m_pInstance->SetData(TYPE_KEEPER_THORIM, DONE);
     }
     if (uiAction == GOSSIP_ACTION_INFO_DEF+2)
     {
-        if(m_pInstance)
+        if (m_pInstance)
             m_pInstance->SetData(TYPE_KEEPER_THORIM, FAIL);
     }
     return true;
@@ -204,62 +204,68 @@ struct t_Locations
 
 static t_Locations PortalLoc[]=
 {
-{-3050001,603, -706.122f, -92.6024f, 430.176f, 4.19f, SPELL_TELEPORT_BASE_CAMP,   true,true, TYPE_LEVIATHAN},  // base camp
-{-3050002,603, 131.248f,  -35.3802f, 410.104f, 0,     SPELL_TELEPORT_GROUNDS,     true,true, TYPE_LEVIATHAN_TP},  // formation ground
-{-3050003,603, 553.233f,  -12.3247f, 409.979f, 0,     SPELL_TELEPORT_FORGE,       false,true,TYPE_LEVIATHAN}, //
-{-3050004,603, 926.292f,  -11.4635f, 418.895f, 3.19f, SPELL_TELEPORT_SCRAPYARD,   false,true,TYPE_XT002_TP},        //
-{-3050005,603, 1498.09f,  -24.246f,  421.267f, 0,     SPELL_TELEPORT_ANTECHAMBER, false,true,TYPE_XT002},        //
-{-3050006,603, 1859.45f,  -24.1f,    449.2f,   0,     SPELL_TELEPORT_WALKWAY,     false,true,TYPE_KOLOGARN},        //
-{-3050007,603, 2086.27f,  -24.3134f, 421.539f, 0,     SPELL_TELEPORT_CONSERVATORY,false,true,TYPE_AURIAYA},         //
-{-3050008,603, 2517.3979f, 2568.89f, 412.99f,  6.17f, SPELL_TELEPORT_SPARK,       false,true,TYPE_MIMIRON_TP},          //
-{-3050009,603, 1854.782f, -11.3819f, 335.27f,  5.86f, SPELL_TELEPORT_PRISON,      false,true,TYPE_VEZAX},           //
+    {-3050001,603, -706.122f, -92.6024f, 430.176f, 4.19f, SPELL_TELEPORT_BASE_CAMP,    true,  true, TYPE_LEVIATHAN},    // base camp
+    {-3050002,603, 131.248f,  -35.3802f, 410.104f, 0,     SPELL_TELEPORT_GROUNDS,      true,  true, TYPE_LEVIATHAN_TP}, // formation ground
+    {-3050003,603, 553.233f,  -12.3247f, 409.979f, 0,     SPELL_TELEPORT_FORGE,        true,  true, TYPE_LEVIATHAN},    // temp active state for skip first boss
+    {-3050004,603, 926.292f,  -11.4635f, 418.895f, 3.19f, SPELL_TELEPORT_SCRAPYARD,    false, true, TYPE_XT002_TP},
+    {-3050005,603, 1498.09f,  -24.246f,  421.267f, 0,     SPELL_TELEPORT_ANTECHAMBER,  false, true, TYPE_XT002},
+    {-3050006,603, 1859.45f,  -24.1f,    449.2f,   0,     SPELL_TELEPORT_WALKWAY,      false, true, TYPE_KOLOGARN},
+    {-3050007,603, 2086.27f,  -24.3134f, 421.539f, 0,     SPELL_TELEPORT_CONSERVATORY, false, true, TYPE_AURIAYA},
+    {-3050008,603, 2517.3979f, 2568.89f, 412.99f,  6.17f, SPELL_TELEPORT_SPARK,        false, true, TYPE_MIMIRON_TP},
+    {-3050009,603, 1854.782f, -11.3819f, 335.27f,  5.86f, SPELL_TELEPORT_PRISON,       false, true, TYPE_VEZAX},
 };
 
-
-bool GossipSelect_go_ulduar_teleporter(Player *pPlayer, GameObject* pGo, uint32 sender, uint32 action)
+bool GossipHello_go_ulduar_teleporter(Player* pPlayer, GameObject* pGo)
 {
-    int32 damage = 0;
-    if(sender != GOSSIP_SENDER_MAIN) return false;
+    ScriptedInstance* pInstance = (ScriptedInstance*) pGo->GetInstanceData();
 
-    if(pPlayer->IsInCombat()) 
+    if (!pInstance || !pPlayer)
         return false;
+    if (pPlayer->isInCombat())
+        return true;
 
-    if(action >= 0 && action <= PORTALS_COUNT)
-    pPlayer->TeleportTo(PortalLoc[action].map_num, PortalLoc[action].x, PortalLoc[action].y, PortalLoc[action].z, PortalLoc[action].o);
-    if (PortalLoc[action].spellID != 0 )
-        if (SpellEntry const* spell = (SpellEntry *)GetSpellStore()->LookupEntry(PortalLoc[action].spellID))
+    for (uint8 i = 0; i < PORTALS_COUNT; i++)
+    {
+        if ((PortalLoc[i].active == true &&
+            (PortalLoc[i].state == true ||
+            pInstance->GetData(PortalLoc[i].encounter) == DONE ||
+            pInstance->GetData(PortalLoc[i].encounter) == IN_PROGRESS))
+            || pPlayer->isGameMaster())
         {
-            SpellAuraHolderPtr holder = CreateSpellAuraHolder(spell, pPlayer, pPlayer);
-            Aura* aura = holder->CreateAura(AURA_CLASS_AURA, EFFECT_INDEX_2, NULL, holder, pPlayer, pPlayer, NULL);
-            pPlayer->AddSpellAuraHolder(holder);
+            pPlayer->ADD_GOSSIP_ITEM_ID(GOSSIP_ICON_TAXI, PortalLoc[i].textNum, GOSSIP_SENDER_MAIN, i);
         }
-
-    pPlayer->CLOSE_GOSSIP_MENU();
-    return true;
-}
-
-bool GossipHello_go_ulduar_teleporter(Player *pPlayer, GameObject* pGo)
-{
-    ScriptedInstance *pInstance = (ScriptedInstance *) pGo->GetInstanceData();
-
-    if (!pInstance || !pPlayer) return false;
-    if (pPlayer->isInCombat()) return true;
-
-    for(uint8 i = 0; i < PORTALS_COUNT; i++) {
-    if ((PortalLoc[i].active == true && 
-        (PortalLoc[i].state == true || 
-        pInstance->GetData(PortalLoc[i].encounter) == DONE ||
-        pInstance->GetData(PortalLoc[i].encounter) == IN_PROGRESS))
-        || pPlayer->isGameMaster())
-             pPlayer->ADD_GOSSIP_ITEM_ID(GOSSIP_ICON_TAXI, PortalLoc[i].textNum, GOSSIP_SENDER_MAIN, i);
     };
     pPlayer->SEND_GOSSIP_MENU(TELEPORT_GOSSIP_MESSAGE, pGo->GetObjectGuid());
     return true;
 }
 
+bool GossipSelect_go_ulduar_teleporter(Player* pPlayer, GameObject* pGo, uint32 sender, uint32 action)
+{
+    int32 damage = 0;
+    if (sender != GOSSIP_SENDER_MAIN) return false;
+
+    if (pPlayer->IsInCombat())
+        return false;
+
+    if (action >= 0 && action <= PORTALS_COUNT)
+        pPlayer->TeleportTo(PortalLoc[action].map_num, PortalLoc[action].x, PortalLoc[action].y, PortalLoc[action].z, PortalLoc[action].o);
+    if (PortalLoc[action].spellID != 0 )
+    {
+        if (SpellEntry const* spell = (SpellEntry*)GetSpellStore()->LookupEntry(PortalLoc[action].spellID))
+        {
+            SpellAuraHolderPtr holder = CreateSpellAuraHolder(spell, pPlayer, pPlayer);
+            Aura* aura = holder->CreateAura(AURA_CLASS_AURA, EFFECT_INDEX_2, NULL, holder, pPlayer, pPlayer, NULL);
+            pPlayer->AddSpellAuraHolder(holder);
+        }
+    }
+
+    pPlayer->CLOSE_GOSSIP_MENU();
+    return true;
+}
+
 void AddSC_ulduar()
 {
-    Script *pNewScript;
+    Script* pNewScript;
 
     pNewScript = new Script;
     pNewScript->Name = "hodir_image";

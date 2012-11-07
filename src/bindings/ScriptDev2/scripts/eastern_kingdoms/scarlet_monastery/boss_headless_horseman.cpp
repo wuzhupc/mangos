@@ -221,7 +221,7 @@ struct MANGOS_DLL_DECL boss_headless_horsemanAI : public ScriptedAI
 
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
-        
+
         switch (m_uiPhase)
         {
             case PHASE_ONE:
@@ -254,7 +254,7 @@ struct MANGOS_DLL_DECL boss_headless_horsemanAI : public ScriptedAI
                 ApplyRegenAuras();
 
                 if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
-                    if (pHead->AI())
+                    if (pHead && pHead->GetTypeId() == TYPEID_UNIT && pHead->AI())
                         pHead->AI()->AttackStart(pTarget);
 
                 if ((pHead->GetHealth()*100) / (pHead->GetMaxHealth()) <= 66) /*|| (m_creature->GetHealth()*100) / (m_creature->GetMaxHealth()) <= 100)*/

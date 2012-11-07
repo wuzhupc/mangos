@@ -20,11 +20,11 @@
 #define __BATTLEGROUND_H
 
 #include "Common.h"
-#include "..\SharedDefines.h"
-#include "..\Map.h"
+#include "SharedDefines.h"
+#include "Map.h"
 #include "ByteBuffer.h"
-#include "..\ObjectGuid.h"
-#include "..\WorldStateMgr.h"
+#include "ObjectGuid.h"
+#include "WorldStateMgr.h"
 
 // magic event-numbers
 #define BG_EVENT_NONE 255
@@ -586,7 +586,6 @@ class BattleGround
         // this must be filled in constructors!
         uint32 m_StartMessageIds[BG_STARTING_EVENT_COUNT];
 
-        bool   m_BuffChange;
         bool   m_IsRandom;
 
     private:

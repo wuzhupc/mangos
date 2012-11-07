@@ -98,13 +98,16 @@ struct MANGOS_DLL_DECL npc_sa_demolisherAI : public ScriptedAI
                 if (!pMap || !pMap->IsBattleGround())
                     return;
 
-                Map::PlayerList const &PlayerList = pMap->GetPlayers();
-                Map::PlayerList::const_iterator itr = PlayerList.begin();
-                Player *player = itr->getSource();
-                if (player)
+                Map::PlayerList const& playerList = pMap->GetPlayers();
+                if (!playerList.isEmpty())
                 {
-                    bg = player->GetBattleGround();
-                    done = true;
+                    Map::PlayerList::const_iterator itr = playerList.begin();
+                    Player* player = itr->getSource();
+                    if (player)
+                    {
+                        bg = player->GetBattleGround();
+                        done = true;
+                    }
                 }
             }
 
@@ -194,13 +197,16 @@ struct MANGOS_DLL_DECL npc_sa_cannonAI : public ScriptedAI
                 if (!pMap || !pMap->IsBattleGround())
                     return;
 
-                Map::PlayerList const &PlayerList = pMap->GetPlayers();
-                Map::PlayerList::const_iterator itr = PlayerList.begin();
-                Player *player = itr->getSource();
-                if (player)
+                Map::PlayerList const& playerList = pMap->GetPlayers();
+                if (!playerList.isEmpty())
                 {
-                    bg = player->GetBattleGround();
-                    done = true;
+                    Map::PlayerList::const_iterator itr = playerList.begin();
+                    Player* player = itr->getSource();
+                    if (player)
+                    {
+                        bg = player->GetBattleGround();
+                        done = true;
+                    }
                 }
             }
 

@@ -440,6 +440,7 @@ Player::Player (WorldSession *session): Unit(), m_mover(this), m_camera(NULL), m
 
     mSemaphoreTeleport_Near = false;
     mSemaphoreTeleport_Far = false;
+    mSemaphoreTeleport_DelayEvent = false;
 
     m_DelayedOperations = 0;
     m_bCanDelayTeleport = false;
@@ -1820,7 +1821,7 @@ bool Player::TeleportTo(WorldLocation const& loc, uint32 options)
     if (GetVehicleKit())
         GetVehicleKit()->RemoveAllPassengers();
 
-    ExitVehicle();
+    ExitVehicle(true);
 
     // The player was ported to another map and looses the duel immediately.
     // We have to perform this check before the teleport, otherwise the
@@ -1845,6 +1846,8 @@ bool Player::TeleportTo(WorldLocation const& loc, uint32 options)
             AddEvent(new TeleportDelayEvent(*this, loc, options),
                 sWorld.getConfig(CONFIG_UINT32_INTERVAL_MAPUPDATE));
             DEBUG_LOG("Player::TeleportTo grid (map %u, instance %u, X%f Y%f) not fully loaded, near teleport %s delayed.", loc.mapid, GetInstanceId(), loc.coord_x, loc.coord_y, GetName());
+            SetSemaphoreTeleportDelayEvent(true);
+            m_teleport_dest = loc;
             return true;
         }
 
@@ -1869,6 +1872,9 @@ bool Player::TeleportTo(WorldLocation const& loc, uint32 options)
 
         if (!(options & TELE_TO_NOT_LEAVE_COMBAT))
             CombatStop();
+
+        InterruptSpell(CURRENT_CHANNELED_SPELL);
+        RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TELEPORTED);
 
         // this will be used instead of the current location in SaveToDB
         m_teleport_dest = loc;
@@ -1924,6 +1930,8 @@ bool Player::TeleportTo(WorldLocation const& loc, uint32 options)
                     5 * sWorld.getConfig(CONFIG_UINT32_INTERVAL_MAPUPDATE));
 
                 DEBUG_LOG("Player::TeleportTo grid (map %u, instance %u, X%f Y%f) not fully loaded, far teleport %s delayed.", loc.mapid, map->GetInstanceId(), loc.coord_x, loc.coord_y, GetName());
+                SetSemaphoreTeleportDelayEvent(true);
+                m_teleport_dest = loc;
                 return true;
             }
 
@@ -1942,6 +1950,9 @@ bool Player::TeleportTo(WorldLocation const& loc, uint32 options)
             SetSelectionGuid(ObjectGuid());
 
             CombatStop();
+
+            InterruptSpell(CURRENT_CHANNELED_SPELL);
+            RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TELEPORTED);
 
             ResetContestedPvP();
 
@@ -16012,40 +16023,24 @@ bool Player::LoadFromDB(ObjectGuid guid, SqlQueryHolder *holder)
         }
         else if (mapEntry->IsDungeon())
         {
-            AreaTrigger const* gt = sObjectMgr.GetGoBackTrigger(savedLocation.mapid);
+            AreaTrigger const* at = sObjectMgr.GetMapEntranceTrigger(savedLocation.mapid);
 
-            if (gt)
+            if (at)
             {
-                // always put player at goback trigger before porting to instance
-
-                SetLocationMapId(gt->target_mapId);
-                Relocate(gt->target_X, gt->target_Y, gt->target_Z, gt->target_Orientation);
-
-                AreaTrigger const* at = sObjectMgr.GetMapEntranceTrigger(savedLocation.mapid);
-
-                if (at)
+                if (state && time(NULL) - time_t(fields[22].GetUInt64()) < 30)
                 {
-                    if (CheckTransferPossibility(at))
-                    {
-                        if (!state)
-                        {
-                            SetLocationMapId(at->target_mapId);
-                            Relocate(at->target_X, at->target_Y, at->target_Z, at->target_Orientation);
-                        }
-                        else
-                        {
-                            SetLocationMapId(savedLocation.mapid);
-                            Relocate(savedLocation.coord_x, savedLocation.coord_y, savedLocation.coord_z, savedLocation.orientation);
-                        }
-                    }
-                    else
-                        sLog.outError("Player::LoadFromDB %s try logged to instance (map: %u, difficulty %u), but transfer to map impossible. This _might_ be an exploit attempt.", GetObjectGuid().GetString().c_str(), savedLocation.mapid, GetDifficulty());
+                    SetLocationMapId(savedLocation.mapid);
+                    Relocate(savedLocation.coord_x, savedLocation.coord_y, savedLocation.coord_z, savedLocation.orientation);
                 }
                 else
-                    sLog.outError("Player::LoadFromDB %s logged in to a reset instance (map: %u, difficulty %u) and there is no area-trigger leading to this map. Thus he can't be ported back to the entrance. This _might_ be an exploit attempt.", GetObjectGuid().GetString().c_str(), savedLocation.mapid, GetDifficulty());
+                {
+                    SetLocationMapId(at->target_mapId);
+                    Relocate(at->target_X, at->target_Y, at->target_Z, at->target_Orientation);
+                }
             }
             else
             {
+                sLog.outError("Player::LoadFromDB %s logged in to a reset instance (map: %u, difficulty %u) and there is no area-trigger leading to this map. Thus he can't be ported back to the entrance. This _might_ be an exploit attempt.", GetObjectGuid().GetString().c_str(), savedLocation.mapid, GetDifficulty());
                 transGUID = 0;
                 m_movementInfo.ClearTransportData();
                 RelocateToHomebind();
@@ -16609,8 +16604,8 @@ void Player::_LoadAuras(QueryResult *result, uint32 timediff)
             if (!holder->IsEmptyHolder())
             {
                 // reset stolen single target auras
-                if (caster_guid != GetObjectGuid() && holder->IsSingleTarget())
-                    holder->SetIsSingleTarget(false);
+                if (caster_guid != GetObjectGuid() && holder->GetTrackedAuraType() == TRACK_AURA_TYPE_SINGLE_TARGET)
+                    holder->SetTrackedAuraType(TRACK_AURA_TYPE_NOT_TRACKED);
 
                 AddSpellAuraHolder(holder);
                 DETAIL_LOG("Added auras from spellid %u", spellproto->Id);
@@ -17843,7 +17838,7 @@ void Player::SaveToDB()
     uberInsert.addUInt32(GetUInt32Value(PLAYER_BYTES_2));
     uberInsert.addUInt32(GetUInt32Value(PLAYER_FLAGS));
 
-    if (!IsBeingTeleported())
+    if (!IsBeingTeleported() && !IsBeingTeleportedDelayEvent())
     {
         uberInsert.addUInt32(GetMapId());
         uberInsert.addUInt32(GetDifficulty());
@@ -18087,9 +18082,12 @@ void Player::_SaveAuras()
 
     for (SpellAuraHolderMap::const_iterator itr = auraHolders.begin(); itr != auraHolders.end(); ++itr)
     {
-        //skip all holders from spells that are passive or channeled
-        //do not save single target holders (unless they were cast by the player)
-        if (itr->second && !itr->second->IsDeleted() && !itr->second->IsPassive() && !IsChanneledSpell(itr->second->GetSpellProto()) && (itr->second->GetCasterGuid() == GetObjectGuid() || !itr->second->IsSingleTarget()) && !IsChanneledSpell(itr->second->GetSpellProto()))
+        // skip all holders from spells that are passive or channeled
+        // save singleTarget auras if self cast.
+        bool selfCastHolder = itr->second->GetCasterGuid() == GetObjectGuid();
+        TrackedAuraType trackedType = itr->second->GetTrackedAuraType();
+        if (!itr->second->IsPassive() && !IsChanneledSpell(itr->second->GetSpellProto()) &&
+               (trackedType == TRACK_AURA_TYPE_NOT_TRACKED || (trackedType == TRACK_AURA_TYPE_SINGLE_TARGET && selfCastHolder)))
         {
             int32  damage[MAX_EFFECT_INDEX];
             uint32 periodicTime[MAX_EFFECT_INDEX];
@@ -24628,6 +24626,50 @@ bool Player::CheckTransferPossibility(AreaTrigger const*& at, bool b_onlyMainReq
 
     return false;
 };
+
+bool Player::NeedGoingToHomebind()
+{
+    MapEntry const* mapEntry = sMapStore.LookupEntry(GetMapId());
+
+    if (!mapEntry)
+    {
+        sLog.outError("Player::NeedGoingToHomebind %s are in (map: %u) and there is no MapEntry to this map.", GetObjectGuid().GetString().c_str(), GetMapId());
+        return true;
+    }
+
+    Map* map = GetMap();
+
+    if (!map)
+    {
+        sLog.outError("Player::NeedGoingToHomebind %s are in (map: %u) and there is no Map to this player.", GetObjectGuid().GetString().c_str(), GetMapId());
+        return true;
+    }
+
+    if (isGameMaster())
+        return false;
+
+    if (GetSession()->Expansion() < mapEntry->Expansion())
+        return true;
+
+    if (map->IsDungeon())
+    {
+        // Dead player going to Graveyard in other case
+        if (!isAlive())
+            return false;
+
+        if (((DungeonMap*)map)->GetPlayersCountExceptGMs() >= ((DungeonMap*)map)->GetMaxPlayers())
+            return true;
+
+        InstancePlayerBind* pBind = GetBoundInstance(GetMapId(), GetDifficulty(mapEntry->IsRaid()));
+        if (pBind && pBind->perm && pBind->state != map->GetPersistentState())
+            return true;
+
+        if ((mapEntry->IsRaid() && !sWorld.getConfig(CONFIG_BOOL_INSTANCE_IGNORE_RAID)) && (!GetGroup() || !GetGroup()->isRaidGroup()))
+            return true;
+    }
+
+    return false;
+}
 
 uint32 Player::GetEquipGearScore(bool withBags, bool withBank)
 {
