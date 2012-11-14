@@ -76,7 +76,7 @@ enum spells
     SPELL_FREYA_WARD        = 62906,
     SPELL_TOWER_OF_LIFE     = 64482,
     // tower of flames
-    SPELL_MIMIRON_INFERNO   = 62910,
+    SPELL_MIMIRON_INFERNO   = 62909,
     SPELL_TOWER_OF_FLAMES   = 65075,
     // tower of frost
     SPELL_TOWER_OF_FROST    = 65079,
@@ -100,20 +100,23 @@ enum spells
 
 enum Mobs
 {
-    MOB_MECHANOLIFT             = 33214,
-    MOB_LIQUID                  = 33189,
-    MOB_CONTAINER               = 33218,
+    MOB_MECHANOLIFT                 = 33214,
+    MOB_LIQUID                      = 33189,
+    MOB_CONTAINER                   = 33218,
     
-    MOB_THORIM_BEACON           = 33365,
-    MOB_MIMIRON_BEACON          = 33370,
-    MOB_HODIR_BEACON            = 33212,
-    MOB_FREYA_BEACON            = 33367,
-    NPC_THORIM_TARGET_BEACON    = 33364,
-    NPC_MIMIRON_TARGET_BEACON   = 33369,
-    NPC_HODIR_TARGET_BEACON     = 33108,
-    NPC_FREYA_TARGET_BEACON     = 33366,
+    NPC_THORIM_HAMMER               = 33365,
+    NPC_THORIM_HAMMER_TARGETTING    = 33364,
 
-    DEFENSE_TURRET              = 33142
+    NPC_MIMIRON_INFERNO             = 33370,
+    NPC_MIMIRON_INFERNO_TARGETTING  = 33369,
+
+    NPC_HODIR_FURY                  = 33212,
+    NPC_HODIR_FURY_TARGETTING       = 33108,
+
+    NPC_FREYA_WARD                  = 33367,
+    NPC_FREYA_WARD_TARGETTING       = 33366,
+
+    DEFENSE_TURRET                  = 33142
 };
 
 enum Seats
@@ -159,12 +162,20 @@ struct Positions
 };
 static Positions Center[]=
 {
-    {354.8771f, -12.90240f, 409.803650f, 0.0f},
+    {274.0f, -31.0f, 410.0f, 0.0f}
 };
 
 static Positions IntroPoint[]=
 {
-    {342.896f, -14.113f, 409.804f, -3.132478f},
+    {342.896f, -14.113f, 409.804f, -3.132478f}
+};
+
+const Positions FreyaWard[4] =
+{
+    {377.02f, -119.10f, 409.81f, 0.0f},
+    {377.02f,  54.78f,  409.81f, 0.0f},
+    {185.62f,  54.78f,  409.81f, 0.0f},
+    {185.62f, -119.10f, 409.81f, 0.0f}
 };
 
 const Positions PosSiege[5] =
@@ -173,7 +184,7 @@ const Positions PosSiege[5] =
     {-784.37f,-33.31f,429.92f,5.096f},
     {-808.99f,-52.10f,429.92f,5.668f},
     {-798.59f,-44.00f,429.92f,5.663f},
-    {-812.83f,-77.71f,429.92f,0.046f},
+    {-812.83f,-77.71f,429.92f,0.046f}
 };
 
 const Positions PosChopper[5] =
@@ -182,7 +193,7 @@ const Positions PosChopper[5] =
     {-717.83f,-114.23f,430.44f,0.122f},
     {-717.83f,-109.70f,430.22f,0.122f},
     {-718.45f,-118.24f,430.26f,0.052f},
-    {-718.45f,-123.58f,430.41f,0.085f},
+    {-718.45f,-123.58f,430.41f,0.085f}
 };
 
 const Positions PosDemolisher[5] =
@@ -191,15 +202,15 @@ const Positions PosDemolisher[5] =
     {-766.70f,-225.03f,430.50f,1.710f},
     {-729.54f,-186.26f,430.12f,1.902f},
     {-756.01f,-219.23f,430.50f,2.369f},
-    {-798.01f,-227.24f,429.84f,1.446f},
+    {-798.01f,-227.24f,429.84f,1.446f}
 };
 
-const float WayMimironBeacon[4][3] = 
+const Positions WayMimironInferno[4] =
 {
-    {161.45f, -37.50f, 409.80f},
-    {275.14f,  64.12f, 409.80f},
-    {349.67f, -31.71f, 409.80f},
-    {246.72f,-129.38f, 409.80f},
+    {161.45f, -37.50f, 409.80f, 0.0f},
+    {275.14f,  64.12f, 409.80f, 0.0f},
+    {349.67f, -31.71f, 409.80f, 0.0f},
+    {246.72f,-129.38f, 409.80f, 0.0f}
 };
 
 
@@ -229,15 +240,13 @@ struct MANGOS_DLL_DECL boss_flame_leviathanAI : public ScriptedAI
     bool m_bAliveMimironsTower;
     bool m_bAliveThorimsTower;
 
-    uint32 m_uiFreyaWardTimer;
-    uint32 m_uiMimironInfernoTimer;
     uint32 m_uiHodirFuryTimer;
     uint32 m_uiThorimHammerTimer;
 
     void Reset()
     {
-        m_creature->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
-        m_creature->ApplySpellImmune(49560, 0, 0, true);
+//        m_creature->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+//        m_creature->ApplySpellImmune(49560, 0, 0, true);
         
         m_creature->RemoveAurasDueToSpell(SPELL_TOWER_OF_FROST);
         m_creature->RemoveAurasDueToSpell(SPELL_TOWER_OF_STORMS);
@@ -258,24 +267,10 @@ struct MANGOS_DLL_DECL boss_flame_leviathanAI : public ScriptedAI
         m_bAliveMimironsTower = false;
         m_bAliveThorimsTower  = false;
 
-        m_uiFreyaWardTimer      = urand(1000, 10000);
-        m_uiMimironInfernoTimer = urand(1000, 10000);
-        m_uiHodirFuryTimer      = urand(1000, 10000);
-        m_uiThorimHammerTimer   = urand(1000, 10000);
+        m_uiHodirFuryTimer      = urand(15000, 20000);
+        m_uiThorimHammerTimer   = urand(15000, 20000);
 
         m_creature->SetSpeedRate(MOVE_RUN, 0.3f);
-    }
-
-    void StartFreyaEvent()//summon these 4 on each corner wich wil spawn additional hostile mobs
-    {
-        if (Creature* pFreayaBeacon = m_creature->SummonCreature(MOB_FREYA_BEACON, 377.02f, -119.10f, 409.81f, 0.0f, TEMPSUMMON_MANUAL_DESPAWN, 0))
-            DoCast(pFreayaBeacon, AURA_DUMMY_GREEN, true);
-        if (Creature* pFreayaBeacon = m_creature->SummonCreature(MOB_FREYA_BEACON, 377.02f, 54.78f, 409.81f, 0.0f, TEMPSUMMON_MANUAL_DESPAWN, 0))
-            DoCast(pFreayaBeacon, AURA_DUMMY_GREEN, true);
-        if (Creature* pFreayaBeacon = m_creature->SummonCreature(MOB_FREYA_BEACON, 185.62f, 54.78f, 409.81f, 0.0f, TEMPSUMMON_MANUAL_DESPAWN, 0))
-            DoCast(pFreayaBeacon, AURA_DUMMY_GREEN, true);
-        if (Creature* pFreayaBeacon = m_creature->SummonCreature(MOB_FREYA_BEACON, 185.62f, -119.10f, 409.81f, 0.0f, TEMPSUMMON_MANUAL_DESPAWN, 0))
-            DoCast(pFreayaBeacon, AURA_DUMMY_GREEN, true);
     }
 
     void Aggro(Unit* who)
@@ -405,7 +400,10 @@ struct MANGOS_DLL_DECL boss_flame_leviathanAI : public ScriptedAI
                 if (pTower->GetHealth())
                 {
                     m_bAliveFreyasTower = true;
-                    m_creature->CastSpell(m_creature, SPELL_TOWER_OF_LIFE,true);
+                    m_creature->CastSpell(m_creature, SPELL_TOWER_OF_LIFE, true);
+                    // Summon Freya's Ward (invisible)
+                    for (uint8 i = 0; i < 4; ++i )
+                        m_creature->SummonCreature(NPC_FREYA_WARD, FreyaWard[i].x, FreyaWard[i].y, FreyaWard[i].z, FreyaWard[i].o, TEMPSUMMON_MANUAL_DESPAWN, 0);
                     m_uiActiveTowers++;
                 }
         }
@@ -416,6 +414,8 @@ struct MANGOS_DLL_DECL boss_flame_leviathanAI : public ScriptedAI
                 {
                     m_bAliveMimironsTower = true;
                     m_creature->CastSpell(m_creature, SPELL_TOWER_OF_FLAMES,true);
+                    // Summon Mimiron's Inferno (invisible)
+                    m_creature->SummonCreature(NPC_MIMIRON_INFERNO, WayMimironInferno[0].x, WayMimironInferno[0].y, WayMimironInferno[0].z, WayMimironInferno[0].o, TEMPSUMMON_MANUAL_DESPAWN, 0);
                     m_uiActiveTowers++;
                 }
         }
@@ -514,67 +514,30 @@ struct MANGOS_DLL_DECL boss_flame_leviathanAI : public ScriptedAI
         else
             m_uiGatheringSpeedTimer -= uiDiff;
 
-        // Hard mode event. need more research and scripting
-        // this part should be done in other way
-
-        // tower of freya
-        if (m_bAliveFreyasTower && m_uiFreyaWardTimer)
-        {
-            if (m_uiFreyaWardTimer < uiDiff)
-            {
-                StartFreyaEvent();   
-                m_uiFreyaWardTimer = 0;                
-            }
-            else
-                m_uiFreyaWardTimer -= uiDiff;
-        }
-
-        // tower of mimiron
-        if (m_bAliveMimironsTower && m_uiMimironInfernoTimer)
-        {
-            if (m_uiMimironInfernoTimer < uiDiff)
-            {
-                if (Creature* pMimironBeacon = m_creature->SummonCreature(MOB_MIMIRON_BEACON, WayMimironBeacon[0][0], WayMimironBeacon[0][1], WayMimironBeacon[0][2],0, TEMPSUMMON_MANUAL_DESPAWN, 0))
-                {
-                    DoCast(pMimironBeacon, AURA_DUMMY_YELLOW, true);
-                    m_uiMimironInfernoTimer = 0;
-                }
-            }        
-            else
-                m_uiMimironInfernoTimer -= uiDiff;
-        }
-
         // tower of hodir
-        if (m_bAliveHodirsTower && m_uiHodirFuryTimer)
+        if (m_bAliveHodirsTower)
         {
-            if (m_uiHodirFuryTimer < uiDiff)
+            if (m_uiHodirFuryTimer <= uiDiff)
             {
-                for (uint8 i = 0; i < 3; ++i)
-                {
-                    if (Creature* pHodir = DoSpawnCreature(MOB_HODIR_BEACON, 0, 0, 0, 0, TEMPSUMMON_MANUAL_DESPAWN, 0))
-                        DoCast(pHodir, AURA_DUMMY_BLUE, true);
-                }
-                m_uiHodirFuryTimer = 0;
+                m_creature->SummonCreature(NPC_HODIR_FURY, Center[0].x + frand(-30.0f, 30.0f), Center[0].y + frand(-30.0f, 30.0f), Center[0].z, Center[0].o, TEMPSUMMON_TIMED_DESPAWN, urand(30000, 60000));
+                m_uiHodirFuryTimer = urand(30000, 60000);
             }
             else
                 m_uiHodirFuryTimer -= uiDiff;
         }
 
         // tower of thorim
-        if (m_bAliveThorimsTower && m_uiThorimHammerTimer)
+        if (m_bAliveThorimsTower)
         {
-            if (m_uiThorimHammerTimer < uiDiff)
+            if (m_uiThorimHammerTimer <= uiDiff)
             {
-                for (uint8 i = 0; i < 3; ++i)
-                {
-                    if (Creature* pThorim = DoSpawnCreature(MOB_THORIM_BEACON, 0, 0, 0, 0, TEMPSUMMON_MANUAL_DESPAWN, 0))
-                        DoCast(pThorim, AURA_DUMMY_BLUE, true);
-                }
-                m_uiThorimHammerTimer = 0;
+                m_creature->SummonCreature(NPC_THORIM_HAMMER, Center[0].x + frand(-30.0f, 30.0f), Center[0].y + frand(-30.0f, 30.0f), Center[0].z, Center[0].o, TEMPSUMMON_TIMED_DESPAWN, urand(30000, 60000));
+                m_uiThorimHammerTimer = urand(30000, 60000);
             }
             else
                 m_uiThorimHammerTimer -= uiDiff;
         }
+
         DoMeleeAttackIfReady();
     }
 };
@@ -661,30 +624,32 @@ struct MANGOS_DLL_DECL mob_freyas_wardAI : public ScriptedAI
 
     instance_ulduar* m_pInstance;
 
-    uint32 summonTimer ;
+    uint32 m_uiTimer;
 
     void Reset()
     {
-        summonTimer = 5000 ;
+        m_uiTimer = urand(20000, 30000);
+    }
+
+    void JustSummoned(Creature* pSummoned)
+    {
+        if (pSummoned->GetEntry() == NPC_FREYA_WARD_TARGETTING)
+            pSummoned->CastSpell(pSummoned, SPELL_FREYA_WARD, true);
     }
 
     void UpdateAI(const uint32 uiDiff)
     {
-        if (summonTimer <= uiDiff)
+        if (m_uiTimer <= uiDiff)
         {
-            DoCast(m_creature, SPELL_FREYA_WARD, true);
-            summonTimer = 20000;
+            DoCast(m_creature, AURA_DUMMY_GREEN, true);
+            DoSpawnCreature(NPC_FREYA_WARD_TARGETTING, 0.0f, 0.0f, 100.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 10000);
+            m_uiTimer = urand(20000, 30000);
         }
         else
-            summonTimer -= uiDiff ;
-
-        if (!m_creature->HasAura(AURA_DUMMY_GREEN, EFFECT_INDEX_1))
-            DoCast(m_creature, AURA_DUMMY_GREEN, true);
+            m_uiTimer -= uiDiff;
 
         if (m_pInstance->GetData(TYPE_LEVIATHAN) != IN_PROGRESS)
-        {
             m_creature->ForcedDespawn();
-        }
     }
 };
 
@@ -699,64 +664,57 @@ struct MANGOS_DLL_DECL mob_hodirs_furyAI : public ScriptedAI
     instance_ulduar* m_pInstance;
 
     uint32 m_uiHodirFuryTimer;
-    uint32 m_uiSwitchTargetTimer;                       //hack for RandomMovement
-
-    bool m_bHodirFuryReady;
+    uint32 m_uiRandomMovementTimer;
 
     void Reset()
     {
-        m_uiHodirFuryTimer = 0;
-        m_bHodirFuryReady = true;
-        
-        m_uiSwitchTargetTimer = 30000;
+        m_uiHodirFuryTimer         = urand(5000, 10000);
+        m_uiRandomMovementTimer    = 50000;
+
+        SwitchPosition();
     }
 
-    void MoveInLineOfSight(Unit* who)
+    void MovementInform(uint32 type, uint32 id)
     {
-        if (who->GetTypeId() == TYPEID_PLAYER && m_creature->IsInRange(who, 0, 5, false) && m_bHodirFuryReady)
+        SwitchPosition();
+    }
+
+    void SwitchPosition()
+    {
+        if (m_pInstance)
         {
-            if (Creature* pTrigger = DoSpawnCreature(NPC_HODIR_TARGET_BEACON, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 1000))
-                pTrigger->CastSpell(who, SPELL_HODIR_FURY, true);
-            m_uiHodirFuryTimer = 4000;
-            m_bHodirFuryReady = false;
+            if (Player* pPlayer = m_pInstance->GetPlayerInMap(true, true))
+                m_creature->GetMotionMaster()->MovePoint(1, pPlayer->GetPositionX(), pPlayer->GetPositionY(), pPlayer->GetPositionZ());
         }
     }
 
     void UpdateAI(const uint32 uiDiff)
     {
-        if (!m_creature->HasAura(AURA_DUMMY_BLUE, EFFECT_INDEX_1))
-            DoCast(m_creature, AURA_DUMMY_BLUE, true);
-        if (m_pInstance->GetData(TYPE_LEVIATHAN) != IN_PROGRESS)
+        if (m_uiHodirFuryTimer <= uiDiff)
         {
-            m_creature->ForcedDespawn();
-        }
-
-        if (!m_bHodirFuryReady)
-        {
-            if (m_uiHodirFuryTimer <= uiDiff)
-            {
-                m_bHodirFuryReady = true;
-            }
-            else
-                m_uiHodirFuryTimer -= uiDiff;
-        }
-
-        
-        if (m_uiSwitchTargetTimer <= uiDiff)
-        {
-            SwitchTarget();
+            m_creature->StopMoving();
+            m_creature->GetMotionMaster()->MoveIdle();
+            if (Creature* pTrigger = DoSpawnCreature(NPC_HODIR_FURY_TARGETTING, 0.0f, 0.0f, 100.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 10000))
+                pTrigger->CastSpell(m_creature, SPELL_HODIR_FURY, true);
+            m_uiHodirFuryTimer = urand(10000, 15000);
+            m_uiRandomMovementTimer = 4000;
         }
         else
-            m_uiSwitchTargetTimer -= uiDiff;
-    }
+            m_uiHodirFuryTimer -= uiDiff;
 
-    void SwitchTarget()
-    {
-        if (m_pInstance)
+        if (m_uiRandomMovementTimer <= uiDiff)
         {
-            if (Player* target = m_pInstance->GetPlayerInMap(true, true))
-                m_creature->GetMotionMaster()->MoveChase(target);
+            SwitchPosition();
+            m_uiRandomMovementTimer = urand(2000, 10000);
         }
+        else
+            m_uiRandomMovementTimer -= uiDiff;
+
+        if (!m_creature->HasAura(AURA_DUMMY_BLUE))
+            DoCast(m_creature, AURA_DUMMY_BLUE, true);
+
+        if (m_pInstance->GetData(TYPE_LEVIATHAN) != IN_PROGRESS)
+            m_creature->ForcedDespawn();
     }
 };
 
@@ -769,56 +727,56 @@ struct MANGOS_DLL_DECL mob_mimirons_infernoAI : public ScriptedAI
     }
 
     instance_ulduar* m_pInstance;
-    uint32 infernoTimer;
-    uint32 m_uiWalkTimer;
-    uint8 waypointId;
+
+    uint32 m_uiInfernoTimer;
+    uint32 m_uiStartTimer;
+    uint8  m_uiWayPoint;
 
     void Reset()
     {
-        waypointId = 0;
-        m_uiWalkTimer = 200;
-        infernoTimer = 4000;
-        m_creature->GetMotionMaster()->MovePoint(waypointId,WayMimironBeacon[waypointId][0],WayMimironBeacon[waypointId][1],WayMimironBeacon[waypointId][2]);
+        m_uiInfernoTimer = urand(10000, 20000);
+        m_uiStartTimer   = urand(10000, 20000);
+        m_uiWayPoint     = 1;
+
+        m_creature->SetSpeedRate(MOVE_RUN, 1.0f);
+        m_creature->SetWalk(false);
+        m_creature->GetMotionMaster()->MovePoint(m_uiWayPoint, WayMimironInferno[m_uiWayPoint].x, WayMimironInferno[m_uiWayPoint].y, WayMimironInferno[m_uiWayPoint].z);
     }
 
     void MovementInform(uint32 type, uint32 id)
     {
-        ++waypointId;
-        m_uiWalkTimer = 200;
-        if (waypointId > 3)
-            waypointId = 0;
+        ++m_uiWayPoint;
+        if (m_uiWayPoint > 3)
+            m_uiWayPoint = 0;
+        m_creature->GetMotionMaster()->MovePoint(m_uiWayPoint, WayMimironInferno[m_uiWayPoint].x, WayMimironInferno[m_uiWayPoint].y, WayMimironInferno[m_uiWayPoint].z);
     }
 
     void UpdateAI(const uint32 uiDiff)
     {
-        if (m_uiWalkTimer)
+        if (m_uiStartTimer > uiDiff)
         {
-            if (m_uiWalkTimer <= uiDiff)
-            {
-                m_creature->GetMotionMaster()->MovePoint(waypointId,WayMimironBeacon[waypointId][0],WayMimironBeacon[waypointId][1],WayMimironBeacon[waypointId][2]);
-                m_uiWalkTimer = 0;
-            }
-            else
-                m_uiWalkTimer -= uiDiff;
+            m_uiStartTimer -= uiDiff;
+            return;
         }
-        
-        if (infernoTimer <= uiDiff)
+        else if (m_uiStartTimer)
+            m_uiStartTimer = 0;
+
+        if (!m_creature->HasAura(AURA_DUMMY_YELLOW))
+            DoCast(m_creature, AURA_DUMMY_YELLOW, true);
+
+        if (m_uiInfernoTimer <= uiDiff)
         {
-            if (Creature* pTrigger = DoSpawnCreature(NPC_MIMIRON_TARGET_BEACON, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 30000))
+            if (Creature* pTrigger = DoSpawnCreature(NPC_MIMIRON_INFERNO_TARGETTING, 0.0f, 0.0f, 100.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 30000))
             {
-                pTrigger->CastSpell(pTrigger, SPELL_MIMIRON_INFERNO, true);
-                infernoTimer = 4000;
+                pTrigger->CastSpell(m_creature, SPELL_MIMIRON_INFERNO, true);
+                m_uiInfernoTimer = 2000;
             }
         }
         else
-            infernoTimer -= uiDiff;
+            m_uiInfernoTimer -= uiDiff;
 
-        if (!m_creature->HasAura(AURA_DUMMY_YELLOW, EFFECT_INDEX_1))
-            DoCast(m_creature, AURA_DUMMY_YELLOW, true);
         if (m_pInstance->GetData(TYPE_LEVIATHAN) != IN_PROGRESS)
-        {
             m_creature->ForcedDespawn();
-        }
     }
 };
 
@@ -831,65 +789,58 @@ struct MANGOS_DLL_DECL mob_thorims_hammerAI : public ScriptedAI
     }
 
     instance_ulduar* m_pInstance;
-    uint32 m_uiHammerTimer;
-    uint32 m_uiSwitchTargetTimer;                       //hack for RandomMovement
-
-    bool m_bHammerReady;
+    uint32 m_uiThorimsHammerTimer;
+    uint32 m_uiRandomMovementTimer;
 
     void Reset()
     {
-        m_uiHammerTimer = 0;
-        m_bHammerReady = true;
-        
-        m_uiSwitchTargetTimer = 30000;
+        m_uiThorimsHammerTimer     = urand(5000, 10000);
+        m_uiRandomMovementTimer    = 50000;
+
+        SwitchPosition();
     }
 
-    void MoveInLineOfSight(Unit* who)
+    void MovementInform(uint32 type, uint32 id)
     {
-        if (who->GetTypeId() == TYPEID_PLAYER && m_creature->IsInRange(who,0,10,false) && m_bHammerReady)
+        SwitchPosition();
+    }
+
+    void SwitchPosition()
+    {
+        if (m_pInstance)
         {
-            if (Creature* pTrigger = DoSpawnCreature(NPC_THORIM_TARGET_BEACON, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 1000))
-                pTrigger->CastSpell(who, SPELL_THORIMS_HAMMER, true);
-            m_bHammerReady = false;
-            m_uiHammerTimer = 4000;
+            if (Player* pPlayer = m_pInstance->GetPlayerInMap(true, true))
+                m_creature->GetMotionMaster()->MovePoint(1, pPlayer->GetPositionX(), pPlayer->GetPositionY(), pPlayer->GetPositionZ());
         }
     }
 
     void UpdateAI(const uint32 uiDiff)
     {
-        if (!m_bHammerReady)
+        if (m_uiThorimsHammerTimer <= uiDiff)
         {
-            if (m_uiHammerTimer <= uiDiff)
-            {
-                m_bHammerReady = true;
-            }
-            else
-                m_uiHammerTimer -= uiDiff;
-        }
-
-        if (m_uiSwitchTargetTimer <= uiDiff)
-        {
-            SwitchTarget();
+            m_creature->StopMoving();
+            m_creature->GetMotionMaster()->MoveIdle();
+            if (Creature* pTrigger = DoSpawnCreature(NPC_THORIM_HAMMER_TARGETTING, 0.0f, 0.0f, 100.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 10000))
+                pTrigger->CastSpell(m_creature, SPELL_THORIMS_HAMMER, true);
+            m_uiThorimsHammerTimer = urand(10000, 15000);
+            m_uiRandomMovementTimer = 4000;
         }
         else
-            m_uiSwitchTargetTimer -= uiDiff;
+            m_uiThorimsHammerTimer -= uiDiff;
 
+        if (m_uiRandomMovementTimer <= uiDiff)
+        {
+            SwitchPosition();
+            m_uiRandomMovementTimer = urand(2000, 10000);
+        }
+        else
+            m_uiRandomMovementTimer -= uiDiff;
 
-        if (!m_creature->HasAura(AURA_DUMMY_BLUE, EFFECT_INDEX_1))
+        if (!m_creature->HasAura(AURA_DUMMY_BLUE))
             DoCast(m_creature, AURA_DUMMY_BLUE, true);
-        if (m_pInstance->GetData(TYPE_LEVIATHAN) != IN_PROGRESS)
-        {
-            m_creature->ForcedDespawn();
-        }
-    }
 
-    void SwitchTarget()
-    {
-        if (m_pInstance)
-        {
-            if (Player* target = m_pInstance->GetPlayerInMap(true, true))
-                m_creature->GetMotionMaster()->MoveChase(target);
-        }
+        if (m_pInstance->GetData(TYPE_LEVIATHAN) != IN_PROGRESS)
+            m_creature->ForcedDespawn();
     }
 };
 

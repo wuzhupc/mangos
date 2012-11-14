@@ -615,7 +615,10 @@ Player::~Player ()
     for (int i = 0; i < PLAYER_SLOTS_COUNT; ++i)
     {
         if (m_items[i])
+        {
+            m_items[i]->RemoveFromWorld(true);
             delete m_items[i];
+        }
     }
     CleanupChannels();
 
@@ -624,7 +627,13 @@ Player::~Player ()
         delete *itr;
 
     for (ItemMap::const_iterator iter = mMitems.begin(); iter != mMitems.end(); ++iter)
+    {
+        if (!iter->second)
+            continue;
+
+        iter->second->RemoveFromWorld(true);
         delete iter->second;                                //if item is duplicated... then server may crash ... but that item should be deallocated
+    }
 
     delete PlayerTalkClass;
 
@@ -667,10 +676,10 @@ void Player::CleanupsBeforeDelete()
     {
         TradeCancel(false);
         DuelComplete(DUEL_INTERRUPTED);
-    }
 
-    // notify zone scripts for player logout
-    sOutdoorPvPMgr.HandlePlayerLeaveZone(this, m_zoneUpdateId);
+        // notify zone scripts for player logout
+        sOutdoorPvPMgr.HandlePlayerLeaveZone(this, m_zoneUpdateId);
+    }
 
     Unit::CleanupsBeforeDelete();
 }
@@ -1919,7 +1928,11 @@ bool Player::TeleportTo(WorldLocation const& loc, uint32 options)
                 else
                     map = sMapMgr.CreateMap(loc.mapid, this);
 
-                MANGOS_ASSERT(map);
+                if (!map)
+                {
+                    sLog.outError("Player::TeleportTo player %s cannot find or load map %u instance %u!", GetName(), loc.mapid, loc.instance);
+                    return false;
+                }
             }
 
             // try preload grid, targeted for teleport
@@ -1953,6 +1966,7 @@ bool Player::TeleportTo(WorldLocation const& loc, uint32 options)
 
             InterruptSpell(CURRENT_CHANNELED_SPELL);
             RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TELEPORTED);
+            UnsummonAllTotems();
 
             ResetContestedPvP();
 
@@ -2133,14 +2147,19 @@ void Player::AddToWorld()
         if (m_items[i])
             m_items[i]->AddToWorld();
     }
+    SetViewPoint(NULL);
 }
 
-void Player::RemoveFromWorld()
+void Player::RemoveFromWorld(bool remove)
 {
     for (int i = PLAYER_SLOT_START; i < PLAYER_SLOT_END; ++i)
     {
         if (m_items[i])
-            m_items[i]->RemoveFromWorld();
+        {
+            m_items[i]->RemoveFromWorld(true);
+            // possible need delete Item structure in this place? Need recheck
+            //delete m_items[i];
+        }
     }
 
     ///- Do not add/remove the player from the object storage
@@ -2149,7 +2168,7 @@ void Player::RemoveFromWorld()
     if (IsInWorld() && GetCamera())
         GetCamera()->ResetView();
 
-    Unit::RemoveFromWorld();
+    Unit::RemoveFromWorld(remove);
 }
 
 void Player::RewardRage(uint32 damage, uint32 weaponSpeedHitFactor, bool attacker)
@@ -8873,29 +8892,36 @@ void Player::SendUpdatedWorldStates(bool force)
     if (IsBeingTeleported() || GetLastWorldStateUpdateTime() == time(NULL))
         return;
 
-    WorldStateSet wsSet = sWorldStateMgr.GetUpdatedWorldStatesFor(this, force ? 0 : GetLastWorldStateUpdateTime());
+    WorldStateSet* wsSet = sWorldStateMgr.GetUpdatedWorldStatesFor(this, force ? 0 : GetLastWorldStateUpdateTime());
 
-    if (wsSet.empty())
-        return;
-
-    for (WorldStateSet::const_iterator itr = wsSet.begin(); itr != wsSet.end(); ++itr)
+    if (wsSet && !wsSet->empty())
     {
-        //DEBUG_LOG("Player::SendUpdatedWorldStates send state %u instance %u value %u to %s",(*itr)->GetId(), (*itr)->GetInstance(),(*itr)->GetValue(),GetObjectGuid().GetString().c_str());
-        _SendUpdateWorldState((*itr)->GetId(), (*itr)->GetValue());
+        for (WorldStateSet::const_iterator itr = wsSet->begin(); itr != wsSet->end(); ++itr)
+        {
+            //DEBUG_LOG("Player::SendUpdatedWorldStates send state %u instance %u value %u to %s",(*itr)->GetId(), (*itr)->GetInstance(),(*itr)->GetValue(),GetObjectGuid().GetString().c_str());
+            _SendUpdateWorldState((*itr)->GetId(), (*itr)->GetValue());
+        }
     }
 
     SetLastWorldStateUpdateTime(time(NULL));
+
+    if (wsSet)
+        delete wsSet;
 }
 
 void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
 {
     // data depends on zoneid/mapid...
     // Get worldstates (initial set)
-    WorldStateSet wsSet = sWorldStateMgr.GetInitWorldStates(GetMapId(),GetInstanceId(),zoneid,areaid);
-    uint16 count = wsSet.size();
+    WorldStateSet* wsSet = sWorldStateMgr.GetInitWorldStates(GetMapId(),GetInstanceId(),zoneid,areaid);
+
+    uint16 count = wsSet ? wsSet->size() : 0;
+
     if (count == 0)
     {
         sLog.outError("Player::SendInitWorldStates initial states list for player %s are empty!",GetObjectGuid().GetString().c_str());
+        if (wsSet)
+            delete wsSet;
         return;
     }
 
@@ -8909,13 +8935,16 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
 
     data << uint16(count);
 
-    for (WorldStateSet::const_iterator itr = wsSet.begin(); itr != wsSet.end(); ++itr)
+    for (WorldStateSet::const_iterator itr = wsSet->begin(); itr != wsSet->end(); ++itr)
     {
         data << (*itr)->GetId();
         data << (*itr)->GetValue();
     }
 
     GetSession()->SendPacket(&data);
+
+    if (wsSet)
+        delete wsSet;
 }
 
 uint32 Player::GetXPRestBonus(uint32 xp)
@@ -11411,7 +11440,7 @@ Item* Player::_StoreItem(uint16 pos, Item* pItem, uint32 count, bool clone, bool
             // delete item (it not in any slot currently)
             if (IsInWorld() && update)
             {
-                pItem->RemoveFromWorld();
+                pItem->RemoveFromWorld(false);
                 pItem->DestroyForPlayer(this);
             }
 
@@ -11527,7 +11556,7 @@ Item* Player::EquipItem(uint16 pos, Item* pItem, bool update)
         //pItem->DeleteFromDB();
         if (IsInWorld() && update)
         {
-            pItem->RemoveFromWorld();
+            pItem->RemoveFromWorld(false);
             pItem->DestroyForPlayer(this);
         }
 
@@ -11724,7 +11753,7 @@ void Player::MoveItemFromInventory(uint8 bag, uint8 slot, bool update)
         it->RemoveFromUpdateQueueOf(this);
         if (it->IsInWorld())
         {
-            it->RemoveFromWorld();
+            it->RemoveFromWorld(false);
             it->DestroyForPlayer(this);
         }
     }
@@ -11836,7 +11865,7 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
 
         if (IsInWorld() && update)
         {
-            pItem->RemoveFromWorld();
+            pItem->RemoveFromWorld(false);
             pItem->DestroyForPlayer(this);
         }
 
@@ -12587,10 +12616,10 @@ void Player::RemoveItemFromBuyBackSlot(uint32 slot, bool del)
     DEBUG_LOG("STORAGE: RemoveItemFromBuyBackSlot slot = %u", slot);
     if (slot >= BUYBACK_SLOT_START && slot < BUYBACK_SLOT_END)
     {
-        Item *pItem = m_items[slot];
+        Item* pItem = m_items[slot];
         if (pItem)
         {
-            pItem->RemoveFromWorld();
+            pItem->RemoveFromWorld(false);
             if (del)
                 pItem->SetState(ITEM_REMOVED, this);
         }
@@ -15933,7 +15962,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SqlQueryHolder *holder)
             savedLocation.orientation);
         RelocateToHomebind();
 
-        GetPosition(savedLocation);                          // reset saved position to homebind
+        savedLocation = GetPosition();                          // reset saved position to homebind
 
         transGUID = 0;
         m_movementInfo.ClearTransportData();
@@ -25017,6 +25046,29 @@ void Player::InterruptTaxiFlying()
     // save only in non-flight case
     else
         SaveRecallPosition();
+}
+
+Object* Player::GetDependentObject(ObjectGuid const& guid)
+{
+    // Currently only items dependent from player.
+    if (guid.IsEmpty() || !guid.IsItem())
+        return NULL;
+    return (Object*)GetItemByGuid(guid);
+}
+
+void Player::AddUpdateObject(ObjectGuid const& guid)
+{
+    i_objectsToClientUpdate.insert(guid);
+
+    // Not need add owner to update queue if owner already marked for update.
+    if (!IsMarkedForClientUpdate() && GetMap())
+        GetMap()->AddUpdateObject(GetObjectGuid());
+}
+
+void Player::RemoveUpdateObject(ObjectGuid const& guid)
+{
+    // possible required remove player from update queue also.
+    i_objectsToClientUpdate.erase(guid);
 }
 
 void Player::AddItemWithTimeCheck(uint32 lowGuid)

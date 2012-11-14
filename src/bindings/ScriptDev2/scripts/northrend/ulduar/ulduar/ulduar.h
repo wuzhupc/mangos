@@ -64,14 +64,20 @@ enum
     NPC_KEEPER_OF_NORGANNON     = 33686,
     NPC_BRANN_BRONZEBEARD       = 33579,
 
-    // siege
+    /* the siege of ulduar */
     NPC_LEVIATHAN               = 33113,
+    NPC_WARD_OF_LIFE            = 34275,
+    NPC_WRITHING_LASHER         = 33387,
+
     NPC_IGNIS                   = 33118,
     NPC_IRON_CONSTRUCT          = 33121,
+
     NPC_RAZORSCALE              = 33186,
     NPC_COMMANDER               = 33210,
+
     NPC_XT002                   = 33293,
-    // antechamber
+
+    /* the antechamber of ulduar */
     NPC_STEELBREAKER            = 32867,
     NPC_MOLGEIM                 = 32927,
     NPC_BRUNDIR                 = 32857,
@@ -105,15 +111,21 @@ enum
     NPC_MERCENARY_ALY           = 32885,
     NPC_MERCENARY_HORDE         = 32883,
     NPC_THUNDER_ORB             = 33378,    // npc used to cast charged orb
+
+    /* the-keepers-of-ulduar */
     // Freya
     NPC_FREYA                   = 32906,
     NPC_BRIGHTLEAF              = 32915,
     NPC_IRONBRACH               = 32913,
     NPC_STONEBARK               = 32914,
+
+    /* the-descent-into-madness */
     // Madness
     NPC_VEZAX                   = 33271,
     NPC_ANIMUS                  = 33524,
     NPC_YOGGSARON               = 33288,
+
+    /* celestial-planetarium */
     NPC_ALGALON                 = 32871,
     NPC_SARA                    = 33134,
     NPC_YOGG_BRAIN              = 33890, 
@@ -412,7 +424,7 @@ class MANGOS_DLL_DECL instance_ulduar : public ScriptedInstance
         GuidList m_lCloudGuids;
         GuidList m_lSanctumSentryGuids;
 
-        GuidVector m_lBreakHarpoonGUID;
+        GuidVector m_lBrokenHarpoonGUID;
 
 
     protected:

@@ -507,9 +507,11 @@ class Spell
         bool IsDeletable() const { return !m_referencedFromCurrentSpell && !m_executedCurrently; }
         void SetReferencedFromCurrent(bool yes) { m_referencedFromCurrentSpell = yes; }
         void SetExecutedCurrently(bool yes) { m_executedCurrently = yes; }
+
         uint64 GetDelayStart() const { return m_delayStart; }
         void SetDelayStart(uint64 m_time) { m_delayStart = m_time; }
         uint64 GetDelayMoment() const { return m_delayMoment; }
+        float GetBaseSpellSpeed();
 
         bool IsNeedSendToClient() const;                    // use for hide spell cast for client in case when cast not have client side affect (animation or log entries)
         bool IsTriggeredSpellWithRedundentData() const;     // use for ignore some spell data for triggered spells like cast time, some triggered spells have redundent copy data from main spell for client use purpose
@@ -767,6 +769,8 @@ namespace MaNGOS
         {
             if (!i_originalCaster)
                 i_originalCaster = i_spell.GetAffectiveCasterObject();
+            if (!i_castingObject)
+                i_castingObject = i_spell.m_caster;
             i_playerControlled = i_originalCaster  ? i_originalCaster->IsControlledByPlayer() : false;
 
             switch(i_push_type)
@@ -793,7 +797,7 @@ namespace MaNGOS
                     else
                         i_spell.m_targets.getDestination(i_centerX, i_centerY, i_centerZ);
 
-                    i_center =  WorldLocation(i_castingObject->GetMapId(), i_centerX, i_centerY, i_centerZ);
+                    i_center =  WorldLocation(i_castingObject ? i_castingObject->GetMapId() : -1, i_centerX, i_centerY, i_centerZ);
 
                     break;
                 }
@@ -820,7 +824,7 @@ namespace MaNGOS
                         i_centerZ = i_spell.m_targets.m_destZ;
                     }
 
-                    i_center =  WorldLocation(i_castingObject->GetMapId(), i_centerX, i_centerY, i_centerZ);
+                    i_center =  WorldLocation(i_castingObject ? i_castingObject->GetMapId() : -1, i_centerX, i_centerY, i_centerZ);
 
                     break;
                 }

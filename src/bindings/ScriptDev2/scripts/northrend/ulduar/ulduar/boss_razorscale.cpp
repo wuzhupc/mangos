@@ -61,7 +61,7 @@ enum
     AURA_DEVOURING_FLAME_H      = 64734,
 
     // mole machine
-    NPC_MOLE_MACHINE            = 33245,    // used to summon adds in phase 1
+    NPC_RAZORSCALE_SPAWNER      = 33245,    // used to summon adds in phase 1
     NPC_HARPOONS_DUMMY          = 33282,    // used to cast spells for harpoons
     SPELL_SUMMON_MOLE_MACHINE   = 73071,
 
@@ -86,43 +86,52 @@ enum
     SPELL_STORMSTRIKE           = 64757,
 
     //NPC ids
-    MOB_DARK_RUNE_WATCHER       = 33453,
-    MOB_DARK_RUNE_SENTINEL      = 33846,
-    MOB_DARK_RUNE_GUARDIAN      = 33388,
+    NPC_DARK_RUNE_WATCHER       = 33453,
+    NPC_DARK_RUNE_SENTINEL      = 33846,
+    NPC_DARK_RUNE_GUARDIAN      = 33388,
  
+    NPC_EXPEDITION_TRAPPER      = 33259,
+    NPC_EXPEDITION_DEFENDER     = 33816,
     NPC_EXP_ENGINEER            = 33287,
+
+    FACTION_NEUTER              = 35,
+    FACTION_HOSTILE             = 2105
 };
 
 //Positional defines 
-struct LocationsXY
+struct Coordinate
 {
-    float x, y, z, o;
-    uint32 id;
+    float x, y, z;
 };
 
-static LocationsXY PositionLoc[]=
+enum
+{
+    POSITION_RIGHT,
+    POSITION_LEFT,
+    POSITION_MIDDLE,
+    POSITION_GROUND,
+    POSITION_AIR
+};
+
+static Coordinate Point[]=
 {
     {621.633301f, -228.671371f, 391.180328f},//right
     {564.140198f, -222.049149f, 391.517212f},//left
     {591.629761f, -209.629761f, 392.629761f},//middle
     {587.629761f, -179.022522f, 391.625061f},//ground
-    {587.629761f, -179.022522f, 450.415070f},//air
+    {587.629761f, -179.022522f, 450.415070f} //air
 };
 
-
-#define HOME_X                      587.546997f
-#define HOME_Y                      -174.927002f
- 
-#define GOSSIP_START     "Holt Klingenschuppe auf den Boden!"
+#define GOSSIP_START "We are ready to help!"
 
 enum RazorscalePhase
 {
     PHASE_AIR           = 1,
     PHASE_GROUND        = 2,
-    PHASE_PERMAGROUND   = 3,
+    PHASE_PERMAGROUND   = 3
 };
 
-//expedition commander
+// expedition commander
 // start the event
 struct MANGOS_DLL_DECL npc_expedition_commanderAI : public ScriptedAI
 {
@@ -138,35 +147,37 @@ struct MANGOS_DLL_DECL npc_expedition_commanderAI : public ScriptedAI
     bool m_bHasPlayerNear;
     bool m_bIsIntro;
     ObjectGuid m_uiPlayerGUID;
-    uint32 m_uiSpeech_Timer;
-    uint32 m_uiIntro_Phase;
+    uint32 m_uiSpeechTimer;
+    uint32 m_uiIntroPhase;
 
     void Reset()
     {
         m_uiPlayerGUID.Clear();
-        m_uiSpeech_Timer    = 3000;
+        m_uiSpeechTimer     = 3000;
         m_bIsIntro          = false;
-        m_uiIntro_Phase     = 0;
+        m_uiIntroPhase      = 0;
     }
 
     void MoveInLineOfSight(Unit* pWho)
     {
-        if (!m_bHasPlayerNear && m_creature->IsWithinDistInMap(pWho, 40.0f))
+        if (!m_bHasPlayerNear && pWho->GetTypeId() == TYPEID_PLAYER && !((Player*)pWho)->isGameMaster() &&
+            m_creature->IsWithinDistInMap(pWho, 40.0) && m_creature->IsWithinLOSInMap(pWho))
         {
-            DoScriptText(SAY_INTRO, m_creature);
+            if (Creature* pRazorscale = m_pInstance->GetSingleCreatureFromStorage(NPC_RAZORSCALE))
+                DoScriptText(SAY_INTRO, pRazorscale);
             m_bHasPlayerNear = true;
         }
     }
 
     void GetRazorDown()
     {
-        if (Creature* pTemp = m_pInstance->GetSingleCreatureFromStorage(NPC_RAZORSCALE))
+        if (Creature* pRazorscale = m_pInstance->GetSingleCreatureFromStorage(NPC_RAZORSCALE))
         {
-            pTemp->SetInCombatWithZone();
-            if(Unit* pPlayer = m_creature->GetMap()->GetUnit( m_uiPlayerGUID))
+            pRazorscale->SetInCombatWithZone();
+            if (Unit* pPlayer = m_creature->GetMap()->GetUnit(m_uiPlayerGUID))
             {
-                pTemp->AddThreat(pPlayer,0.0f);
-                pTemp->AI()->AttackStart(pPlayer);
+                pRazorscale->AddThreat(pPlayer, 0.0f);
+                pRazorscale->AI()->AttackStart(pPlayer);
             }
         }
     }
@@ -175,45 +186,57 @@ struct MANGOS_DLL_DECL npc_expedition_commanderAI : public ScriptedAI
     {
         m_uiPlayerGUID      = pPlayer->GetObjectGuid();
         m_bIsIntro          = true;
-        m_uiSpeech_Timer    = 3000;
-        m_uiIntro_Phase     = 0;
+        m_uiSpeechTimer     = 3000;
+        m_uiIntroPhase      = 0;
     }
 
     void UpdateAI(const uint32 uiDiff)
     {
-        if(m_bIsIntro)
+        if (m_bIsIntro)
         {
-            if(m_uiSpeech_Timer < uiDiff)
+            if (m_uiSpeechTimer < uiDiff)
             {
-                switch(m_uiIntro_Phase)
+                switch(m_uiIntroPhase)
                 {
-                case 0:
-                    if(Creature* pEngineer = GetClosestCreatureWithEntry(m_creature, NPC_EXP_ENGINEER, 50.0f))
-                        DoScriptText(SAY_AGGRO1, pEngineer);
+                    case 0:
+                        if (Creature* pEngineer = GetClosestCreatureWithEntry(m_creature, NPC_EXP_ENGINEER, 50.0f))
+                            DoScriptText(SAY_AGGRO1, pEngineer);
                             GetRazorDown();
-                    ++m_uiIntro_Phase;
-                    m_uiSpeech_Timer = 5000;
-                    break;
-                case 1:
-                    DoScriptText(SAY_AGGRO2, m_creature);
-                    ++m_uiIntro_Phase;
-                    m_uiSpeech_Timer = 7000;
-                    break;
-                case 2:
-                    if(Creature* pEngineer = GetClosestCreatureWithEntry(m_creature, NPC_EXP_ENGINEER, 50.0f))
-                        DoScriptText(SAY_AGGRO3, pEngineer);
-                    ++m_uiIntro_Phase;
-                    m_uiSpeech_Timer = 5000;
-                    break;
-                case 3:
-                    m_bIsIntro = false;
-                    ++m_uiIntro_Phase;
-                    m_uiSpeech_Timer = 10000;
-                    break;
-                default:
-                    m_uiSpeech_Timer = 100000;
+                        ++m_uiIntroPhase;
+                        m_uiSpeechTimer = 5000;
+                        break;
+                    case 1:
+                    {
+                        DoScriptText(SAY_AGGRO2, m_creature);
+                        ++m_uiIntroPhase;
+                        m_uiSpeechTimer = 7000;
+                        std::list<Creature*> lExpedition;
+                        GetCreatureListWithEntryInGrid(lExpedition, m_creature, NPC_EXPEDITION_DEFENDER, 50.0f);
+                        GetCreatureListWithEntryInGrid(lExpedition, m_creature, NPC_EXPEDITION_TRAPPER, 50.0f);
+                        for (std::list<Creature*>::iterator itr = lExpedition.begin(); itr != lExpedition.end(); ++itr)
+                        {
+                            if ((*itr)->isAlive())
+                                (*itr)->SetFactionTemporary(FACTION_HOSTILE, TEMPFACTION_RESTORE_RESPAWN);
+                        }
+                        break;
+                    }
+                    case 2:
+                        if (Creature* pEngineer = GetClosestCreatureWithEntry(m_creature, NPC_EXP_ENGINEER, 50.0f))
+                            DoScriptText(SAY_AGGRO3, pEngineer);
+                        ++m_uiIntroPhase;
+                        m_uiSpeechTimer = 5000;
+                        break;
+                    case 3:
+                        m_bIsIntro = false;
+                        ++m_uiIntroPhase;
+                        m_uiSpeechTimer = 10000;
+                        break;
+                    default:
+                        m_uiSpeechTimer = 100000;
                 }
-            }else m_uiSpeech_Timer -= uiDiff;
+            }
+            else
+                m_uiSpeechTimer -= uiDiff;
         }
     }
 };
@@ -227,7 +250,7 @@ bool GossipHello_npc_expedition_commander(Player* pPlayer, Creature* pCreature)
 {
     instance_ulduar* pInstance = (instance_ulduar *) pCreature->GetInstanceData();
 
-    if(pInstance->GetData(TYPE_RAZORSCALE) != DONE)
+    if (pInstance->GetData(TYPE_RAZORSCALE) != DONE)
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_START, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
     pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetObjectGuid());
@@ -259,15 +282,15 @@ struct MANGOS_DLL_DECL mob_devouring_flame_targetAI : public ScriptedAI
     instance_ulduar* m_pInstance;
     bool m_bIsRegularMode;
 
-    uint32 m_uiDeath_Timer;
+    uint32 m_uiDeathTimer;
 
     void Reset()
     {
-        m_uiDeath_Timer = 25500;
+        m_uiDeathTimer = 25500;
         m_creature->SetDisplayId(11686);
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-        DoCast(m_creature,  m_bIsRegularMode ? AURA_DEVOURING_FLAME : AURA_DEVOURING_FLAME_H);
+        DoCast(m_creature, m_bIsRegularMode ? AURA_DEVOURING_FLAME : AURA_DEVOURING_FLAME_H);
     }
 
     void UpdateAI(const uint32 uiDiff)
@@ -276,9 +299,10 @@ struct MANGOS_DLL_DECL mob_devouring_flame_targetAI : public ScriptedAI
             return;
 
         // think that unnecessary because summon spell 63308 with duration 22 seconds
-        if (m_uiDeath_Timer < uiDiff)
+        if (m_uiDeathTimer < uiDiff)
             m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-        else m_uiDeath_Timer -= uiDiff;
+        else
+            m_uiDeathTimer -= uiDiff;
     }
 };
 
@@ -300,11 +324,12 @@ struct MANGOS_DLL_DECL mob_dark_rune_watcherAI : public ScriptedAI
     instance_ulduar* m_pInstance;
     bool m_bIsRegularMode;
 
-    uint32 m_uiSpell_Timer;
+    uint32 m_uiSpellTimer;
 
     void Reset()
     {
-        m_uiSpell_Timer = urand(5000, 10000);
+        m_uiSpellTimer = urand(5000, 10000);
+        m_creature->SetInCombatWithZone();
     }
 
     void UpdateAI(const uint32 diff)
@@ -312,19 +337,21 @@ struct MANGOS_DLL_DECL mob_dark_rune_watcherAI : public ScriptedAI
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
 
-        if (m_uiSpell_Timer < diff)
+        if (m_uiSpellTimer < diff)
         {
             switch(urand(0, 1))
             {
                 case 0:
                     DoCast(m_creature->getVictim(), m_bIsRegularMode ? SPELL_LIGHTNING_BOLT : SPELL_LIGHTNING_BOLT_H);
-                break;
+                    break;
                 case 1:
                     DoCast(m_creature->getVictim(), m_bIsRegularMode ? SPELL_CHAIN_LIGHTNING : SPELL_CHAIN_LIGHTNING_H);
-                break;
+                    break;
             }
-            m_uiSpell_Timer = urand(5000, 10000);
-        }else m_uiSpell_Timer -= diff;        
+            m_uiSpellTimer = urand(5000, 10000);
+        }
+        else
+            m_uiSpellTimer -= diff;
 
         DoMeleeAttackIfReady();
     }
@@ -348,13 +375,14 @@ struct MANGOS_DLL_DECL mob_dark_rune_sentinelAI : public ScriptedAI
     instance_ulduar* m_pInstance;
     bool m_bIsRegularMode;
 
-    uint32 m_uiWhirl_Timer;
-    uint32 m_uiShout_Timer;
+    uint32 m_uiWhirlTimer;
+    uint32 m_uiShoutTimer;
 
     void Reset()
     {
-        m_uiWhirl_Timer = 10000;
-        m_uiShout_Timer = 2000;
+        m_uiWhirlTimer = 10000;
+        m_uiShoutTimer = 2000;
+        m_creature->SetInCombatWithZone();
     }
 
     void UpdateAI(const uint32 diff)
@@ -362,21 +390,21 @@ struct MANGOS_DLL_DECL mob_dark_rune_sentinelAI : public ScriptedAI
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
 
-        if (m_uiWhirl_Timer < diff)
+        if (m_uiWhirlTimer < diff)
         {
             if (DoCastSpellIfCan(m_creature, SPELL_WHIRLWIND) == CAST_OK)
-                m_uiWhirl_Timer = urand(10000, 15000);
+                m_uiWhirlTimer = urand(10000, 15000);
         }
         else
-            m_uiWhirl_Timer -= diff;
+            m_uiWhirlTimer -= diff;
 
-        if (m_uiShout_Timer < diff)
+        if (m_uiShoutTimer < diff)
         {
             if (DoCastSpellIfCan(m_creature, m_bIsRegularMode ? SPELL_BATTLE_SHOUT : SPELL_BATTLE_SHOUT_H) == CAST_OK)
-                m_uiShout_Timer = 30000;
+                m_uiShoutTimer = 30000;
         }
         else
-            m_uiShout_Timer -= diff;
+            m_uiShoutTimer -= diff;
 
         DoMeleeAttackIfReady();
     }
@@ -400,11 +428,12 @@ struct MANGOS_DLL_DECL mob_dark_rune_guardianAI : public ScriptedAI
     instance_ulduar* m_pInstance;
     bool m_bIsRegularMode;
 
-    uint32 m_uiStormstrike_Timer;
+    uint32 m_uiStormstrikeTimer;
 
     void Reset()
     {
-        m_uiStormstrike_Timer = 10000;
+        m_uiStormstrikeTimer = 10000;
+        m_creature->SetInCombatWithZone();
     }
 
     void UpdateAI(const uint32 diff)
@@ -412,13 +441,13 @@ struct MANGOS_DLL_DECL mob_dark_rune_guardianAI : public ScriptedAI
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
 
-        if (m_uiStormstrike_Timer < diff)
+        if (m_uiStormstrikeTimer < diff)
         {
             if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_STORMSTRIKE) == CAST_OK)
-                m_uiStormstrike_Timer = urand(7000, 13000);
+                m_uiStormstrikeTimer = urand(7000, 13000);
         }
         else
-            m_uiStormstrike_Timer -= diff;
+            m_uiStormstrikeTimer -= diff;
 
         DoMeleeAttackIfReady();
     }
@@ -458,30 +487,19 @@ struct MANGOS_DLL_DECL mob_mole_machineAI : public ScriptedAI
         if (m_uiSummonTimer < diff)
         {
             // summon 2 dwarfes
-            if(!m_bIsSentinel)
+            if (!m_bIsSentinel)
             {
-                if (Creature* pTemp = m_creature->SummonCreature(MOB_DARK_RUNE_WATCHER, m_creature->GetPositionX() + 5, m_creature->GetPositionY() + 5, m_creature->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000))
-                {
-                    pTemp->SetInCombatWithZone();
-                    pTemp->GetMotionMaster()->MovePoint(0, HOME_X, HOME_Y, m_creature->GetPositionZ());
-                }
-                if (Creature* pTemp = m_creature->SummonCreature(MOB_DARK_RUNE_GUARDIAN, m_creature->GetPositionX() - 5, m_creature->GetPositionY() - 5, m_creature->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000))
-                {
-                    pTemp->SetInCombatWithZone();
-                    pTemp->GetMotionMaster()->MovePoint(0, HOME_X, HOME_Y, m_creature->GetPositionZ());
-                }
+                m_creature->SummonCreature(NPC_DARK_RUNE_WATCHER, m_creature->GetPositionX() + 5.0f, m_creature->GetPositionY() + 5, m_creature->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
+                m_creature->SummonCreature(NPC_DARK_RUNE_GUARDIAN, m_creature->GetPositionX() - 5.0f, m_creature->GetPositionY() - 5, m_creature->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
             }
             // summon 1 sentinel
             else
-            {
-                if (Creature* pTemp = m_creature->SummonCreature(MOB_DARK_RUNE_SENTINEL, m_creature->GetPositionX() - 5, m_creature->GetPositionY() - 5, m_creature->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000))
-                {
-                    pTemp->SetInCombatWithZone();
-                    pTemp->GetMotionMaster()->MovePoint(0, HOME_X, HOME_Y, m_creature->GetPositionZ());
-                }
-            }
+                m_creature->SummonCreature(NPC_DARK_RUNE_SENTINEL, m_creature->GetPositionX() - 5.0f, m_creature->GetPositionY() - 5, m_creature->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
+
             m_uiSummonTimer = 60000;
-        }else m_uiSummonTimer -= diff;
+        }
+        else
+            m_uiSummonTimer -= diff;
     }
 };
 
@@ -503,13 +521,13 @@ struct MANGOS_DLL_DECL boss_razorscaleAI : public ScriptedAI
     instance_ulduar* m_pInstance;
     bool m_bIsRegularMode;
 
-    uint32 m_uiFireball_Timer;
-    uint32 m_uiDevouring_Flame_Timer;
-    uint32 m_uiFlame_Buffet_Timer;
-    uint32 m_uiFuse_Armor_Timer;
-    uint32 m_uiFlame_Breath_Timer;
-    uint32 m_uiWave_spawn;
-    uint32 m_uiBerserk_Timer;
+    uint32 m_uiFireballTimer;
+    uint32 m_uiDevouringFlameTimer;
+    uint32 m_uiFlameBuffetTimer;
+    uint32 m_uiFuseArmorTimer;
+    uint32 m_uiFlameBreathTimer;
+    uint32 m_uiWavespawn;
+    uint32 m_uiBerserkTimer;
     uint32 m_uiGroundStepTimer;
     uint32 m_uiGroundStepCount;
     uint32 m_uiRepairHarpoonTimer;
@@ -523,26 +541,27 @@ struct MANGOS_DLL_DECL boss_razorscaleAI : public ScriptedAI
     GuidList m_lRepairHarpoonsGUID;
     GuidList m_lHarpoonsDummyGUID;
 
-    RazorscalePhase razorscalePhase;
+    RazorscalePhase m_Phase;
 
     void Reset()
     {
         m_uiMaxHarpoons = m_bIsRegularMode ? 2 : 4;
-        //if (m_pInstance->m_lBreakHarpoonGUID.size() != m_uiMaxHarpoons)
+        //if (m_pInstance->m_lBrokenHarpoonGUID.size() != m_uiMaxHarpoons)
             //m_creature->MonsterSay("Fehler in der Suche der Harpoonen", LANG_UNIVERSAL);
         BreakHarpoons();
 
-        m_uiFireball_Timer          = 10000;    // 10 secs for the first
-        m_uiDevouring_Flame_Timer   = 18000;    // 18 secs first, 12 seconds after
-        m_uiWave_spawn              = urand(5000, 10000);
-        m_uiBerserk_Timer           = 600000;   // 10 min
+        m_uiFireballTimer           = 10000;    // 10 secs for the first
+        m_uiDevouringFlameTimer     = 18000;    // 18 secs first, 12 seconds after
+        m_uiWavespawn               = urand(5000, 10000);
+        m_uiBerserkTimer            = 600000;   // 10 min
         m_uiRepairHarpoonTimer      = 51000;
         m_uiHarpoonsRepaired        = 0;
         
-        razorscalePhase = PHASE_AIR;
+        m_Phase             = PHASE_AIR;
         m_uiFlyNo           = 0;
         m_uiHarpoonsUsed    = 0;
         m_uiScorchedDwarves = 0;
+
         m_creature->SetWalk(true);
         SetCombatMovement(false);
         //  make boss fly
@@ -561,20 +580,30 @@ struct MANGOS_DLL_DECL boss_razorscaleAI : public ScriptedAI
             m_pInstance->SetData(TYPE_RAZORSCALE, DONE);
 
         BreakHarpoons();
+
+
+        std::list<Creature*> lExpedition;
+        GetCreatureListWithEntryInGrid(lExpedition, m_creature, NPC_EXPEDITION_DEFENDER, 4000.0f);
+        GetCreatureListWithEntryInGrid(lExpedition, m_creature, NPC_EXPEDITION_TRAPPER, 4000.0f);
+        for (std::list<Creature*>::iterator itr = lExpedition.begin(); itr != lExpedition.end(); ++itr)
+        {
+            if ((*itr)->isAlive())
+                (*itr)->setFaction(FACTION_NEUTER);
+        }
     }
 
     void Aggro(Unit* pWho)
     {
         if (m_pInstance)
             m_pInstance->SetData(TYPE_RAZORSCALE, IN_PROGRESS);
-        m_creature->MonsterMoveWithSpeed(PositionLoc[4].x, PositionLoc[4].y, PositionLoc[4].z, 28);
+        m_creature->MonsterMoveWithSpeed(Point[POSITION_AIR].x, Point[POSITION_AIR].y, Point[POSITION_AIR].z, 28.0f);
     }
 
     void SpellHitTarget(Unit* pTarget, const SpellEntry* pSpell)
     {
         if (pSpell->Id == SPELL_FLAME_BREATH || pSpell->Id == SPELL_FLAME_BREATH_H)
         {
-            if (pTarget->GetEntry() == MOB_DARK_RUNE_GUARDIAN) // only this one
+            if (pTarget->GetEntry() == NPC_DARK_RUNE_GUARDIAN) // only this one
             {
                  ++m_uiScorchedDwarves;
                  if (m_uiScorchedDwarves > 25)
@@ -587,20 +616,35 @@ struct MANGOS_DLL_DECL boss_razorscaleAI : public ScriptedAI
         }
     }
 
-    void JustReachedHome()
+    void EnterEvadeMode()
     {
         if (m_pInstance)
             m_pInstance->SetData(TYPE_RAZORSCALE, FAIL);
+
+        m_creature->ForcedDespawn();
+        if (m_creature)
+            m_creature->Respawn();
+
+        std::list<Creature*> lExpedition;
+        GetCreatureListWithEntryInGrid(lExpedition, m_creature, NPC_EXPEDITION_DEFENDER, 4000.0f);
+        GetCreatureListWithEntryInGrid(lExpedition, m_creature, NPC_EXPEDITION_TRAPPER, 4000.0f);
+        for (std::list<Creature*>::iterator itr = lExpedition.begin(); itr != lExpedition.end(); ++itr)
+        {
+            if ((*itr)->isAlive())
+                (*itr)->setFaction(FACTION_NEUTER);
+            else
+                (*itr)->Respawn();
+        }
     }
 
     void BreakHarpoons()
     {
         // reset harpoons
-        for (GuidVector::iterator iter = m_pInstance->m_lBreakHarpoonGUID.begin(); iter != m_pInstance->m_lBreakHarpoonGUID.end(); ++iter)
+        for (GuidVector::iterator iter = m_pInstance->m_lBrokenHarpoonGUID.begin(); iter != m_pInstance->m_lBrokenHarpoonGUID.end(); ++iter)
         {
             if (GameObject* pBreakHarpoon = m_creature->GetMap()->GetGameObject(*iter))
             {
-                pBreakHarpoon->SetPhaseMask(1, true);                
+                pBreakHarpoon->SetPhaseMask(1, true);
             }
         }
         for (GuidList::iterator iter = m_lRepairHarpoonsGUID.begin(); iter != m_lRepairHarpoonsGUID.end(); ++iter)
@@ -623,13 +667,13 @@ struct MANGOS_DLL_DECL boss_razorscaleAI : public ScriptedAI
 
     void RepairHarpoons()
     {
-        if(GameObject* pHarpoon = m_creature->GetMap()->GetGameObject(m_pInstance->m_lBreakHarpoonGUID.at(m_uiHarpoonsRepaired)))
+        if (GameObject* pHarpoon = m_creature->GetMap()->GetGameObject(m_pInstance->m_lBrokenHarpoonGUID.at(m_uiHarpoonsRepaired)))
         {
             switch(m_uiHarpoonsRepaired)
             {
                 case 0:
                 {
-                    if (GameObject* pRepairHarpoon =  pHarpoon->SummonGameobject(GO_REPAIR_HARPOON_1, pHarpoon->GetPositionX(),pHarpoon->GetPositionY(),pHarpoon->GetPositionZ(), 4.732974f, 0))
+                    if (GameObject* pRepairHarpoon =  pHarpoon->SummonGameobject(GO_REPAIR_HARPOON_1, pHarpoon->GetPositionX(), pHarpoon->GetPositionY(), pHarpoon->GetPositionZ(), 4.732974f, 0))
                     {
                         m_lRepairHarpoonsGUID.push_back(pRepairHarpoon->GetObjectGuid());
                     }
@@ -637,7 +681,7 @@ struct MANGOS_DLL_DECL boss_razorscaleAI : public ScriptedAI
                 }
                 case 1:
                 {
-                    if (GameObject* pRepairHarpoon =  pHarpoon->SummonGameobject(GO_REPAIR_HARPOON_2, pHarpoon->GetPositionX(),pHarpoon->GetPositionY(),pHarpoon->GetPositionZ(), 5.269379f, 0))
+                    if (GameObject* pRepairHarpoon =  pHarpoon->SummonGameobject(GO_REPAIR_HARPOON_2, pHarpoon->GetPositionX(), pHarpoon->GetPositionY(), pHarpoon->GetPositionZ(), 5.269379f, 0))
                     {
                         m_lRepairHarpoonsGUID.push_back(pRepairHarpoon->GetObjectGuid());
                     }
@@ -645,28 +689,28 @@ struct MANGOS_DLL_DECL boss_razorscaleAI : public ScriptedAI
                 }
                 case 2:
                 {
-                    if (GameObject* pRepairHarpoon =  pHarpoon->SummonGameobject(GO_REPAIR_HARPOON_3, pHarpoon->GetPositionX(),pHarpoon->GetPositionY(),pHarpoon->GetPositionZ(), pHarpoon->GetOrientation(), 0))
+                    if (GameObject* pRepairHarpoon =  pHarpoon->SummonGameobject(GO_REPAIR_HARPOON_3, pHarpoon->GetPositionX(), pHarpoon->GetPositionY(), pHarpoon->GetPositionZ(), pHarpoon->GetOrientation(), 0))
                         m_lRepairHarpoonsGUID.push_back(pRepairHarpoon->GetObjectGuid());
                     break;
                 }
                 case 3:
                 {
-                    if (GameObject* pRepairHarpoon =  pHarpoon->SummonGameobject(GO_REPAIR_HARPOON_4, pHarpoon->GetPositionX(),pHarpoon->GetPositionY(),pHarpoon->GetPositionZ(), pHarpoon->GetAngle(m_creature), 0))
+                    if (GameObject* pRepairHarpoon =  pHarpoon->SummonGameobject(GO_REPAIR_HARPOON_4, pHarpoon->GetPositionX(), pHarpoon->GetPositionY(), pHarpoon->GetPositionZ(), pHarpoon->GetAngle(m_creature), 0))
                         m_lRepairHarpoonsGUID.push_back(pRepairHarpoon->GetObjectGuid());
                     break;
                 }
             }
-            if (Creature* pHarpoonDummy = pHarpoon->SummonCreature(NPC_HARPOONS_DUMMY, pHarpoon->GetPositionX(), pHarpoon->GetPositionY(), pHarpoon->GetPositionZ(),0 , TEMPSUMMON_DEAD_DESPAWN, 0))
+            if (Creature* pHarpoonDummy = pHarpoon->SummonCreature(NPC_HARPOONS_DUMMY, pHarpoon->GetPositionX(), pHarpoon->GetPositionY(), pHarpoon->GetPositionZ(), 0.0f, TEMPSUMMON_DEAD_DESPAWN, 0))
             {
                 m_lHarpoonsDummyGUID.push_back(pHarpoonDummy->GetObjectGuid());
             }
-            pHarpoon->SetPhaseMask(128,true);
+            pHarpoon->SetPhaseMask(128, true);
         }
     }
 
     void SetToGroundPhase()
     {
-        if(Creature* pCommander = m_pInstance->GetSingleCreatureFromStorage(NPC_COMMANDER))
+        if (Creature* pCommander = m_pInstance->GetSingleCreatureFromStorage(NPC_COMMANDER))
             DoScriptText(SAY_GROUND, pCommander);
 
         // make boss land
@@ -674,31 +718,32 @@ struct MANGOS_DLL_DECL boss_razorscaleAI : public ScriptedAI
         m_creature->SetByteValue(UNIT_FIELD_BYTES_1, 3, 0);
 
         // ground position
-        m_creature->MonsterMoveWithSpeed(PositionLoc[3].x, PositionLoc[3].y, PositionLoc[3].z, 40.0f);
+        m_creature->MonsterMoveWithSpeed(Point[POSITION_GROUND].x, Point[POSITION_GROUND].y, Point[POSITION_GROUND].z, 40.0f);
 
         // timers
         m_uiHarpoonsUsed    = 0;
         m_uiGroundStepTimer = 2000;
         m_uiGroundStepCount = 0;
-        razorscalePhase = PHASE_GROUND;
+
+        m_Phase = PHASE_GROUND;
     }
 
     void SetToAirPhase()
     {
-        if(Creature* pCommander = m_pInstance->GetSingleCreatureFromStorage(NPC_COMMANDER))
+        if (Creature* pCommander = m_pInstance->GetSingleCreatureFromStorage(NPC_COMMANDER))
             DoScriptText(SAY_FIRES_EXTINGUISH, pCommander);
         //  make boss fly
         m_creature->SetLevitate(true);
         m_creature->SetByteValue(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_UNK_2);
-        razorscalePhase             = PHASE_AIR;
-        m_uiFireball_Timer          = 10000;
-        m_uiDevouring_Flame_Timer   = 18000;
-        m_uiWave_spawn              = urand(5000, 10000);
+        m_Phase                     = PHASE_AIR;
+        m_uiFireballTimer           = 10000;
+        m_uiDevouringFlameTimer     = 18000;
+        m_uiWavespawn               = urand(5000, 10000);
         m_uiRepairHarpoonTimer      = 50000;
         m_uiHarpoonsRepaired        = 0;
         
         // achiev counter
-        m_uiFlyNo++;
+        ++m_uiFlyNo;
         if (m_uiFlyNo > 1)
         {
             if (m_pInstance)
@@ -712,16 +757,19 @@ struct MANGOS_DLL_DECL boss_razorscaleAI : public ScriptedAI
             m_creature->RemoveAurasDueToSpell(SPELL_STUN);
 
         DoScriptText(EMOTE_GROUNDED, m_creature);
-        razorscalePhase             = PHASE_PERMAGROUND;
-        m_uiDevouring_Flame_Timer   = 12000;
-        m_uiFlame_Buffet_Timer      = 10000; //every 10 secs
-        m_uiFuse_Armor_Timer        = 13000; //every ~13
-        m_uiFlame_Breath_Timer      = 6000;  //every 14
+        m_Phase                     = PHASE_PERMAGROUND;
+        m_uiDevouringFlameTimer     = 12000;
+        m_uiFlameBuffetTimer        = 10000; //every 10 secs
+        m_uiFuseArmorTimer          = 13000; //every ~13
+        m_uiFlameBreathTimer        = 6000;  //every 14
         SetCombatMovement(true);
         BreakHarpoons();
         //  make boss land
         m_creature->SetLevitate(false);
         m_creature->SetByteValue(UNIT_FIELD_BYTES_1, 3, 0);
+
+        if (m_creature->getVictim())
+            m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
     }
 
     void UpdateAI(const uint32 uiDiff)
@@ -730,12 +778,12 @@ struct MANGOS_DLL_DECL boss_razorscaleAI : public ScriptedAI
             return;
 
         // make boss land at 50% hp
-        if (m_creature->GetHealthPercent() < 50 && razorscalePhase != PHASE_PERMAGROUND)
+        if (m_Phase != PHASE_PERMAGROUND && m_creature->GetHealthPercent() < 50.0f)
         {
             SetToPermGroundedPhase();
         }
 
-        switch(razorscalePhase)
+        switch(m_Phase)
         {
             case PHASE_AIR:
             {
@@ -746,38 +794,45 @@ struct MANGOS_DLL_DECL boss_razorscaleAI : public ScriptedAI
                     return;
                 }
                 // air position check (sometimes it falls to the ground like a rock
-                if(m_creature->GetPositionZ() < 440.0f)
+                if (m_creature->GetPositionZ() < 440.0f)
                 {
-                    m_creature->MonsterMoveWithSpeed(PositionLoc[4].x, PositionLoc[4].y, PositionLoc[4].z, 28);
+                    m_creature->MonsterMoveWithSpeed(Point[POSITION_AIR].x, Point[POSITION_AIR].y, Point[POSITION_AIR].z, 28.0f);
                 }
 
                 // air spells
-                if (m_uiFireball_Timer < uiDiff)
+                if (m_uiFireballTimer < uiDiff)
                 {
                     if (Unit* target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, (uint32)0, SELECT_FLAG_PLAYER))
                         DoCast(target, m_bIsRegularMode ? SPELL_FIREBALL : SPELL_FIREBALL_H);
-                        m_uiFireball_Timer = 2000;
-                }else
-                    m_uiFireball_Timer -= uiDiff;
-
-                if (m_uiDevouring_Flame_Timer < uiDiff)
-                {
-                    if (Unit* target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, (uint32)0, SELECT_FLAG_PLAYER))
-                        DoCast(target, DEVOURING_FLAME_MISSILE);
-                        m_uiDevouring_Flame_Timer = 12000;
-                }else
-                    m_uiDevouring_Flame_Timer -= uiDiff;
-
-                // repair harpoons
-                if (m_uiRepairHarpoonTimer < uiDiff && m_uiHarpoonsRepaired < m_uiMaxHarpoons && m_uiHarpoonsRepaired < m_pInstance->m_lBreakHarpoonGUID.size()) // i know the double check
-                {
-                    RepairHarpoons();
-                    ++m_uiHarpoonsRepaired;
-                    DoScriptText(EMOTE_HARPOON, m_creature);
-                    m_uiRepairHarpoonTimer = 20000;
+                        m_uiFireballTimer = 2000;
                 }
                 else
-                    m_uiRepairHarpoonTimer -= uiDiff;
+                    m_uiFireballTimer -= uiDiff;
+
+                if (m_uiDevouringFlameTimer < uiDiff)
+                {
+                    if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, (uint32)0, SELECT_FLAG_PLAYER))
+                    {
+                        if (DoCastSpellIfCan(pTarget, DEVOURING_FLAME_MISSILE) == CAST_OK)
+                            m_uiDevouringFlameTimer = 12000;
+                    }
+                }
+                else
+                    m_uiDevouringFlameTimer -= uiDiff;
+
+                // repair harpoons
+                if (m_uiHarpoonsRepaired < m_uiMaxHarpoons && m_uiHarpoonsRepaired < m_pInstance->m_lBrokenHarpoonGUID.size()) // i know the double check
+                {
+                    if (m_uiRepairHarpoonTimer < uiDiff)
+                    {
+                        RepairHarpoons();
+                        ++m_uiHarpoonsRepaired;
+                        DoScriptText(EMOTE_HARPOON, m_creature);
+                        m_uiRepairHarpoonTimer = 20000;
+                    }
+                    else
+                        m_uiRepairHarpoonTimer -= uiDiff;
+                }
 
                 break;
             }
@@ -785,7 +840,7 @@ struct MANGOS_DLL_DECL boss_razorscaleAI : public ScriptedAI
             {
                 if (m_uiGroundStepTimer < uiDiff)
                 {
-                    switch (m_uiGroundStepCount)
+                    switch(m_uiGroundStepCount)
                     {
                         case 0:
                             DoCast(m_creature, SPELL_STUN, true);
@@ -797,7 +852,7 @@ struct MANGOS_DLL_DECL boss_razorscaleAI : public ScriptedAI
                             m_creature->RemoveAurasDueToSpell(SPELL_STUN);
                             DoScriptText(EMOTE_DEEP_BREATH, m_creature);
                             DoCast(m_creature, m_bIsRegularMode ? SPELL_FLAME_BREATH : SPELL_FLAME_BREATH_H);
-                            m_uiGroundStepTimer    = 7000;
+                            m_uiGroundStepTimer = 7000;
                             break;
                         case 2:
                             DoCast(m_creature, SPELL_WING_BUFFET);
@@ -823,40 +878,40 @@ struct MANGOS_DLL_DECL boss_razorscaleAI : public ScriptedAI
             }
             case PHASE_PERMAGROUND:
             {
-                if (m_uiDevouring_Flame_Timer < uiDiff)
+                if (m_uiDevouringFlameTimer < uiDiff)
                 {
                     if (DoCastSpellIfCan(m_creature->getVictim(), DEVOURING_FLAME_MISSILE) == CAST_OK)
-                        m_uiDevouring_Flame_Timer = 12000;
+                        m_uiDevouringFlameTimer = 12000;
                 }
                 else
-                    m_uiDevouring_Flame_Timer -= uiDiff;
+                    m_uiDevouringFlameTimer -= uiDiff;
 
-                if (m_uiFuse_Armor_Timer < uiDiff)
+                if (m_uiFuseArmorTimer < uiDiff)
                 {
                     if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_FUSE_ARMOR) == CAST_OK)
-                        m_uiFuse_Armor_Timer = 13000;
+                        m_uiFuseArmorTimer = 13000;
                 }
                 else
-                    m_uiFuse_Armor_Timer -= uiDiff;
+                    m_uiFuseArmorTimer -= uiDiff;
 
-                if (m_uiFlame_Buffet_Timer < uiDiff)
+                if (m_uiFlameBuffetTimer < uiDiff)
                 {
                     if (DoCastSpellIfCan(m_creature, m_bIsRegularMode ? SPELL_FLAME_BUFFET : SPELL_FLAME_BUFFET_H) == CAST_OK)
-                        m_uiFlame_Buffet_Timer = 13000;
+                        m_uiFlameBuffetTimer = 13000;
                 }
                 else
-                    m_uiFlame_Buffet_Timer -= uiDiff;
+                    m_uiFlameBuffetTimer -= uiDiff;
 
-                if (m_uiFlame_Breath_Timer < uiDiff)
+                if (m_uiFlameBreathTimer < uiDiff)
                 {
                     if (DoCastSpellIfCan(m_creature, m_bIsRegularMode ? SPELL_FLAME_BREATH : SPELL_FLAME_BREATH_H) == CAST_OK)
                     {
                         DoScriptText(EMOTE_DEEP_BREATH, m_creature);
-                        m_uiFlame_Breath_Timer = 14000;
+                        m_uiFlameBreathTimer = 14000;
                     }
                 }
                 else
-                    m_uiFlame_Breath_Timer -= uiDiff;
+                    m_uiFlameBreathTimer -= uiDiff;
 
                 DoMeleeAttackIfReady();
 
@@ -867,30 +922,37 @@ struct MANGOS_DLL_DECL boss_razorscaleAI : public ScriptedAI
         }
 
         // ground adds only in Air and grounded phase NOT in Permagrounded Phase
-        if (m_uiWave_spawn < uiDiff && razorscalePhase != PHASE_PERMAGROUND)
+        if (m_Phase != PHASE_PERMAGROUND)
         {
-            m_creature->SummonCreature(NPC_MOLE_MACHINE, PositionLoc[0].x, PositionLoc[0].y, PositionLoc[0].z, 0, TEMPSUMMON_TIMED_DESPAWN, 15000);
-            m_creature->SummonCreature(NPC_MOLE_MACHINE, PositionLoc[1].x, PositionLoc[1].y, PositionLoc[1].z, 0, TEMPSUMMON_TIMED_DESPAWN, 15000);
-            if (roll_chance_i(33))
+            if (m_uiWavespawn < uiDiff)
             {
-                if(Creature* pTemp = m_creature->SummonCreature(NPC_MOLE_MACHINE, PositionLoc[2].x, PositionLoc[2].y, PositionLoc[2].z, 0, TEMPSUMMON_TIMED_DESPAWN, 15000))
-                    if (mob_mole_machineAI* molAI = (mob_mole_machineAI*)pTemp->AI())
-                        molAI->m_bIsSentinel = true;
+                m_creature->SummonCreature(NPC_RAZORSCALE_SPAWNER, Point[POSITION_RIGHT].x, Point[POSITION_RIGHT].y, Point[POSITION_RIGHT].z, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 15000);
+                m_creature->SummonCreature(NPC_RAZORSCALE_SPAWNER, Point[POSITION_LEFT].x, Point[POSITION_LEFT].y, Point[POSITION_LEFT].z, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 15000);
+                if (roll_chance_i(33))
+                {
+                    if (Creature* pRazorscaleSpawner = m_creature->SummonCreature(NPC_RAZORSCALE_SPAWNER, Point[POSITION_MIDDLE].x, Point[POSITION_MIDDLE].y, Point[POSITION_MIDDLE].z, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 15000))
+                        if (mob_mole_machineAI* molAI = (mob_mole_machineAI*)pRazorscaleSpawner->AI())
+                            molAI->m_bIsSentinel = true;
+                }
+                m_uiWavespawn = urand(40000, 50000);
             }
-            m_uiWave_spawn = urand(40000, 50000);
+            else
+                m_uiWavespawn -= uiDiff;
         }
-        else
-            m_uiWave_spawn -= uiDiff;
 
         // berserk
-        if (m_uiBerserk_Timer < uiDiff)
+        if (m_uiBerserkTimer)
         {
-            DoCastSpellIfCan(m_creature, SPELL_BERSERK, CAST_TRIGGERED | CAST_AURA_NOT_PRESENT);
+            if (m_uiBerserkTimer < uiDiff)
+            {
+                if (DoCastSpellIfCan(m_creature, SPELL_BERSERK, CAST_TRIGGERED | CAST_AURA_NOT_PRESENT) == CAST_OK)
+                    m_uiBerserkTimer = 0;
+            }
+            else
+                m_uiBerserkTimer -= uiDiff;
         }
-        else
-            m_uiBerserk_Timer -= uiDiff;
 
-        if (m_creature->GetDistance2d(HOME_X, HOME_Y) > 100)
+        if (m_creature->GetDistance2d(Point[POSITION_AIR].x, Point[POSITION_AIR].y) > 100.0f)
             EnterEvadeMode();
     }
 };
@@ -908,54 +970,54 @@ bool GOHello_go_repair_harpoon(Player* pPlayer, GameObject* pGo)
         return false;
     if (Creature* pRazor = m_pInstance->GetSingleCreatureFromStorage(NPC_RAZORSCALE))
         if (boss_razorscaleAI* pRazorAI = (boss_razorscaleAI*)pRazor->AI())
-            pRazorAI->m_uiHarpoonsUsed++;
+            ++pRazorAI->m_uiHarpoonsUsed;
 
     return false;
 }
 
 void AddSC_boss_razorscale()
 {
-    Script* NewScript;
+    Script* pNewScript;
 
-    NewScript = new Script;
-    NewScript->Name = "boss_razorscale";
-    NewScript->GetAI = GetAI_boss_razorscale;
-    NewScript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "boss_razorscale";
+    pNewScript->GetAI = GetAI_boss_razorscale;
+    pNewScript->RegisterSelf();
 
-    NewScript = new Script;
-    NewScript->Name = "mob_devouring_flame_target";
-    NewScript->GetAI = &GetAI_mob_devouring_flame_target;
-    NewScript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "mob_devouring_flame_target";
+    pNewScript->GetAI = &GetAI_mob_devouring_flame_target;
+    pNewScript->RegisterSelf();
 
-    NewScript = new Script;
-    NewScript->Name = "mob_dark_rune_watcher";
-    NewScript->GetAI = &GetAI_mob_dark_rune_watcher;
-    NewScript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "mob_dark_rune_watcher";
+    pNewScript->GetAI = &GetAI_mob_dark_rune_watcher;
+    pNewScript->RegisterSelf();
 
-    NewScript = new Script;
-    NewScript->Name = "mob_dark_rune_sentinel";
-    NewScript->GetAI = &GetAI_mob_dark_rune_sentinel;
-    NewScript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "mob_dark_rune_sentinel";
+    pNewScript->GetAI = &GetAI_mob_dark_rune_sentinel;
+    pNewScript->RegisterSelf();
 
-    NewScript = new Script;
-    NewScript->Name = "mob_dark_rune_guardian";
-    NewScript->GetAI = &GetAI_mob_dark_rune_guardian;
-    NewScript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "mob_dark_rune_guardian";
+    pNewScript->GetAI = &GetAI_mob_dark_rune_guardian;
+    pNewScript->RegisterSelf();
 
-    NewScript = new Script;
-    NewScript->Name = "mob_mole_machine";
-    NewScript->GetAI = &GetAI_mob_mole_machine;
-    NewScript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "mob_mole_machine";
+    pNewScript->GetAI = &GetAI_mob_mole_machine;
+    pNewScript->RegisterSelf();
 
-    NewScript = new Script;
-    NewScript->Name = "npc_expedition_commander";
-    NewScript->GetAI = &GetAI_npc_expedition_commander;
-    NewScript->pGossipHello = &GossipHello_npc_expedition_commander;
-    NewScript->pGossipSelect = &GossipSelect_npc_expedition_commander;
-    NewScript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "npc_expedition_commander";
+    pNewScript->GetAI = &GetAI_npc_expedition_commander;
+    pNewScript->pGossipHello = &GossipHello_npc_expedition_commander;
+    pNewScript->pGossipSelect = &GossipSelect_npc_expedition_commander;
+    pNewScript->RegisterSelf();
 
-    NewScript = new Script;
-    NewScript->Name = "go_repair_harpoon";
-    NewScript->pGOUse = &GOHello_go_repair_harpoon;
-    NewScript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "go_repair_harpoon";
+    pNewScript->pGOUse = &GOHello_go_repair_harpoon;
+    pNewScript->RegisterSelf();
 }
