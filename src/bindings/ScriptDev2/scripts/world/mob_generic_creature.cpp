@@ -42,10 +42,10 @@ struct MANGOS_DLL_DECL generic_creatureAI : public ScriptedAI
 
     void Aggro(Unit *who)
     {
-            if (!m_creature->CanReachWithMeleeAttack(who))
-            {
-                IsSelfRooted = true;
-            }
+        if (!m_creature->CanReachWithMeleeAttack(who))
+        {
+            IsSelfRooted = true;
+        }
     }
 
     void UpdateAI(const uint32 diff)
@@ -57,10 +57,11 @@ struct MANGOS_DLL_DECL generic_creatureAI : public ScriptedAI
 
         //Buff timer (only buff when we are alive and not in combat
         if (!m_creature->isInCombat() && m_creature->isAlive())
+        {
             if (BuffTimer < diff)
             {
                 //Find a spell that targets friendly and applies an aura (these are generally buffs)
-                SpellEntry const *info = SelectSpell(m_creature, -1, -1, SELECT_TARGET_ANY_FRIEND, 0, 0, 0, 0, SELECT_EFFECT_AURA);
+                SpellEntry const* info = SelectSpell(m_creature, -1, -1, SELECT_TARGET_ANY_FRIEND, 0, 0, 0, 0, SELECT_EFFECT_AURA);
 
                 if (info && !GlobalCooldown)
                 {
@@ -74,7 +75,9 @@ struct MANGOS_DLL_DECL generic_creatureAI : public ScriptedAI
                     BuffTimer = 600000;
                 }//Try agian in 30 seconds
                 else BuffTimer = 30000;
-            }else BuffTimer -= diff;
+            }
+            else BuffTimer -= diff;
+        }
 
         //Return since we have no target
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())

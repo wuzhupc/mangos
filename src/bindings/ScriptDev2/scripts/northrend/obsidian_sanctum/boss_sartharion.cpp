@@ -1900,12 +1900,12 @@ bool GOobsidian_sanctum_portals(Player* pPlayer, GameObject* pGo)
         // event is not in progress, so we must check if dragon is alive
         Creature *pDragon = GetClosestCreatureWithEntry(pGo, NPC_TENEBRON, 70.0f);
 
-        if (!pDragon || (pDragon && (!((Unit*)pDragon)->isAlive()) || pDragon->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE)))
+        if (!pDragon || (pDragon && (!((Unit*)pDragon)->isAlive() || pDragon->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))))
             pDragon = GetClosestCreatureWithEntry(pGo, NPC_SHADRON, 70.0f);
-        if (!pDragon || (pDragon && (!((Unit*)pDragon)->isAlive()) || pDragon->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE)))
+        if (!pDragon || (pDragon && (!((Unit*)pDragon)->isAlive() || pDragon->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))))
             pDragon = GetClosestCreatureWithEntry(pGo, NPC_VESPERON, 70.0f);
 
-        if (!pDragon || (pDragon && (!((Unit*)pDragon)->isAlive()) || pDragon->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE) || !pDragon->isInCombat()))
+        if (!pDragon || (pDragon && (!((Unit*)pDragon)->isAlive() || pDragon->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE) || !pDragon->isInCombat())))
             return false;
     }
 

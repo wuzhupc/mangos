@@ -15,7 +15,7 @@
  */
 
 /* ScriptData
-SDName: boss_ragefire
+SDName: boss_saviana
 SD%Complete: 99%
 SDComment: by notagain && /dev/rsa && carlos93
 SDCategory: Ruby Sanctum
@@ -60,9 +60,9 @@ static Locations SpawnLoc[]=
     {3149.6350f, 668.9644f, 90.5070f},  // 1 Saviana fly phase, o=4,69
 };
 
-struct MANGOS_DLL_DECL boss_ragefireAI : public ScriptedAI
+struct MANGOS_DLL_DECL boss_savianaAI : public ScriptedAI
 {
-    boss_ragefireAI(Creature* pCreature) : ScriptedAI(pCreature)
+    boss_savianaAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
         m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
         m_uiMapDifficulty = pCreature->GetMap()->GetDifficulty();
@@ -240,16 +240,16 @@ struct MANGOS_DLL_DECL boss_ragefireAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_ragefire(Creature* pCreature)
+CreatureAI* GetAI_boss_saviana(Creature* pCreature)
 {
-    return new boss_ragefireAI(pCreature);
+    return new boss_savianaAI(pCreature);
 }
 
-void AddSC_boss_ragefire()
+void AddSC_boss_saviana()
 {
     Script *newscript;
     newscript = new Script;
-    newscript->Name = "boss_ragefire";
-    newscript->GetAI = &GetAI_boss_ragefire;
+    newscript->Name = "boss_saviana";
+    newscript->GetAI = &GetAI_boss_saviana;
     newscript->RegisterSelf();
 }

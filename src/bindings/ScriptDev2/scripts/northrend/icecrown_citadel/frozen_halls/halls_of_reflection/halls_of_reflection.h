@@ -119,6 +119,7 @@ static _Locations SpawnLoc[]=
     {5298.198f, 2037.762f, 707.694f, 4.71f}  //0
 };
 
+
 static _Locations WallLoc[]=
 {
     {5540.39f, 2086.48f, 731.066f, 1.00057f},
@@ -129,6 +130,7 @@ static _Locations WallLoc[]=
     {5266.779785f, 1953.42f, 707.697f, 1.0f},
     {5547.27002f, 2256.949951f, 733.010986f, 0.9f},   // Spawn point for Jaina && Silvana outro
 };
+
 
 enum HallsOfReflectionWorldStates
 {

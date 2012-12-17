@@ -142,7 +142,7 @@ struct MANGOS_DLL_DECL boss_lich_king_hrAI : public npc_escortAI
 
         m_pInstance->DoOpenDoor(GO_ICECROWN_DOOR_2);
 
-        Team team;
+        Team team = TEAM_NONE;
         if (Group* pGroup = pPlayer->GetGroup())
         {
             ObjectGuid LeaderGuid = pGroup->GetLeaderGuid();

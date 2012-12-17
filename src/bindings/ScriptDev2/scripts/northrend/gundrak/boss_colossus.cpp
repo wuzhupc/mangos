@@ -58,12 +58,12 @@ enum
 };
 
 /*######
-## boss_colossus
+## boss_drakkari_colossus
 ######*/
 
-struct MANGOS_DLL_DECL boss_colossusAI : public ScriptedAI
+struct MANGOS_DLL_DECL boss_drakkari_colossusAI : public ScriptedAI
 {
-    boss_colossusAI(Creature* pCreature) : ScriptedAI(pCreature)
+    boss_drakkari_colossusAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
         m_pInstance = (instance_gundrak*)pCreature->GetInstanceData();
         m_bIsRegularMode = pCreature->GetMap()->IsRegularDifficulty();
@@ -189,17 +189,17 @@ struct MANGOS_DLL_DECL boss_colossusAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_colossus(Creature* pCreature)
+CreatureAI* GetAI_boss_drakkari_colossus(Creature* pCreature)
 {
-    return new boss_colossusAI(pCreature);
+    return new boss_drakkari_colossusAI(pCreature);
 };
 
 /*######
-## boss_drakari_elemental
+## boss_drakkari_elemental
 ######*/
-struct MANGOS_DLL_DECL boss_drakari_elementalAI : public ScriptedAI
+struct MANGOS_DLL_DECL boss_drakkari_elementalAI : public ScriptedAI
 {
-    boss_drakari_elementalAI(Creature* pCreature) : ScriptedAI(pCreature)
+    boss_drakkari_elementalAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
         m_pInstance = (instance_gundrak*)pCreature->GetInstanceData();
         m_bIsRegularMode = pCreature->GetMap()->IsRegularDifficulty();
@@ -220,7 +220,7 @@ struct MANGOS_DLL_DECL boss_drakari_elementalAI : public ScriptedAI
     {
         // reset colossus if wiped party
         if(Creature* pColossus = m_pInstance->GetSingleCreatureFromStorage(NPC_COLOSSUS))
-            ((boss_colossusAI*)pColossus->AI())->EnterEvadeMode();
+            ((boss_drakkari_colossusAI*)pColossus->AI())->EnterEvadeMode();
                 m_creature->ForcedDespawn();
     }
 
@@ -234,7 +234,7 @@ struct MANGOS_DLL_DECL boss_drakari_elementalAI : public ScriptedAI
     {
         if (Creature* pColossus = m_pInstance->GetSingleCreatureFromStorage(NPC_COLOSSUS))
         {
-            if (boss_colossusAI* pColossusAI = dynamic_cast<boss_colossusAI*>(pColossus->AI()))
+            if (boss_drakkari_colossusAI* pColossusAI = dynamic_cast<boss_drakkari_colossusAI*>(pColossus->AI()))
                 if (pColossusAI->m_uiPhase == PHASE_1ST_ELEMENTAL && m_creature->GetHealthPercent() < 50.0f)
                 {
                     uiDamage = 0;
@@ -287,9 +287,9 @@ struct MANGOS_DLL_DECL boss_drakari_elementalAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_drakari_elemental(Creature* pCreature)
+CreatureAI* GetAI_boss_drakkari_elemental(Creature* pCreature)
 {
-    return new boss_drakari_elementalAI(pCreature);
+    return new boss_drakkari_elementalAI(pCreature);
 };
 
 /*######
@@ -380,13 +380,13 @@ void AddSC_boss_colossus()
     Script* pNewScript;
 
     pNewScript = new Script;
-    pNewScript->Name = "boss_colossus";
-    pNewScript->GetAI = &GetAI_boss_colossus;
+    pNewScript->Name = "boss_drakkari_colossus";
+    pNewScript->GetAI = &GetAI_boss_drakkari_colossus;
     pNewScript->RegisterSelf();
 
     pNewScript = new Script;
-    pNewScript->Name = "boss_drakari_elemental";
-    pNewScript->GetAI = &GetAI_boss_drakari_elemental;
+    pNewScript->Name = "boss_drakkari_elemental";
+    pNewScript->GetAI = &GetAI_boss_drakkari_elemental;
     pNewScript->RegisterSelf();
 
     pNewScript = new Script;

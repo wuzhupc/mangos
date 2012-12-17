@@ -226,7 +226,7 @@ void instance_gundrak::SetData(uint32 uiType, uint32 uiData)
                 DoUseDoorOrButton(GO_ECK_UNDERWATER_DOOR);
             break;
         default:
-            error_log("SD2: Instance Gundrak: ERROR SetData = %u for type %u does not exist/not implemented.", uiType, uiData);
+            script_error_log("Instance Gundrak: ERROR SetData = %u for type %u does not exist/not implemented.", uiType, uiData);
             return;
     }
 /*    if (m_auiEncounter[0] == SPECIAL && m_auiEncounter[1] == SPECIAL && m_auiEncounter[2] == SPECIAL)
@@ -381,8 +381,8 @@ void instance_gundrak::DoAltarVisualEffect(uint8 uiType)
 
     uint32 auiFireBeamSpells[3] = {SPELL_BEAM_SNAKE, SPELL_BEAM_ELEMENTAL, SPELL_BEAM_MAMMOTH};
 
-    // Cast from Caster to Target, triggered to avoid LoS-Check
-    pCaster->CastSpell(pTarget, auiFireBeamSpells[uiIndex], true);
+    // Cast from Caster to Target
+    pCaster->CastSpell(pTarget, auiFireBeamSpells[uiIndex], false);
 }
 
 void instance_gundrak::Update(uint32 uiDiff)

@@ -88,6 +88,8 @@ struct MANGOS_DLL_DECL instance_trial_of_the_champion : public ScriptedInstance
 
                 pPlayer->CastSpell(pPlayer, ALLIANCE_CONTROL_PHASE_SHIFT_2, false);
                 break;
+            default:
+                break;
         }
     }
 

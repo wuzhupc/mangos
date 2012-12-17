@@ -27,8 +27,6 @@ EndScriptData */
 
 /*######
 ## go_ic_teleport
-## npc_ic_vehicle
-## npc_ic_cannon
 ## boss_bg_ioc
 ######*/
 
@@ -76,9 +74,9 @@ bool GOHello_go_ic_teleport(Player* pPlayer, GameObject* pGo)
     if (pPlayer->GetMapId() != 628)
         return false;
 
-    if (BattleGround *bg = pPlayer->GetBattleGround())                  // no need to check for faction, since only the eligible players can click the portal
+    if (BattleGround* bg = pPlayer->GetBattleGround())                  // no need to check for faction, since only the eligible players can click the portal
     {
-        BattleGroundIC * IoC = static_cast<BattleGroundIC*>(bg);
+        //BattleGroundIC* IoC = static_cast<BattleGroundIC*>(bg);
 
         for (uint32 i = 0; i < MAX_PORTALS; ++i)
         {
@@ -102,206 +100,6 @@ bool GOHello_go_ic_teleport(Player* pPlayer, GameObject* pGo)
         }
     }
     return false;
-}
-
-struct MANGOS_DLL_DECL npc_ic_vehicleAI : public ScriptedAI
-{
-    npc_ic_vehicleAI(Creature* pCreature) : ScriptedAI(pCreature)
-    {
-        SetCombatMovement(false);
-        Reset();
-    }
-
-    void Reset()
-    {
-        done = false;
-        gotFaction = false;
-    }
-
-    bool done;
-    bool gotFaction;
-    BattleGround *bg;
-
-    void Aggro(Unit* /*who*/){ m_creature->CombatStop(); }
-
-    void EnterCombat(Unit *pEnemy)
-    {
-        if (!m_creature->isCharmed())
-            m_creature->CombatStop();
-    }
-
-    void StartEvent(Player* pPlayer, Creature* pCreature)
-    {
-        if (BattleGround *bg = pPlayer->GetBattleGround())
-        {
-            if (VehicleKitPtr vehicle = pCreature->GetVehicleKit())
-            {
-                if (!pCreature->GetCharmerGuid().IsEmpty())
-                    pPlayer->EnterVehicle(vehicle);
-                else
-                {
-                    pPlayer->EnterVehicle(vehicle);
-                    pPlayer->CastSpell(pCreature, 60968, true);
-                }
-            }
-        }
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        if (!m_creature->isCharmed())
-        {
-            if (m_creature->isInCombat())
-                m_creature->CombatStop();
-
-            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PASSIVE);
-
-            if (!done)
-            {
-                Map* pMap = m_creature->GetMap();
-
-                if (!pMap || !pMap->IsBattleGround())
-                    return;
-
-                Map::PlayerList const& playerList = pMap->GetPlayers();
-                if (!playerList.isEmpty())
-                {
-                    Map::PlayerList::const_iterator itr = playerList.begin();
-                    Player* player = itr->getSource();
-                    if (player)
-                    {
-                        bg = player->GetBattleGround();
-                        done = true;
-                    }
-                }
-            }
-
-            if (bg)
-            {
-                if (gotFaction == false)
-                {
-                    if (m_creature->GetEntry() == NPC_DEMOLISHER)
-                        m_creature->setFaction(bg->GetVehicleFaction(VEHICLE_BG_DEMOLISHER));
-                    else if (m_creature->GetEntry() == NPC_CATAPULT)
-                        m_creature->setFaction(bg->GetVehicleFaction(VEHICLE_IC_CATAPULT));
-                    // Glaive throwers have separate ID for horde/alli
-                    else if (m_creature->GetEntry() == NPC_GLAIVE_A)
-                        m_creature->setFaction(VEHICLE_FACTION_ALLIANCE);
-                    else if (m_creature->GetEntry() == NPC_GLAIVE_H)
-                        m_creature->setFaction(VEHICLE_FACTION_HORDE);
-
-                    gotFaction = true;
-                }
-            }
-        }
-    }
-};
-
-CreatureAI* GetAI_npc_ic_vehicle(Creature* pCreature)
-{
-    return new npc_ic_vehicleAI(pCreature);
-}
-
-bool GossipHello_npc_ic_vehicle(Player* pPlayer, Creature* pCreature)
-{
-     pPlayer->CLOSE_GOSSIP_MENU();
-     ((npc_ic_vehicleAI*)pCreature->AI())->StartEvent(pPlayer, pCreature);
-         return true;
-}
-
-struct MANGOS_DLL_DECL npc_ic_cannonAI : public ScriptedAI
-{
-    npc_ic_cannonAI(Creature* pCreature) : ScriptedAI(pCreature)
-    {
-        SetCombatMovement(false);
-        Reset();
-    }
-
-    void Reset()
-    {
-        done = false;
-    }
-
-    bool done;
-    BattleGround *bg;
-
-    void Aggro(Unit* who){ m_creature->CombatStop(); }
-
-    void StartEvent(Player* pPlayer, Creature* pCreature)
-    {
-        if (BattleGround *bg = pPlayer->GetBattleGround())
-        {
-            if (bg->GetStatus() == STATUS_WAIT_JOIN)
-                return;
-
-            if (VehicleKitPtr vehicle = pCreature->GetVehicleKit())
-            {
-                if (!pCreature->GetCharmerGuid().IsEmpty())
-                    pPlayer->EnterVehicle(vehicle);
-                else
-                {
-                    pPlayer->EnterVehicle(vehicle);
-                    pPlayer->CastSpell(pCreature, 60968, true);
-                }
-            }
-        }
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        if (m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
-            m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-
-        if (!m_creature->isCharmed())
-        {
-            if (m_creature->isInCombat())
-                m_creature->CombatStop();
-
-            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PASSIVE);
-
-            if (!done)
-            {
-                Map* pMap = m_creature->GetMap();
-
-                if (!pMap || !pMap->IsBattleGround())
-                    return;
-
-                Map::PlayerList const& playerList = pMap->GetPlayers();
-                if (!playerList.isEmpty())
-                {
-                    Map::PlayerList::const_iterator itr = playerList.begin();
-                    Player* player = itr->getSource();
-                    if (player)
-                    {
-                        bg = player->GetBattleGround();
-                        done = true;
-                    }
-                }
-            }
-
-            if (bg)
-            {
-                // simplest way to determine factions Ive found
-                float x = m_creature->GetPositionX();
-                if (x > 1000.0f)
-                    m_creature->setFaction(VEHICLE_FACTION_HORDE);
-                else
-                    m_creature->setFaction(VEHICLE_FACTION_ALLIANCE);
-            }
-        }
-    }
-};
-
-CreatureAI* GetAI_npc_ic_cannon(Creature* pCreature)
-{
-    return new npc_ic_cannonAI(pCreature);
-}
-
-bool GossipHello_npc_ic_cannon(Player* pPlayer, Creature* pCreature)
-{
-     pPlayer->CLOSE_GOSSIP_MENU();
-     ((npc_ic_cannonAI*)pCreature->AI())->StartEvent(pPlayer, pCreature);
-         return true;
 }
 
 struct MANGOS_DLL_DECL boss_bg_iocAI : public ScriptedAI
@@ -359,18 +157,6 @@ void AddSC_battlegroundIC()
     pNewScript = new Script;
     pNewScript->Name = "go_ic_teleport";
     pNewScript->pGOUse = &GOHello_go_ic_teleport;
-    pNewScript->RegisterSelf();
-
-    pNewScript = new Script;
-    pNewScript->Name = "npc_ic_vehicle";
-    pNewScript->GetAI = &GetAI_npc_ic_vehicle;
-    pNewScript->pGossipHello = &GossipHello_npc_ic_vehicle;
-    pNewScript->RegisterSelf();
-
-    pNewScript = new Script;
-    pNewScript->Name = "npc_ic_cannon";
-    pNewScript->GetAI = &GetAI_npc_ic_cannon;
-    pNewScript->pGossipHello = &GossipHello_npc_ic_cannon;
     pNewScript->RegisterSelf();
 
     pNewScript = new Script;

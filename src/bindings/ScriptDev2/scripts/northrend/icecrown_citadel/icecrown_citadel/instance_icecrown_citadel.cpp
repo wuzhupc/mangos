@@ -43,13 +43,11 @@ instance_icecrown_citadel::instance_icecrown_citadel(Map* pMap) : ScriptedInstan
 
 void instance_icecrown_citadel::Initialize()
 {
-    for (uint8 i = 0; i < MAX_ENCOUNTERS; ++i)
+    for (uint8 i = 0; i < MAX_ENCOUNTERS_2; ++i)
         m_auiEncounter[i] = NOT_STARTED;
 
     for (uint8 i = 0; i < ACHIEVE_MAX_COUNT; ++i)
         m_bAchievCriteria[i] = false;
-
-    m_auiEncounter[0] = 0;
 
     m_auiEvent = 0;
     m_auiEventTimer = 1000;
@@ -91,7 +89,7 @@ void instance_icecrown_citadel::Initialize()
 
 bool instance_icecrown_citadel::IsEncounterInProgress()
 {
-    for(uint8 i = 1; i < MAX_ENCOUNTERS-2 ; ++i)
+    for(uint8 i = 1; i < MAX_ENCOUNTERS; ++i)
     {
         if (m_auiEncounter[i] == IN_PROGRESS)
             return true;
@@ -513,6 +511,9 @@ void instance_icecrown_citadel::SetData(uint32 uiType, uint32 uiData)
          case TYPE_ICECROWN_QUESTS:
             m_auiEncounter[TYPE_ICECROWN_QUESTS] = uiData;
             break;
+        default:
+            script_error_log("Instance Icecrown Citadel: ERROR SetData = %u for type %u does not exist/not implemented.", uiType, uiData);
+            return;
     }
 
     if (uiData == DONE)

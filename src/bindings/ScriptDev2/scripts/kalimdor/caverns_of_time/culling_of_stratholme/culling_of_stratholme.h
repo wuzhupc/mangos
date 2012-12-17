@@ -36,6 +36,7 @@ enum Data
     TYPE_WING            = 7,
     TYPE_BONUS           = 8,
     TYPE_MALGANIS        = 9,
+    MAX_ENCOUNTERS,
 
     DATA_TEMPSUMMON      = 10,
 

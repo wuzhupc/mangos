@@ -418,11 +418,11 @@ struct MANGOS_DLL_DECL mob_vh_dragonsAI : public ScriptedAI
 };
 
 /*######
-## npc_violet_portal
+## npc_teleportation_portal
 ######*/
-struct MANGOS_DLL_DECL npc_violet_portalAI : public ScriptedAI
+struct MANGOS_DLL_DECL npc_teleportation_portalAI : public ScriptedAI
 {
-    npc_violet_portalAI(Creature* pCreature) : ScriptedAI(pCreature)
+    npc_teleportation_portalAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
         m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
         m_bIsRegularMode = pCreature->GetMap()->IsRegularDifficulty();
@@ -686,9 +686,9 @@ struct MANGOS_DLL_DECL npc_sinclariAI : public ScriptedAI
             //set portal type
             uint8 portalType = rand()%2+1;
             uint32 portalID = rand()%50000;
-            ((npc_violet_portalAI*)pTemp->AI())->portalType = portalType; 
-            ((npc_violet_portalAI*)pTemp->AI())->portalID = portalID;
-            ((npc_violet_portalAI*)pTemp->AI())->portalLoc = tmp;
+            ((npc_teleportation_portalAI*)pTemp->AI())->portalType = portalType;
+            ((npc_teleportation_portalAI*)pTemp->AI())->portalID = portalID;
+            ((npc_teleportation_portalAI*)pTemp->AI())->portalLoc = tmp;
 
             if(portalType == 1)
             {
@@ -879,7 +879,7 @@ bool GossipSelect_npc_sinclari(Player* pPlayer, Creature* pCreature, uint32 uiSe
     return true;
 }
 /*######
-## npc_door_seal_vh
+## npc_door_seal
 ######*/
 struct MANGOS_DLL_DECL npc_door_sealAI : public ScriptedAI
 {
@@ -1071,9 +1071,9 @@ CreatureAI* GetAI_npc_sinclari(Creature* pCreature)
 {
     return new npc_sinclariAI (pCreature);
 }
-CreatureAI* GetAI_npc_violet_portal(Creature* pCreature)
+CreatureAI* GetAI_npc_teleportation_portal(Creature* pCreature)
 {
-    return new npc_violet_portalAI (pCreature);
+    return new npc_teleportation_portalAI (pCreature);
 }
 CreatureAI* GetAI_npc_door_seal(Creature* pCreature)
 {
@@ -1092,12 +1092,12 @@ void AddSC_violet_hold()
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name = "npc_violet_portal";
-    newscript->GetAI = &GetAI_npc_violet_portal;
+    newscript->Name = "npc_teleportation_portal";
+    newscript->GetAI = &GetAI_npc_teleportation_portal;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name = "npc_door_seal_vh";
+    newscript->Name = "npc_door_seal";
     newscript->GetAI = &GetAI_npc_door_seal;
     newscript->RegisterSelf();
 

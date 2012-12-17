@@ -54,8 +54,8 @@ enum saysSD2
     SPELL_FORGE_BLADE                   = 68774,
     SPELL_FORGE_BLADE_H                 = 70334,
 
-    SAY_FREE_SLAVE_HORDE                = -1658013,
-    SAY_FREE_SLAVE_ALLY                 = -1658012,
+    SAY_FREE_SLAVE_HORDE                = -1658051,
+    SAY_FREE_SLAVE_ALLY                 = -1658021,
     SAY_TYRANNUS_OUTRO                  = -1658020,
 
     PHASE_NO_ENCHANTMENT                = 1,

@@ -245,6 +245,7 @@
     <ClCompile Include="..\scripts\eastern_kingdoms\isle_of_queldanas.cpp" />
     <ClCompile Include="..\scripts\eastern_kingdoms\loch_modan.cpp" />
     <ClCompile Include="..\scripts\eastern_kingdoms\redridge_mountains.cpp" />
+    <ClCompile Include="..\scripts\eastern_kingdoms\scarlet_enclave\world_map_ebon_hold.cpp" />
     <ClCompile Include="..\scripts\eastern_kingdoms\searing_gorge.cpp" />
     <ClCompile Include="..\scripts\eastern_kingdoms\silvermoon_city.cpp" />
     <ClCompile Include="..\scripts\eastern_kingdoms\silverpine_forest.cpp" />
@@ -817,6 +818,7 @@
     <ClInclude Include="..\scripts\eastern_kingdoms\grim_batol\grim_batol.h" />
     <ClInclude Include="..\scripts\eastern_kingdoms\karazhan\karazhan.h" />
     <ClInclude Include="..\scripts\eastern_kingdoms\magisters_terrace\magisters_terrace.h" />
+    <ClInclude Include="..\scripts\eastern_kingdoms\scarlet_enclave\world_map_ebon_hold.h" />
     <ClInclude Include="..\scripts\eastern_kingdoms\scarlet_monastery\scarlet_monastery.h" />
     <ClInclude Include="..\scripts\eastern_kingdoms\scholomance\scholomance.h" />
     <ClInclude Include="..\scripts\eastern_kingdoms\shadowfang_keep\shadowfang_keep.h" />

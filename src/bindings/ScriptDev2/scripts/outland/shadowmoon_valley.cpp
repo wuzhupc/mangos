@@ -603,7 +603,7 @@ bool QuestAccept_npc_wilda(Player* pPlayer, Creature* pCreature, const Quest* pQ
     if (pQuest->GetQuestId() == QUEST_ESCAPE_COILSCAR)
     {
         DoScriptText(SAY_WIL_START, pCreature, pPlayer);
-        pCreature->setFaction(FACTION_EARTHEN);
+        pCreature->SetFactionTemporary(FACTION_EARTHEN, TEMPFACTION_RESTORE_RESPAWN);
 
         if (npc_wildaAI* pEscortAI = dynamic_cast<npc_wildaAI*>(pCreature->AI()))
             pEscortAI->Start(false, pPlayer, pQuest);
@@ -1510,7 +1510,7 @@ struct MANGOS_DLL_DECL npc_spawned_oronok_tornheartAI : public ScriptedAI, priva
         }
         else
         {
-            error_log("SD2: Npc %u couldn't be found or something really bad happened. Epilogue event for quest %u will stop.", NPC_CYRUKH_THE_FIRELORD, QUEST_CIPHER_OF_DAMNATION);
+            script_error_log("Npc %u couldn't be found or something really bad happened. Epilogue event for quest %u will stop.", NPC_CYRUKH_THE_FIRELORD, QUEST_CIPHER_OF_DAMNATION);
             m_creature->GetMotionMaster()->MoveTargetedHome();
         }
     }

@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
 * This program is free software licensed under GPL version 2
 * Please see the included DOCS/LICENSE.TXT for more information */
 
@@ -36,16 +36,16 @@ void SystemMgr::LoadVersion()
         delete pResult;
     }
     else
-        error_log("SD2: Missing `sd2_db_version` information.");
+        script_error_log("Missing `sd2_db_version` information.");
 
     // Setup version info and display it
     if (strSD2Version.empty())
         strSD2Version.append("ScriptDev2 ");
 
-    strSD2Version.append(_FULLVERSION);
+    strSD2Version.append("SD2_FULLVERSION_WUZHU");
 
     outstring_log("Loading %s", strSD2Version.c_str());
-    outstring_log("");
+    // outstring_log("");
 }
 
 void SystemMgr::LoadScriptTexts()
@@ -98,14 +98,14 @@ void SystemMgr::LoadScriptTexts()
 
         delete pResult;
 
-        outstring_log("");
+        //outstring_log("");
         outstring_log(">> Loaded %u additional Script Texts data.", uiCount);
     }
     else
     {
         BarGoLink bar(1);
         bar.step();
-        outstring_log("");
+        //outstring_log("");
         outstring_log(">> Loaded 0 additional Script Texts data. DB table `script_texts` is empty.");
     }
 }
@@ -160,14 +160,14 @@ void SystemMgr::LoadScriptTextsCustom()
 
         delete pResult;
 
-        outstring_log("");
+        //outstring_log("");
         outstring_log(">> Loaded %u additional Custom Texts data.", uiCount);
     }
     else
     {
         BarGoLink bar(1);
         bar.step();
-        outstring_log("");
+        //outstring_log("");
         outstring_log(">> Loaded 0 additional Custom Texts data. DB table `custom_texts` is empty.");
     }
 }
@@ -233,17 +233,18 @@ void SystemMgr::LoadScriptWaypoints()
 
         delete pResult;
 
-        outstring_log("");
+        //outstring_log("");
         outstring_log(">> Loaded %u Script Waypoint nodes.", uiNodeCount);
     }
     else
     {
         BarGoLink bar(1);
         bar.step();
-        outstring_log("");
+        //outstring_log("");
         outstring_log(">> Loaded 0 Script Waypoints. DB table `script_waypoint` is empty.");
     }
 }
+
 
 
 //wuzhu start

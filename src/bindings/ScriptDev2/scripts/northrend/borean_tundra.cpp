@@ -514,7 +514,7 @@ bool QuestAccept_npc_lurgglbr(Player* pPlayer, Creature* pCreature, const Quest*
     {
         if (npc_lurgglbrAI* pEscortAI = dynamic_cast<npc_lurgglbrAI*>(pCreature->AI()))
         {
-            pCreature->setFaction(FACTION_ESCORT_N_NEUTRAL_PASSIVE);
+            pCreature->SetFactionTemporary(FACTION_ESCORT_N_NEUTRAL_PASSIVE, TEMPFACTION_RESTORE_RESPAWN);
             pEscortAI->Start(false, pPlayer, pQuest);
         }
     }
@@ -851,9 +851,11 @@ const int32 textOnQuest[4] =
 bool ProcessEventId_go_tadpole_cage(uint32 uiEventId, Object* pSource, Object* pTarget, bool bIsStart)
 {
     if (Player* pPlayer = (Player*) pSource)
+    {
         if (GameObject* pGo = (GameObject*) pTarget)
         {
             if (Creature* pTadpole = GetClosestCreatureWithEntry(pGo,NPC_TADPOLE,0.5))
+            {
                 if (pPlayer->GetQuestStatus(QUEST_TADPOLES) == QUEST_STATUS_INCOMPLETE)
                 {
                     DoScriptText(textOnQuest[urand(0,3)],pTadpole,pPlayer);
@@ -862,7 +864,9 @@ bool ProcessEventId_go_tadpole_cage(uint32 uiEventId, Object* pSource, Object* p
                 }
                 else
                     DoScriptText(textNotOnQuest[urand(0,2)],pTadpole,pPlayer);
+            }
         }
+    }
     return true;
 }
 

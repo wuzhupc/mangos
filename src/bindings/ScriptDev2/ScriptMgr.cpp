@@ -63,7 +63,7 @@ void LoadDatabase()
 
     if (strSD2DBinfo.empty())
     {
-        error_log("SD2: Missing Scriptdev2 database info from configuration file. Load database aborted.");
+        script_error_log("Missing Scriptdev2 database info from configuration file. Load database aborted.");
         return;
     }
 
@@ -71,7 +71,7 @@ void LoadDatabase()
     if (SD2Database.Initialize(strSD2DBinfo.c_str()))
     {
         outstring_log("SD2: ScriptDev2 database initialized.");
-        outstring_log("");
+        //outstring_log("");
 
         pSystemMgr.LoadVersion();
         pSystemMgr.LoadScriptTexts();
@@ -87,7 +87,7 @@ void LoadDatabase()
     }
     else
     {
-        error_log("SD2: Unable to connect to Database. Load database aborted.");
+        script_error_log("Unable to connect to Database. Load database aborted.");
         return;
     }
 
@@ -117,14 +117,17 @@ void FreeScriptLibrary()
     delete m_scriptStorage;
 
     num_sc_scripts = 0;
+
     SD2Database.HaltDelayThread();
+
+    setScriptLibraryErrorFile(NULL, NULL);
 }
 
 MANGOS_DLL_EXPORT
 void InitScriptLibrary()
 {
     // ScriptDev2 startup
-    outstring_log("");
+    // outstring_log("");
     outstring_log(" MMM  MMM    MM");
     outstring_log("M  MM M  M  M  M");
     outstring_log("MM    M   M   M");
@@ -133,19 +136,27 @@ void InitScriptLibrary()
     outstring_log("MM  M M  M ");
     outstring_log(" MMM  MMM  http://www.scriptdev2.com");
     outstring_log("R2 modifications included (https://github.com/mangosR2/scriptdev2)");
-    outstring_log(_VERSION);
+    outstring_log("SD2_VERSION_WUZHU");
 
     // Get configuration file
+    bool configFailure = false;
     if (!SD2Config.SetSource(_SCRIPTDEV2_CONFIG))
-        error_log("SD2: Unable to open configuration file %s. Database will be unaccessible. Configuration values will use default.",_SCRIPTDEV2_CONFIG);
+        configFailure = true;
     else
         outstring_log("SD2: Using configuration file %s",_SCRIPTDEV2_CONFIG);
 
+    // Set SD2 Error Log File
+    std::string sd2LogFile = SD2Config.GetStringDefault("SD2ErrorLogFile", "SD2Errors.log");
+    setScriptLibraryErrorFile(sd2LogFile.c_str(), "SD2");
+
+    if (configFailure)
+        script_error_log("Unable to open configuration file. Database will be unaccessible. Configuration values will use default.");
+
     // Check config file version
     if (SD2Config.GetIntDefault("ConfVersion", 0) != SD2_CONF_VERSION)
-        error_log("SD2: Configuration file version doesn't match expected version. Some config variables may be wrong or missing.");
+        script_error_log("Configuration file version doesn't match expected version. Some config variables may be wrong or missing.");
 
-    outstring_log("");
+    // outstring_log("");
 
     // Load database (must be called after SD2Config.SetSource).
     LoadDatabase();
@@ -153,7 +164,7 @@ void InitScriptLibrary()
     outstring_log("SD2: Loading C++ scripts");
     BarGoLink bar(1);
     bar.step();
-    outstring_log("");
+    // outstring_log("");
 
     // Initialize script ids to needed ammount of assigned ScriptNames (from core)
     m_scripts = new SDScriptVec(GetScriptIdsCount(), NULL);
@@ -168,7 +179,7 @@ void InitScriptLibrary()
     for (uint32 i = 1; i < GetScriptIdsCount(); ++i)
     {
         if (!m_scripts->at(i))
-            error_log("SD2: No script found for ScriptName '%s'.", GetScriptName(i));
+            script_error_log("No script found for ScriptName '%s'.", GetScriptName(i));
     }
 
     outstring_log(">> Loaded %i C++ Scripts.", num_sc_scripts);
@@ -188,14 +199,14 @@ void DoScriptText(int32 iTextEntry, WorldObject* pSource, Unit* pTarget)
 {
     if (!pSource)
     {
-        error_log("SD2: DoScriptText entry %i, invalid Source pointer.", iTextEntry);
+        script_error_log("DoScriptText entry %i, invalid Source pointer.", iTextEntry);
         return;
     }
 
     if (iTextEntry >= 0)
     {
-        error_log("SD2: DoScriptText with source entry %u (TypeId=%u, guid=%u) attempts to process text entry %i, but text entry must be negative.",
-            pSource->GetEntry(), pSource->GetTypeId(), pSource->GetGUIDLow(), iTextEntry);
+        script_error_log("DoScriptText with source entry %u (TypeId=%u, guid=%u) attempts to process text entry %i, but text entry must be negative.",
+                         pSource->GetEntry(), pSource->GetTypeId(), pSource->GetGUIDLow(), iTextEntry);
 
         return;
     }
@@ -203,8 +214,8 @@ void DoScriptText(int32 iTextEntry, WorldObject* pSource, Unit* pTarget)
     const StringTextData* pData = pSystemMgr.GetTextData(iTextEntry);
     if (!pData)
     {
-        error_log("SD2: DoScriptText with source entry %u (TypeId=%u, guid=%u) could not find text entry %i.",
-            pSource->GetEntry(), pSource->GetTypeId(), pSource->GetGUIDLow(), iTextEntry);
+        script_error_log("DoScriptText with source entry %u (TypeId=%u, guid=%u) could not find text entry %i.",
+                         pSource->GetEntry(), pSource->GetTypeId(), pSource->GetGUIDLow(), iTextEntry);
 
         return;
     }
@@ -228,7 +239,7 @@ void DoScriptText(int32 iTextEntry, WorldObject* pSource, Unit* pTarget)
                 pSource->PlayDirectSound(pData->uiSoundId);
         }
         else
-            error_log("SD2: DoScriptText entry %i tried to process invalid sound id %u.", iTextEntry, pData->uiSoundId);
+            script_error_log("DoScriptText entry %i tried to process invalid sound id %u.", iTextEntry, pData->uiSoundId);
     }
 
     if (pData->uiEmote)
@@ -236,7 +247,7 @@ void DoScriptText(int32 iTextEntry, WorldObject* pSource, Unit* pTarget)
         if (pSource->GetTypeId() == TYPEID_UNIT || pSource->GetTypeId() == TYPEID_PLAYER)
             ((Unit*)pSource)->HandleEmote(pData->uiEmote);
         else
-            error_log("SD2: DoScriptText entry %i tried to process emote for invalid TypeId (%u).", iTextEntry, pSource->GetTypeId());
+            script_error_log("DoScriptText entry %i tried to process emote for invalid TypeId (%u).", iTextEntry, pSource->GetTypeId());
     }
 
     switch(pData->uiType)
@@ -258,7 +269,7 @@ void DoScriptText(int32 iTextEntry, WorldObject* pSource, Unit* pTarget)
             if (pTarget && pTarget->GetTypeId() == TYPEID_PLAYER)
                 pSource->MonsterWhisper(iTextEntry, pTarget);
             else
-                error_log("SD2: DoScriptText entry %i cannot whisper without target unit (TYPEID_PLAYER).", iTextEntry);
+                script_error_log("DoScriptText entry %i cannot whisper without target unit (TYPEID_PLAYER).", iTextEntry);
 
             break;
         }
@@ -267,7 +278,7 @@ void DoScriptText(int32 iTextEntry, WorldObject* pSource, Unit* pTarget)
             if (pTarget && pTarget->GetTypeId() == TYPEID_PLAYER)
                 pSource->MonsterWhisper(iTextEntry, pTarget, true);
             else
-                error_log("SD2: DoScriptText entry %i cannot whisper without target unit (TYPEID_PLAYER).", iTextEntry);
+                script_error_log("DoScriptText entry %i cannot whisper without target unit (TYPEID_PLAYER).", iTextEntry);
 
             break;
         }
@@ -290,27 +301,27 @@ void DoOrSimulateScriptTextForMap(int32 iTextEntry, uint32 uiCreatureEntry, Map*
 {
     if (!pMap)
     {
-        error_log("SD2: DoOrSimulateScriptTextForMap entry %i, invalid Map pointer.", iTextEntry);
+        script_error_log("DoOrSimulateScriptTextForMap entry %i, invalid Map pointer.", iTextEntry);
         return;
     }
 
     if (iTextEntry >= 0)
     {
-        error_log("SD2: DoOrSimulateScriptTextForMap with source entry %u for map %u attempts to process text entry %i, but text entry must be negative.", uiCreatureEntry, pMap->GetId(), iTextEntry);
+        script_error_log("DoOrSimulateScriptTextForMap with source entry %u for map %u attempts to process text entry %i, but text entry must be negative.", uiCreatureEntry, pMap->GetId(), iTextEntry);
         return;
     }
 
     CreatureInfo const* pInfo = GetCreatureTemplateStore(uiCreatureEntry);
     if (!pInfo)
     {
-         error_log("SD2: DoOrSimulateScriptTextForMap has invalid source entry %u for map %u.", uiCreatureEntry, pMap->GetId());
+        script_error_log("DoOrSimulateScriptTextForMap has invalid source entry %u for map %u.", uiCreatureEntry, pMap->GetId());
         return;
     }
 
     const StringTextData* pData = pSystemMgr.GetTextData(iTextEntry);
     if (!pData)
     {
-        error_log("SD2: DoOrSimulateScriptTextForMap with source entry %u for map %u could not find text entry %i.", uiCreatureEntry, pMap->GetId(), iTextEntry);
+        script_error_log("DoOrSimulateScriptTextForMap with source entry %u for map %u could not find text entry %i.", uiCreatureEntry, pMap->GetId(), iTextEntry);
         return;
     }
 
@@ -319,7 +330,7 @@ void DoOrSimulateScriptTextForMap(int32 iTextEntry, uint32 uiCreatureEntry, Map*
 
     if (pData->uiType != CHAT_TYPE_ZONE_YELL)
     {
-        error_log("SD2: DoSimulateScriptTextForMap entry %i has not supported chat type %u.", iTextEntry, pData->uiType);
+        script_error_log("DoSimulateScriptTextForMap entry %i has not supported chat type %u.", iTextEntry, pData->uiType);
         return;
     }
 
@@ -328,7 +339,7 @@ void DoOrSimulateScriptTextForMap(int32 iTextEntry, uint32 uiCreatureEntry, Map*
         if (GetSoundEntriesStore()->LookupEntry(pData->uiSoundId))
             pMap->PlayDirectSoundToMap(pData->uiSoundId);
         else
-            error_log("SD2: DoOrSimulateScriptTextForMap entry %i tried to process invalid sound id %u.", iTextEntry, pData->uiSoundId);
+            script_error_log("DoOrSimulateScriptTextForMap entry %i tried to process invalid sound id %u.", iTextEntry, pData->uiSoundId);
     }
 
     if (pCreatureSource)                                // If provided pointer for sayer, use direct version
@@ -350,7 +361,7 @@ void Script::RegisterSelf(bool bReportError)
     else
     {
         if (bReportError)
-            error_log("SD2: Script registering but ScriptName %s is not assigned in database. Script will not be used.", Name.c_str());
+            script_error_log("Script registering but ScriptName %s is not assigned in database. Script will not be used.", Name.c_str());
 
         m_scriptStorage->insert(std::make_pair(Name.c_str(), this));
     }
@@ -621,7 +632,7 @@ MANGOS_DLL_EXPORT
 CreatureAI* GetCreatureAI(Creature* pCreature)
 {
     if (!pCreature)
-        return false;
+        return NULL;
 
     Script* pTempScript = m_scripts->at(pCreature->GetScriptId());
 

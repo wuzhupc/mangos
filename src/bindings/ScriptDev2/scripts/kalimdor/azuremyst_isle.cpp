@@ -196,7 +196,6 @@ struct MANGOS_DLL_DECL npc_engineer_spark_overgrindAI : public ScriptedAI
 {
     npc_engineer_spark_overgrindAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_uiNormFaction = pCreature->getFaction();
         m_uiNpcFlags = pCreature->GetUInt32Value(UNIT_NPC_FLAGS);
         Reset();
 
@@ -205,7 +204,6 @@ struct MANGOS_DLL_DECL npc_engineer_spark_overgrindAI : public ScriptedAI
     }
 
     uint32 m_uiNpcFlags;
-    uint32 m_uiNormFaction;
 
     uint32 m_uiDynamiteTimer;
     uint32 m_uiEmoteTimer;
@@ -214,7 +212,6 @@ struct MANGOS_DLL_DECL npc_engineer_spark_overgrindAI : public ScriptedAI
 
     void Reset()
     {
-        m_creature->setFaction(m_uiNormFaction);
         m_creature->SetUInt32Value(UNIT_NPC_FLAGS, m_uiNpcFlags);
 
         m_uiDynamiteTimer = 8000;
@@ -279,7 +276,7 @@ bool GossipSelect_npc_engineer_spark_overgrind(Player* pPlayer, Creature* pCreat
     if (uiAction == GOSSIP_ACTION_INFO_DEF)
     {
         pPlayer->CLOSE_GOSSIP_MENU();
-        pCreature->setFaction(FACTION_HOSTILE);
+        pCreature->SetFactionTemporary(FACTION_HOSTILE, TEMPFACTION_RESTORE_COMBAT_STOP | TEMPFACTION_RESTORE_RESPAWN);
         pCreature->AI()->AttackStart(pPlayer);
     }
     return true;
@@ -372,7 +369,7 @@ bool QuestAccept_npc_magwin(Player* pPlayer, Creature* pCreature, const Quest* p
 {
     if (pQuest->GetQuestId() == QUEST_A_CRY_FOR_HELP)
     {
-        pCreature->setFaction(10);
+        pCreature->SetFactionTemporary(FACTION_ESCORT_A_NEUTRAL_PASSIVE, TEMPFACTION_RESTORE_RESPAWN);
 
         if (npc_magwinAI* pEscortAI = dynamic_cast<npc_magwinAI*>(pCreature->AI()))
             pEscortAI->Start(false, pPlayer, pQuest);

@@ -254,7 +254,7 @@ bool GossipHello_npc_toc_announcer(Player* pPlayer, Creature* pCreature)
     if (pPlayer->IsInCombat() || m_pInstance->IsEncounterInProgress() || m_pInstance->GetData(TYPE_EVENT))
         return true;
 
-    switch (LocaleConstant currentlocale = pPlayer->GetSession()->GetSessionDbcLocale())
+    switch (pPlayer->GetSession()->GetSessionDbcLocale())
     {
         case LOCALE_esES:
              _message = "¡Estamos listos!";
@@ -562,17 +562,17 @@ struct MANGOS_DLL_DECL boss_lich_king_tocAI : public ScriptedAI
 
     void MovementInform(uint32 type, uint32 id)
     {
-        if(m_pInstance)
+        if (m_pInstance)
         {
-            if(id == 2)
+            if (id == 2)
             {
                 Event = true;
             }
         }
-        if(type != POINT_MOTION_TYPE)
+        if (type != POINT_MOTION_TYPE)
             return;
 
-        if(WayPoint->id != id)
+        if (WayPoint->id != id)
             return;
 
         ++WayPoint;

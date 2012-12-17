@@ -471,7 +471,7 @@ CanCastResult BSWScriptedAI::_BSWDoForceCast(uint8 m_uiSpellIdx, Unit* pTarget)
        return CAST_FAIL_OTHER;
     }
 
-    debug_log("BSW: Forced casting spell number %u ",pSpell->m_uiSpellEntry[currentDifficulty], pSpell->m_CastTarget);
+    debug_log("BSW: Forced casting spell number %u type %u",pSpell->m_uiSpellEntry[currentDifficulty], pSpell->m_CastTarget);
 
     pTarget->InterruptNonMeleeSpells(false);
 
@@ -670,7 +670,7 @@ bool BSWScriptedAI::_doRemoveFromAll(uint32 SpellID)
 
 bool BSWScriptedAI::_doAura(uint8 m_uiSpellIdx, Unit* pTarget)
 {
-    BSWRecord* pSpell = &m_BSWRecords[m_uiSpellIdx];
+//    BSWRecord* pSpell = &m_BSWRecords[m_uiSpellIdx];
 
     if (!pTarget)
         pTarget = m_creature;
@@ -729,7 +729,7 @@ bool BSWScriptedAI::_doAura(uint32 SpellID, Unit* pTarget, SpellEffectIndex inde
     {
         if (IsSpellAppliesAura(spell, (1 << EFFECT_INDEX_0) | (1 << EFFECT_INDEX_1) | (1 << EFFECT_INDEX_2)) || IsSpellHaveEffect(spell, SPELL_EFFECT_PERSISTENT_AREA_AURA))
         {
-            int32 _basepoint = basepoint ?  basepoint - 1 : spell->EffectBasePoints[index] + 1;
+            int32 _basepoint = basepoint ?  basepoint - 1 : spell->GetSpellEffect(SpellEffectIndex(index))->EffectBasePoints + 1;
 
             bool addedToExisting = true;
 
@@ -743,8 +743,8 @@ bool BSWScriptedAI::_doAura(uint32 SpellID, Unit* pTarget, SpellEffectIndex inde
                 addedToExisting = false;
             }
 
-
-            if (aura = holder->GetAuraByEffectIndex(index))
+            aura = holder->GetAuraByEffectIndex(index);
+            if (aura)
             {
                 if (isStack)
                     holder->ModStackAmount(1);
@@ -755,17 +755,17 @@ bool BSWScriptedAI::_doAura(uint32 SpellID, Unit* pTarget, SpellEffectIndex inde
                 holder->SetAuraDuration(aura->GetAuraMaxDuration());
             }
 
-            if (addedToExisting)
+            if (aura && addedToExisting)
             {
                 pTarget->AddAuraToModList(aura);
                 holder->SetInUse(true);
                 aura->ApplyModifier(true,true);
                 holder->SetInUse(false);
             }
-            else
+            else if (holder)
                 pTarget->AddSpellAuraHolder(holder);
 
-            return true;
+            return holder ? true : false;
         }
     }
 

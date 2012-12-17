@@ -28,25 +28,6 @@ INSTALL
 !.gitignore
 !.gitattributes
 
-#
-# Build generated files
-#
-aclocal.m4
-autom4te.cache
-compile
-config.guess
-config.h.in
-config.log
-config.status
-config.sub
-configure
-depcomp
-libtool
-install-sh
-ltmain.sh
-missing
-stamp-h1
-
 Makefile.in
 Makefile
 
@@ -68,6 +49,7 @@ patches-*
 # System-internal temporary files
 #
 revision.h
+config.h
 
 #
 # VS binaries output

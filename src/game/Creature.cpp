@@ -203,6 +203,13 @@ void Creature::RemoveCorpse()
     GetRespawnCoord(x, y, z, &o);
     GetMap()->CreatureRelocation(this, x, y, z, o);
     DisableSpline();
+
+    // forced recreate creature object at clients
+    UnitVisibility currentVis = GetVisibility();
+    SetVisibility(VISIBILITY_REMOVE_CORPSE);
+    UpdateObjectVisibility();
+    SetVisibility(currentVis);                              // restore visibility state
+    UpdateObjectVisibility();
 }
 
 /**
@@ -297,7 +304,7 @@ bool Creature::InitEntry(uint32 Entry, CreatureData const* data /*=NULL*/, GameE
     UpdateSpeed(MOVE_WALK, false);
     UpdateSpeed(MOVE_RUN,  false);
 
-    SetLevitate(cinfo->InhabitType & INHABIT_AIR);
+    SetLevitate(cinfo->InhabitType & INHABIT_AIR, GetObjectGuid().IsPet() ? 2.0f : 4.0f);
 
     // checked at loading
     m_defaultMovementType = MovementGeneratorType(cinfo->MovementType);
@@ -663,12 +670,12 @@ void Creature::Regenerate(Powers power)
 
     AuraList const& ModPowerRegenAuras = GetAurasByType(SPELL_AURA_MOD_POWER_REGEN);
     for(AuraList::const_iterator i = ModPowerRegenAuras.begin(); i != ModPowerRegenAuras.end(); ++i)
-        if ((*i)->GetModifier()->m_miscvalue == power)
+        if (Powers((*i)->GetModifier()->m_miscvalue) == power)
             addvalue += (*i)->GetModifier()->m_amount;
 
     AuraList const& ModPowerRegenPCTAuras = GetAurasByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
     for(AuraList::const_iterator i = ModPowerRegenPCTAuras.begin(); i != ModPowerRegenPCTAuras.end(); ++i)
-        if ((*i)->GetModifier()->m_miscvalue == power)
+        if (Powers((*i)->GetModifier()->m_miscvalue) == power)
             addvalue *= ((*i)->GetModifier()->m_amount + 100) / 100.0f;
 
     ModifyPower(power, int32(addvalue));
@@ -1316,7 +1323,7 @@ bool Creature::LoadFromDB(uint32 guidlow, Map* map)
         m_deathState = DEAD;
         if (CanFly())
         {
-            float tz = GetMap()->GetHeight(GetPhaseMask(), data->posX, data->posY, data->posZ, false);
+            float tz = GetMap()->GetHeight(GetPhaseMask(), data->posX, data->posY, data->posZ);
             if (data->posZ - tz > 0.1)
                 Relocate(data->posX, data->posY, tz);
         }
@@ -1352,7 +1359,7 @@ bool Creature::LoadFromDB(uint32 guidlow, Map* map)
             // Just set to dead, so need to relocate like above
             if (CanFly())
             {
-                float tz = GetMap()->GetHeight(data->phaseMask, data->posX, data->posY, data->posZ, false);
+                float tz = GetMap()->GetHeight(data->phaseMask, data->posX, data->posY, data->posZ);
                 if (data->posZ - tz > 0.1)
                     Relocate(data->posX, data->posY, tz);
             }
@@ -1573,13 +1580,6 @@ void Creature::Respawn()
 {
     RemoveCorpse();
 
-    // forced recreate creature object at clients
-    UnitVisibility currentVis = GetVisibility();
-    SetVisibility(VISIBILITY_RESPAWN);
-    UpdateObjectVisibility();
-    SetVisibility(currentVis);                              // restore visibility state
-    UpdateObjectVisibility();
-
     if (IsDespawned())
     {
         if (HasStaticDBSpawnData())
@@ -1602,12 +1602,14 @@ void Creature::ForcedDespawn(uint32 timeMSToDespawn)
     if (IsInWorld() && isAlive())
         SetDeathState(JUST_DIED);
 
-    RemoveCorpse();
+    m_corpseDecayTimer = 1;                                 // Properly remove corpse on next tick (also pool system requires Creature::Update call with CORPSE state
+
     if (IsInWorld())
         SetHealth(0);                                           // just for nice GM-mode view
 
     if (IsTemporarySummon())
          ((TemporarySummon*)this)->UnSummon();
+
 }
 
 bool Creature::IsImmuneToSpell(SpellEntry const* spellInfo, bool isFriendly) const
@@ -1989,7 +1991,7 @@ bool Creature::LoadCreatureAddon(bool reload)
         SetUInt32Value(UNIT_NPC_EMOTESTATE, cainfo->emote);
 
     if (cainfo->splineFlags & SPLINEFLAG_FLYING)
-        SetLevitate(true);
+        SetLevitate(true, GetObjectGuid().IsPet() ? 2.0f : 4.0f);
 
     if (cainfo->auras)
     {
@@ -2446,6 +2448,13 @@ void Creature::SetFactionTemporary(uint32 factionId, uint32 tempFactionFlags)
 {
     m_temporaryFactionFlags = tempFactionFlags;
     setFaction(factionId);
+
+    if (m_temporaryFactionFlags & TEMPFACTION_TOGGLE_NON_ATTACKABLE)
+        RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+    if (m_temporaryFactionFlags & TEMPFACTION_TOGGLE_OOC_NOT_ATTACK)
+        RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+    if (m_temporaryFactionFlags & TEMPFACTION_TOGGLE_PASSIVE)
+        RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PASSIVE);
 }
 
 void Creature::ClearTemporaryFaction()
@@ -2456,8 +2465,17 @@ void Creature::ClearTemporaryFaction()
     if (isCharmed())
         return;
 
-    m_temporaryFactionFlags = TEMPFACTION_NONE;
+    // Reset to original faction
     setFaction(GetCreatureInfo()->faction_A);
+    // Reset UNIT_FLAG_NON_ATTACKABLE, UNIT_FLAG_OOC_NOT_ATTACKABLE or UNIT_FLAG_PASSIVE flags
+    if (m_temporaryFactionFlags & TEMPFACTION_TOGGLE_NON_ATTACKABLE && GetCreatureInfo()->unit_flags & UNIT_FLAG_NON_ATTACKABLE)
+        SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+    if (m_temporaryFactionFlags & TEMPFACTION_TOGGLE_OOC_NOT_ATTACK && GetCreatureInfo()->unit_flags & UNIT_FLAG_OOC_NOT_ATTACKABLE && !isInCombat())
+        SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+    if (m_temporaryFactionFlags & TEMPFACTION_TOGGLE_PASSIVE && GetCreatureInfo()->unit_flags & UNIT_FLAG_PASSIVE)
+        SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PASSIVE);
+
+    m_temporaryFactionFlags = TEMPFACTION_NONE;
 }
 
 void Creature::SendAreaSpiritHealerQueryOpcode(Player* pl)
@@ -2617,12 +2635,18 @@ void Creature::SetWalk(bool enable, bool asDefault)
     SendMessageToSet(&data, true);
 }
 
-void Creature::SetLevitate(bool enable)
+void Creature::SetLevitate(bool enable, float altitude)
 {
     if (enable)
+    {
         m_movementInfo.AddMovementFlag(MOVEFLAG_LEVITATING);
+        SetFloatValue(UNIT_FIELD_HOVERHEIGHT, altitude);            // Used for storing altitude of levitated creature
+    }
     else
+    {
         m_movementInfo.RemoveMovementFlag(MOVEFLAG_LEVITATING);
+        SetFloatValue(UNIT_FIELD_HOVERHEIGHT, 0.0f);
+    }
 
     WorldPacket data(enable ? SMSG_SPLINE_MOVE_GRAVITY_DISABLE : SMSG_SPLINE_MOVE_GRAVITY_ENABLE, 9);
     data << GetPackGUID();

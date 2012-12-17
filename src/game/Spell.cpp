@@ -131,6 +131,10 @@ SpellCastTargets::~SpellCastTargets()
 
 void SpellCastTargets::setUnitTarget(Unit* target)
 {
+
+    if (target && !(target->isType(TYPEMASK_UNIT)))
+        return;
+
     if (target && !(m_targetMask & TARGET_FLAG_DEST_LOCATION))
     {
         m_destX = target->GetPositionX();
@@ -1064,8 +1068,10 @@ void Spell::AddTarget(ObjectGuid targetGuid, SpellEffectIndex effIndex)
             sLog.outError("Spell::AddTarget currently this type of targets (%s) supported by another way!", targetGuid.GetString().c_str());
             break;
         }
+/*
         HIGHGUID_INSTANCE:
-        HIGHGUID_GROUP:  
+        HIGHGUID_GROUP:
+*/
         default:
             sLog.outError("Spell::AddTarget unhandled type of spell target (%s)!", targetGuid.GetString().c_str());
             break;
@@ -1157,7 +1163,7 @@ void Spell::AddItemTarget(Item* pitem, SpellEffectIndex effIndex)
     m_UniqueItemInfo.push_back(target);
 }
 
-void Spell::DoAllEffectOnTarget(TargetInfo *target)
+void Spell::DoAllEffectOnTarget(TargetInfo* target)
 {
     if (!target || target->processed)                       // Check target
         return;
@@ -1167,7 +1173,10 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
     // Get mask of effects for target
     uint32 mask = target->effectMask;
 
-    Unit* unit = m_caster->GetObjectGuid() == target->targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster, target->targetGUID);
+    Unit* unit = (m_caster->GetObjectGuid() == target->targetGUID) ? 
+                    m_caster : 
+                    m_caster->GetMap()->GetUnit(target->targetGUID);
+
     if (!unit)
         return;
 
@@ -1202,7 +1211,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
     }
 
     // Speed possible inherited from triggering spell
-    float speed_proto = GetBaseSpellSpeed();
+    // float speed_proto = GetBaseSpellSpeed();
 
     if (m_spellInfo->speed > M_NULL_F || GetDelayStart())
     {
@@ -1419,15 +1428,15 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
         ((Creature*)real_caster)->AI()->SpellHitTarget(unit, m_spellInfo);
 }
 
-void Spell::DoSpellHitOnUnit(Unit *unit, uint32 effectMask)
+void Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask)
 {
-    if (!unit || (!effectMask && !damage))
+    if (!unit || !unit->isType(TYPEMASK_UNIT) || (!effectMask && !damage))
         return;
 
     Unit* realCaster = GetAffectiveCaster();
 
     // Speed possible inherited from triggering spell
-    float speed_proto = GetBaseSpellSpeed();
+    // float speed_proto = GetBaseSpellSpeed();
 
     // Recheck effect immune (only for delayed spells)
     if (m_spellInfo->speed > M_NULL_F)
@@ -2203,6 +2212,8 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                     case 38028:                                             // Watery Grave
                     case 40618:                                             // Insignificance
                     case 41376:                                             // Spite
+                    case 62166:                                             // Stone Grip nh
+                    case 63981:                                             // Stone Grip h
                         if (Unit* pVictim = m_caster->getVictim())
                             targetUnitMap.remove(pVictim);
                         break;
@@ -3764,7 +3775,7 @@ void Spell::cast(bool skipCheck)
 
     InitializeDamageMultipliers();
 
-    Unit *procTarget = m_targets.getUnitTarget();
+    Unit* procTarget = m_targets.getUnitTarget();
     if (!procTarget)
         procTarget = m_caster;
 
@@ -4235,12 +4246,12 @@ void Spell::SendCastResult(SpellCastResult result)
     SendCastResult((Player*)m_caster, m_spellInfo, m_cast_count, result);
 }
 
-void Spell::SendCastResult(Player* caster, SpellEntry const* spellInfo, uint8 cast_count, SpellCastResult result)
+void Spell::SendCastResult(Player* caster, SpellEntry const* spellInfo, uint8 cast_count, SpellCastResult result, bool isPetCastResult /*=false*/)
 {
     if (result == SPELL_CAST_OK)
         return;
 
-    WorldPacket data(SMSG_CAST_FAILED, (4+1+1));
+    WorldPacket data(isPetCastResult ? SMSG_PET_CAST_FAILED : SMSG_CAST_FAILED, (4 + 1 + 2));
     data << uint8(cast_count);                              // single cast or multi 2.3 (0/1)
     data << uint32(spellInfo->Id);
     data << uint8(result);                                  // problem
@@ -5695,12 +5706,26 @@ SpellCastResult Spell::CheckCast(bool strict)
             return SPELL_FAILED_NOT_MOUNTED;
     }
 
-    // always (except passive spells) check items (focus object can be required for any type casts)
+    // always (except passive spells) check items
     if (!IsPassiveSpell(m_spellInfo))
     {
         SpellCastResult castResult = CheckItems();
         if (castResult != SPELL_CAST_OK)
             return castResult;
+    }
+
+    // check spell focus object
+    if (m_spellInfo->RequiresSpellFocus)
+    {
+        GameObject* ok = NULL;
+        MaNGOS::GameObjectFocusCheck go_check(m_caster, m_spellInfo->RequiresSpellFocus);
+        MaNGOS::GameObjectSearcher<MaNGOS::GameObjectFocusCheck> checker(ok, go_check);
+        Cell::VisitGridObjects(m_caster, checker, m_caster->GetMap()->GetVisibilityDistance());
+
+        if (!ok)
+            return SPELL_FAILED_REQUIRES_SPELL_FOCUS;
+
+        focusObject = ok;                                   // game object found in range
     }
 
     // Database based targets from spell_target_script
@@ -6942,7 +6967,7 @@ SpellCastResult Spell::CheckCastTargets() const
                     if (fabs(m_caster->GetPositionZ() - z) > 8.0f)
                         return SPELL_FAILED_NOPATH;
 
-                    float pz  = m_caster->GetMap()->GetHeight(m_caster->GetPhaseMask(), x, y, z, true);
+                    float pz  = m_caster->GetMap()->GetHeight(m_caster->GetPhaseMask(), x, y, z);
 
                     if (fabs(pz - z) > 8.0f)
                         return SPELL_FAILED_NOPATH;
@@ -7179,7 +7204,7 @@ SpellCastResult Spell::CheckPower()
     }
 
     // health as power used - need check health amount
-    if (m_spellInfo->powerType == POWER_HEALTH)
+    if (Powers(m_spellInfo->powerType) == POWER_HEALTH)
     {
         if (m_caster->GetHealth() <= abs(m_powerCost))
             return SPELL_FAILED_CASTER_AURASTATE;
@@ -7342,20 +7367,6 @@ SpellCastResult Spell::CheckItems()
     {
         if (m_caster->GetTypeId() == TYPEID_PLAYER && !((Player*)m_caster)->HasItemFitToSpellReqirements(m_spellInfo))
             return m_IsTriggeredSpell ? SPELL_FAILED_DONT_REPORT : SPELL_FAILED_EQUIPPED_ITEM_CLASS;
-    }
-
-    // check spell focus object
-    if (m_spellInfo->RequiresSpellFocus)
-    {
-        GameObject* ok = NULL;
-        MaNGOS::GameObjectFocusCheck go_check(m_caster,m_spellInfo->RequiresSpellFocus);
-        MaNGOS::GameObjectSearcher<MaNGOS::GameObjectFocusCheck> checker(ok, go_check);
-        Cell::VisitGridObjects(m_caster, checker, m_caster->GetMap()->GetVisibilityDistance());
-
-        if(!ok)
-            return SPELL_FAILED_REQUIRES_SPELL_FOCUS;
-
-        focusObject = ok;                                   // game object found in range
     }
 
     // check reagents (ignore triggered spells with reagents processed by original spell) and special reagent ignore case.
@@ -7951,6 +7962,11 @@ bool Spell::CheckTarget(Unit* target, SpellEffectIndex eff )
     {
         case 37433:                                         // Spout (The Lurker Below), only players affected if its not in water
             if (target->GetTypeId() != TYPEID_PLAYER || target->IsInWater())
+                return false;
+            break;
+        case 68921:                                         // Soulstorm (FoS), only targets farer than 10 away
+        case 69049:                                         // Soulstorm            - = -
+            if (m_caster->IsWithinDist(target, 10.0f, false))
                 return false;
             break;
         default:
@@ -8634,22 +8650,6 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
                 targetUnitMap.push_back((Unit*)m_caster);
             break;
         }
-        case 62166: // Stone Grip (Kologarn)
-        case 63342: // Focused Eyebeam Summon Trigger (Kologarn)
-        case 63981: // Stone Grip (Kologarn)
-        {
-            if (m_caster->getVictim())
-                targetUnitMap.push_back(m_caster->getVictim());
-            else
-            {
-                FillAreaTargets(targetUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
-                targetUnitMap.sort(TargetDistanceOrderNear(m_caster));
-                targetUnitMap.resize(1);
-            }
-            if (!targetUnitMap.empty())
-                return true;
-            break;
-        }
         case 62343: // Heat (remove all except active iron constructs)
         {
             UnitList tempTargetUnitMap;
@@ -8682,11 +8682,21 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
             }
             break;
         }
-        case 63025:  // Gravity Bomb (XT-002 in Ulduar) - exclude caster from pull and double damage
+        case 50811: // Shatter (normal&heroic) (Krystallus in Halls of Stone)
+        case 61547:
+        case 63025: // Gravity Bomb (XT-002 in Ulduar) - exclude caster from pull and double damage
         case 64233:
         {
-            FillAreaTargets(targetUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_FRIENDLY);
+            FillAreaTargets(targetUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_HOSTILE);
             targetUnitMap.remove(m_caster);
+            break;
+        }
+        case 52659: // Static Overload (normal&heroic) (Ionar in Halls of Lightning)
+        case 59796:
+        case 63023: // Searing Light (normal&heroic) (XT-002 in Ulduar)
+        case 65120:
+        {
+            FillAreaTargets(targetUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_HOSTILE);
             break;
         }
         case 63278: // Mark of Faceless
@@ -8764,18 +8774,6 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
             for (UnitList::const_iterator itr = tmpUnitMap.begin(); itr != tmpUnitMap.end(); ++itr)
             {
                 if (*itr && (*itr)->GetTypeId() == TYPEID_PLAYER && !(*itr)->m_movementInfo.HasMovementFlag(MovementFlags(MOVEFLAG_FALLING)))
-                    targetUnitMap.push_back(*itr);
-            }
-            break;
-        }
-        case 68921: // Soulstorm (Forge of Souls - Bronjahm)
-        case 69049:
-        {
-            UnitList tmpUnitMap;
-            FillAreaTargets(tmpUnitMap, radius, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
-            for (UnitList::const_iterator itr = tmpUnitMap.begin(); itr != tmpUnitMap.end(); ++itr)
-            {
-                if (*itr && !(*itr)->IsWithinDistInMap(m_caster, 10.0f))
                     targetUnitMap.push_back(*itr);
             }
             break;
@@ -8861,24 +8859,24 @@ bool Spell::FillCustomTargetMap(SpellEffectIndex i, UnitList &targetUnitMap)
                     oozesMap.push_back((*iter));
             }
 
-            UnitList::iterator i;
+            UnitList::iterator itr;
 
             // 2 random targets
             if (!oozesMap.empty())
             {
-                i = oozesMap.begin();
-                std::advance(i, urand(0, oozesMap.size() - 1));
+                itr = oozesMap.begin();
+                std::advance(itr, urand(0, oozesMap.size() - 1));
 
                 // first Ooze Flood
-                targetUnitMap.push_back(*i);
-                oozesMap.remove(*i);
+                targetUnitMap.push_back(*itr);
+                oozesMap.remove(*itr);
 
                 // now find the second - closest one
                 if (!oozesMap.empty())
                 {
-                    oozesMap.sort(TargetDistanceOrderNear(*i));
-                    i = oozesMap.begin();
-                    targetUnitMap.push_back(*i);
+                    oozesMap.sort(TargetDistanceOrderNear(*itr));
+                    itr = oozesMap.begin();
+                    targetUnitMap.push_back(*itr);
                 }
 
                 return true;

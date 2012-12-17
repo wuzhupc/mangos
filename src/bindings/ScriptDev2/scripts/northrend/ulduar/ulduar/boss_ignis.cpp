@@ -27,7 +27,7 @@ EndScriptData */
 
 enum
 {
-    //yells
+    // yells
     SAY_AGGRO       = -1603020,
     SAY_SCORCH1     = -1603021,
     SAY_SCORCH2     = -1603022,
@@ -39,7 +39,7 @@ enum
     SAY_BERSERK     = -1603028,
     SAY_DEATH       = -1603029,
 
-    //ignis the furnace master
+    // ignis the furnace master
     SPELL_FLAME_JETS            = 62680,
     SPELL_FLAME_JETS_H          = 63472,
     SPELL_SCORCH_CHANNELED      = 62546,
@@ -48,6 +48,7 @@ enum
     SPELL_CHARGE_SLAG_POT_H     = 63535,
     SPELL_SLAG_POT_AURA         = 62717,
     SPELL_SLAG_POT_AURA_H       = 63477,
+    SPELL_BERSERK               = 26662,
 
     SPELL_SLAG_POT_DMG          = 65722,
     SPELL_SLAG_POT_DMG_H        = 65723,
@@ -59,25 +60,26 @@ enum
     SPELL_SCORCH_AURA_H         = 63476,
 
 
-    //iron construct
-    //NPC_IRON_CONSTRUCT        = 33121,
-    SPELL_STONED                = 62468,
-    SPELL_HEAT_AURA             = 65667,
-    SPELL_MOLTEN                = 62373,
-    SPELL_BRITTLE               = 67114,
-    SPELL_BRITTLE_H             = 62382,
-    SPELL_SHATTER               = 62383,
-    SPELL_ACTIVATE_CONSTRUCT    = 62488,
-    SPELL_STRENGTH_OF_THE_CREATOR = 64474,
-    SPELL_STRENGHT_OF_CREATOR_DIE= 64475,
+    // iron construct
+    SPELL_STONED                   = 62468,
+    SPELL_HEAT_AURA                = 65667,
+    SPELL_MOLTEN                   = 62373,
+    SPELL_BRITTLE                  = 67114,
+    SPELL_BRITTLE_H                = 62382,
+    SPELL_SHATTER                  = 62383,
+    SPELL_ACTIVATE_CONSTRUCT       = 62488,
+    SPELL_STRENGTH_OF_THE_CREATOR  = 64474,
+    SPELL_STRENGHT_OF_CREATOR_DIE  = 64475,
 
 
-    //NPC ids
+    // NPC ids
     SPELL_SUMMON_SCORCH_TRIGGER = 62551,
     SPELL_SLAG_IMBUED           = 62836,
     SPELL_SLAG_IMBUED2          = 63536,
     SPELL_MOLTEN_STUN           = 65208, // couldn't find proper spell, so using this one
     SCORCH_DESPAWN_TIME         = 40000,
+
+    NPC_SCORCH                  = 33221
 };
 
 // iron construct
@@ -93,16 +95,14 @@ struct MANGOS_DLL_DECL mob_iron_constructAI : public ScriptedAI
 
     instance_ulduar* m_pInstance;
     bool m_bIsRegularMode;
-    bool m_bIsStoned;
     bool m_bIsActive;
     uint32 m_uiBrittleCheckTimer;
 
     void Reset()
     {
+        if (m_pInstance && m_pInstance->GetData(TYPE_IGNIS) != IN_PROGRESS)
+            m_bIsActive = false;
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PASSIVE);
-        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-        m_bIsStoned = false;
-        m_bIsActive = false;
         m_uiBrittleCheckTimer = 500;
     }
 
@@ -116,7 +116,7 @@ struct MANGOS_DLL_DECL mob_iron_constructAI : public ScriptedAI
 
         if (m_creature->HasAura(SPELL_BRITTLE) || m_creature->HasAura(SPELL_BRITTLE_H))
         {
-            if (uiDamage > (m_bIsRegularMode ? 3000 : 5000))
+            if (uiDamage > 5000)
             {
                 uiDamage = 0;
                 if (DoCastSpellIfCan(m_creature, SPELL_SHATTER, CAST_TRIGGERED) == CAST_OK)
@@ -128,18 +128,24 @@ struct MANGOS_DLL_DECL mob_iron_constructAI : public ScriptedAI
         }
     }
 
+    void JustReachedHome()
+    {
+        m_bIsActive = false;
+    }
+
     void JustDied(Unit* killer)
     {
         DoCast(m_creature, SPELL_STRENGHT_OF_CREATOR_DIE, true);
     }
 
-    void SpellHit(Unit* pCaster, const SpellEntry *spellInfo)
+    void SpellHit(Unit* pCaster, const SpellEntry* spellInfo)
     {
         if (spellInfo->Id == SPELL_ACTIVATE_CONSTRUCT)
         {
             m_creature->RemoveAurasDueToSpell(SPELL_STONED);
 
             m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PASSIVE);
+            m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             m_bIsActive = true;
             m_creature->SetInCombatWithZone();
             
@@ -159,25 +165,35 @@ struct MANGOS_DLL_DECL mob_iron_constructAI : public ScriptedAI
         }
     }
 
+    bool IsInWater()
+    {
+        if (m_creature->GetDistance2d(520.25f, 277.83f) < 26.0f || m_creature->GetDistance2d(654.0f, 277.83f) < 26.0f)
+            return true;
+
+        return false;
+    }
+
     void UpdateAI(const uint32 uiDiff)
     {
-        if (!m_bIsStoned)
-        {
-            if (DoCastSpellIfCan(m_creature, SPELL_STONED) == CAST_OK)
-                m_bIsStoned = true;
-        }
+        if (!m_bIsActive && !m_creature->HasAura(SPELL_STONED))
+            DoCast(m_creature, SPELL_STONED, true);
 
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim() )
+        {
+            if (m_bIsActive)
+                m_creature->SetInCombatWithZone();
+
             return;
+        }
 
         if (!m_bIsActive)
             m_creature->AI()->EnterEvadeMode();
 
         if (m_uiBrittleCheckTimer <= uiDiff)
         {
-            if (m_creature->HasAura(SPELL_MOLTEN) && !m_creature->HasAura(SPELL_BRITTLE) )
+            if (m_creature->HasAura(SPELL_MOLTEN) && !m_creature->HasAura(m_bIsRegularMode ? SPELL_BRITTLE : SPELL_BRITTLE_H))
             {
-                if (m_creature->IsInWater())
+                if (IsInWater())
                 {
                     if (DoCastSpellIfCan(m_creature, m_bIsRegularMode ? SPELL_BRITTLE : SPELL_BRITTLE_H, CAST_TRIGGERED) == CAST_OK)
                         m_creature->RemoveAurasDueToSpell(SPELL_MOLTEN);
@@ -197,7 +213,7 @@ CreatureAI* GetAI_mob_iron_construct(Creature* pCreature)
     return new mob_iron_constructAI(pCreature);
 }
 
-//ignis the furnace master
+// ignis the furnace master
 struct MANGOS_DLL_DECL boss_ignisAI : public ScriptedAI
 {
     boss_ignisAI(Creature* pCreature) : ScriptedAI(pCreature)
@@ -219,14 +235,19 @@ struct MANGOS_DLL_DECL boss_ignisAI : public ScriptedAI
     uint32 m_uiFlameJetsTimer;
     uint32 m_uiActivateConstructTimer;
 
+    Unit* m_pGrabTarget;
+
     uint32 m_uiBerserkerTimer;
 
     void Reset()
     {
-        m_uiScorchTimer = 12000;
-        m_uiSlagPotTimer = 19000;
-        m_uiFlameJetsTimer = 21000;
         m_uiActivateConstructTimer = 25000;
+        m_uiScorchTimer = 12000;
+        m_uiFlameJetsTimer = 21000;
+
+        m_pGrabTarget = NULL;
+        m_uiSlagPotTimer = 19000;
+        m_uiSlagPotExitTimer = 0;
 
         m_uiBerserkerTimer = 600000; // 10 Minutes
 
@@ -238,7 +259,7 @@ struct MANGOS_DLL_DECL boss_ignisAI : public ScriptedAI
         DoScriptText(SAY_AGGRO, m_creature);
 
         if (m_pInstance)
-            m_pInstance->SetData(TYPE_IGNIS , IN_PROGRESS);
+            m_pInstance->SetData(TYPE_IGNIS, IN_PROGRESS);
     }
 
     void JustReachedHome()
@@ -263,21 +284,29 @@ struct MANGOS_DLL_DECL boss_ignisAI : public ScriptedAI
             m_pInstance->SetData(TYPE_IGNIS, DONE);
     }
 
-    void JustSummoned(Creature* pCreature)
+    bool IsInWater()
     {
-        if (DoCastSpellIfCan(m_creature, m_bIsRegularMode ? SPELL_SCORCH_CHANNELED : SPELL_SCORCH_CHANNELED_H) == CAST_OK && !pCreature->IsInWater())
-        {
-            m_creature->AddThreat(pCreature, 100000000000000.0f, true);
-            m_creature->SetFacingToObject(pCreature);
-            pCreature->SetDisplayId(11686);
-            pCreature->SetInCombatWithZone();
-            pCreature->ForcedDespawn(SCORCH_DESPAWN_TIME);
-        }
-        else
-            pCreature->ForcedDespawn();
+        if (m_creature->GetDistance2d(520.25f, 277.83f) < 26.0f || m_creature->GetDistance2d(654.0f, 277.83f) < 26.0f)
+            return true;
+
+        return false;
     }
 
-    void DamageTaken(Unit *pDoneBy, uint32 &uiDamage)
+    void JustSummoned(Creature* pCreature)
+    {
+        if (pCreature->GetEntry() != NPC_SCORCH)
+            return;
+        if (IsInWater())
+            pCreature->ForcedDespawn();
+
+        DoScriptText(urand(0, 1) ? SAY_SCORCH1 : SAY_SCORCH2, m_creature);
+        m_creature->SetFacingToObject(pCreature);
+        pCreature->SetDisplayId(11686);
+        pCreature->ForcedDespawn(SCORCH_DESPAWN_TIME);
+        pCreature->CastSpell(pCreature, m_bIsRegularMode ? SPELL_SCORCH_AURA : SPELL_SCORCH_AURA_H, true, 0, 0, m_creature->GetObjectGuid());
+    }
+
+    void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
     {
         if (pDoneBy->HasAura(SPELL_SLAG_POT_AURA) || pDoneBy->HasAura(SPELL_SLAG_POT_AURA_H))
             uiDamage = 0;
@@ -288,70 +317,96 @@ struct MANGOS_DLL_DECL boss_ignisAI : public ScriptedAI
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
 
+        if (m_uiActivateConstructTimer <= uiDiff)
+        {
+            if (DoCastSpellIfCan(m_creature, SPELL_ACTIVATE_CONSTRUCT) == CAST_OK)
+            {
+                DoScriptText(SAY_SUMMON, m_creature);
+                m_uiActivateConstructTimer = m_bIsRegularMode ? 30000 : 40000;
+            }
+        }
+        else
+            m_uiActivateConstructTimer -= uiDiff;
+
         if (m_uiScorchTimer <= uiDiff)
         {
-            if (DoCastSpellIfCan(m_creature, SPELL_SUMMON_SCORCH_TRIGGER, CAST_TRIGGERED) == CAST_OK)
-            {
-                DoScriptText(urand(0,1) ? SAY_SCORCH1 : SAY_SCORCH2, m_creature);
+            if (DoCastSpellIfCan(m_creature, m_bIsRegularMode ? SPELL_SCORCH_CHANNELED : SPELL_SCORCH_CHANNELED_H) == CAST_OK)
                 m_uiScorchTimer = urand(20000, 25000);
-            }
         }
         else
             m_uiScorchTimer -= uiDiff;
 
         if (m_uiSlagPotTimer <= uiDiff)
         {
-            if (Unit* pVictim = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1))
-                if (Player *pTarget = pVictim->GetCharmerOrOwnerPlayerOrPlayerItself())
-                    if (DoCastSpellIfCan(pTarget, m_bIsRegularMode ? SPELL_CHARGE_SLAG_POT : SPELL_CHARGE_SLAG_POT_H) == CAST_OK)
-                    {
-                        DoScriptText(SAY_SLAGPOT, m_creature);
-                        pTarget->EnterVehicle(m_creature->GetVehicleKit(), 0);
-                        pTarget->CastSpell(pTarget, m_bIsRegularMode ? SPELL_SLAG_POT_AURA : SPELL_SLAG_POT_AURA_H, true, 0,0, m_creature->GetObjectGuid());
-                        m_bIsSlagPot = true;
-                        m_uiSlagPotSwitchTimer = 1500;
-                        m_uiSlagPotDmgTimer = 2000;
-                        m_uiSlagPotExitTimer = 10000;
-                        m_uiSlagPotTimer = urand(15000, 25000);
-                    }
+            if (m_pGrabTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1, (uint32)0, SELECT_FLAG_PLAYER))
+            {
+                if (DoCastSpellIfCan(m_pGrabTarget, m_bIsRegularMode ? SPELL_CHARGE_SLAG_POT : SPELL_CHARGE_SLAG_POT_H) == CAST_OK)
+                {
+                    m_uiSlagPotExitTimer = 10000;
+                    m_uiSlagPotTimer = urand(15000, 25000);
+                }
+            }
         }
         else
             m_uiSlagPotTimer -= uiDiff;
 
+        if (!m_bIsSlagPot && m_pGrabTarget && m_pGrabTarget->IsInWorld() && m_pGrabTarget->isAlive() && m_creature->GetDistance2d(m_pGrabTarget) < 5.0f)
+        {
+            DoScriptText(SAY_SLAGPOT, m_creature);
+            m_pGrabTarget->EnterVehicle(m_creature->GetVehicleKit(), 0);
+            m_pGrabTarget->CastSpell(m_pGrabTarget, m_bIsRegularMode ? SPELL_SLAG_POT_AURA : SPELL_SLAG_POT_AURA_H, true, 0, 0, m_creature->GetObjectGuid());
+            m_bIsSlagPot = true;
+            m_uiSlagPotSwitchTimer = 1500;
+            m_uiSlagPotDmgTimer = 0;
+            m_pGrabTarget = NULL;
+        }
+
         if (m_bIsSlagPot)
         {
-            if (m_uiSlagPotSwitchTimer <= uiDiff)
+            if (m_uiSlagPotSwitchTimer)
             {
-                if (VehicleKitPtr pVehKit = m_creature->GetVehicleKit())
-                    if (Unit *pPassenger = pVehKit->GetPassenger(0))
+                if (m_uiSlagPotSwitchTimer <= uiDiff)
+                {
+                    if (VehicleKitPtr pVehKit = m_creature->GetVehicleKit())
                     {
-                        pVehKit->RemovePassenger(pPassenger);
-                        pVehKit->AddPassenger(pPassenger, 1);
+                        if (Unit* pPassenger = pVehKit->GetPassenger(0))
+                        {
+                            pVehKit->RemovePassenger(pPassenger);
+                            pVehKit->AddPassenger(pPassenger, 1);
+                        }
                     }
-                m_uiSlagPotSwitchTimer = 10000;
-                m_uiSlagPotDmgTimer = 500;
+                    m_uiSlagPotSwitchTimer = 0;
+                    m_uiSlagPotDmgTimer = 500;
+                }
+                else
+                    m_uiSlagPotSwitchTimer -= uiDiff;
             }
-            else
-                m_uiSlagPotSwitchTimer -= uiDiff;
 
-            if (m_uiSlagPotDmgTimer <= uiDiff)
+            if (m_uiSlagPotDmgTimer)
             {
-                if (VehicleKitPtr pVehKit = m_creature->GetVehicleKit())
-                    if (Unit *pPassenger = pVehKit->GetPassenger(1))
+                if (m_uiSlagPotDmgTimer <= uiDiff)
+                {
+                    if (VehicleKitPtr pVehKit = m_creature->GetVehicleKit())
                     {
-                        pPassenger->CastSpell(pPassenger, m_bIsRegularMode ? SPELL_SLAG_POT_DMG : SPELL_SLAG_POT_DMG_H, true ,0 ,0, m_creature->GetObjectGuid());
+                        if (Unit* pPassenger = pVehKit->GetPassenger(1))
+                            pPassenger->CastSpell(pPassenger, m_bIsRegularMode ? SPELL_SLAG_POT_DMG : SPELL_SLAG_POT_DMG_H, true, 0, 0, m_creature->GetObjectGuid());
                     }
-                m_uiSlagPotDmgTimer = 3000;
+                    m_uiSlagPotDmgTimer = 3000;
+                }
+                else
+                    m_uiSlagPotDmgTimer -= uiDiff;
             }
-            else
-                m_uiSlagPotDmgTimer -= uiDiff;
+        }
 
+        if (m_uiSlagPotExitTimer)
+        {
             if (m_uiSlagPotExitTimer <= uiDiff)
             {
                 if (VehicleKitPtr pVehKit = m_creature->GetVehicleKit())
                     pVehKit->RemoveAllPassengers();
-                m_uiSlagPotExitTimer = 10000;
+                m_uiSlagPotExitTimer = 0;
                 m_bIsSlagPot = false;
+                m_pGrabTarget = NULL;
             }
             else
                 m_uiSlagPotExitTimer -= uiDiff;
@@ -368,22 +423,12 @@ struct MANGOS_DLL_DECL boss_ignisAI : public ScriptedAI
         else
             m_uiFlameJetsTimer -= uiDiff;
 
-        if (m_uiActivateConstructTimer <= uiDiff)
-        {
-            if (DoCastSpellIfCan(m_creature, SPELL_ACTIVATE_CONSTRUCT) == CAST_OK)
-            {
-                DoScriptText(SAY_SUMMON, m_creature);
-                m_uiActivateConstructTimer = m_bIsRegularMode ? 30000 : 40000;
-            }
-        }
-        else
-            m_uiActivateConstructTimer -= uiDiff;
-
         if (m_uiBerserkerTimer <= uiDiff)
         {
-            if (DoCastSpellIfCan(m_creature, 26662, CAST_AURA_NOT_PRESENT | CAST_TRIGGERED) == CAST_OK)
+            if (DoCastSpellIfCan(m_creature, SPELL_BERSERK, CAST_TRIGGERED) == CAST_OK)
             {
                 DoScriptText(SAY_BERSERK, m_creature);
+                m_uiBerserkerTimer = 300000;
             }
         }
         else
@@ -400,15 +445,15 @@ CreatureAI* GetAI_boss_ignis(Creature* pCreature)
 
 void AddSC_boss_ignis()
 {
-    Script* NewScript;
+    Script* pNewScript;
 
-    NewScript = new Script;
-    NewScript->Name = "boss_ignis";
-    NewScript->GetAI = GetAI_boss_ignis;
-    NewScript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "boss_ignis";
+    pNewScript->GetAI = GetAI_boss_ignis;
+    pNewScript->RegisterSelf();
 
-    NewScript = new Script;
-    NewScript->Name = "mob_iron_construct";
-    NewScript->GetAI = &GetAI_mob_iron_construct;
-    NewScript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "mob_iron_construct";
+    pNewScript->GetAI = &GetAI_mob_iron_construct;
+    pNewScript->RegisterSelf();
 }

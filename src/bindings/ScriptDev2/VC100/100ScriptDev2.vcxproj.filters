@@ -2374,6 +2374,9 @@
     <ClCompile Include="..\scripts\eastern_kingdoms\hinterlands.cpp">
       <Filter>scripts\eastern_kingdoms</Filter>
     </ClCompile>
+    <ClCompile Include="..\scripts\eastern_kingdoms\scarlet_enclave\world_map_ebon_hold.cpp">
+      <Filter>scripts\eastern_kingdoms\scarlet_enclave</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\base\BSW_ai.h">
@@ -2719,6 +2722,14 @@
     <ClInclude Include="..\include\sc_gossip.h" />
     <ClInclude Include="..\include\sc_grid_searchers.h" />
     <ClInclude Include="..\include\sc_instance.h" />
+    <ClInclude Include="..\include\precompiled.h" />
+    <ClInclude Include="..\include\sc_creature.h" />
+    <ClInclude Include="..\include\sc_gossip.h" />
+    <ClInclude Include="..\include\sc_grid_searchers.h" />
+    <ClInclude Include="..\include\sc_instance.h" />
+    <ClInclude Include="..\scripts\eastern_kingdoms\scarlet_enclave\world_map_ebon_hold.h">
+      <Filter>scripts\eastern_kingdoms\scarlet_enclave</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\revision.h" />

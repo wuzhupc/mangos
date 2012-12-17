@@ -324,7 +324,6 @@ struct MANGOS_DLL_DECL boss_faction_championsAI : public BSWScriptedAI
     {
         ThreatList const& tList = m_creature->getThreatManager().getThreatList();
         ThreatList::const_iterator itr;
-        bool empty = true;
         for (itr = tList.begin(); itr!=tList.end(); ++itr)
         {
             Unit* pUnit = m_creature->GetMap()->GetUnit((*itr)->getUnitGuid());
@@ -335,7 +334,6 @@ struct MANGOS_DLL_DECL boss_faction_championsAI : public BSWScriptedAI
                     float threat = CalculateThreat(m_creature->GetDistance2d(pUnit), (float)pUnit->GetArmor(), pUnit->GetHealth());
                     m_creature->getThreatManager().modifyThreatPercent(pUnit, -100);
                     m_creature->AddThreat(pUnit, 1000000.0f * threat);
-                    empty = false;
                 }
             }
         }
@@ -364,10 +362,9 @@ struct MANGOS_DLL_DECL boss_faction_championsAI : public BSWScriptedAI
         ThreatList::const_iterator iter;
         for (iter = tList.begin(); iter!=tList.end(); ++iter)
         {
-            Unit *target;
-            if (target = m_creature->GetMap()->GetUnit((*iter)->getUnitGuid()))
-                if (target->getPowerType() == POWER_MANA)
-                    return target;
+            Unit* target = m_creature->GetMap()->GetUnit((*iter)->getUnitGuid());
+            if (target && target->getPowerType() == POWER_MANA)
+                return target;
         }
         return NULL;
     }
@@ -378,10 +375,9 @@ struct MANGOS_DLL_DECL boss_faction_championsAI : public BSWScriptedAI
         ThreatList::const_iterator iter;
         for (iter = tList.begin(); iter!=tList.end(); ++iter)
         {
-            Unit *target;
-            if (target = m_creature->GetMap()->GetUnit((*iter)->getUnitGuid()))
-                if (target->GetHealthPercent() < 30.0f)
-                    return target;
+            Unit* target = m_creature->GetMap()->GetUnit((*iter)->getUnitGuid());
+            if (target && target->GetHealthPercent() < 30.0f)
+                return target;
         }
         return NULL;
     }
@@ -1078,7 +1074,7 @@ struct MANGOS_DLL_DECL mob_toc_shadow_priestAI : public boss_faction_championsAI
 
         if (m_uiHorrorTimer < uiDiff)
         {
-            if (Unit *target = SelectTargetWithinDist())
+            if (Unit* target = SelectTargetWithinDist())
             {
                 DoCastSpellIfCan(target, SPELL_HORROR);
                 m_uiHorrorTimer = 2*MINUTE*IN_MILLISECONDS;
@@ -1089,7 +1085,7 @@ struct MANGOS_DLL_DECL mob_toc_shadow_priestAI : public boss_faction_championsAI
 
         if (m_uiFearTimer < uiDiff)
         {
-            if (Unit *target = SelectTargetWithinDist())
+            if (SelectTargetWithinDist())
             {
                 DoCastSpellIfCan(m_creature, SPELL_PSYCHIC_SCREAM);
                 m_uiFearTimer = urand(20*IN_MILLISECONDS, 35*IN_MILLISECONDS); 
@@ -1730,10 +1726,9 @@ struct MANGOS_DLL_DECL mob_toc_warriorAI : public boss_faction_championsAI
         ThreatList::const_iterator iter;
         for (iter = tList.begin(); iter!=tList.end(); ++iter)
         {
-            Unit *target;
-            if (target = m_creature->GetMap()->GetUnit((*iter)->getUnitGuid()))
-                if (target->HasAura(SPELL_DIVINE_SHIELD))
-                    return target;
+            Unit* target = m_creature->GetMap()->GetUnit((*iter)->getUnitGuid());
+            if (target && target->HasAura(SPELL_DIVINE_SHIELD))
+                return target;
         }
         return NULL;
     }
@@ -1745,10 +1740,9 @@ struct MANGOS_DLL_DECL mob_toc_warriorAI : public boss_faction_championsAI
         ThreatList::const_iterator iter;
         for (iter = tList.begin(); iter!=tList.end(); ++iter)
         {
-            Unit *target;
-            if (target = m_creature->GetMap()->GetUnit((*iter)->getUnitGuid()))
-                if (target->HasAura(SPELL_ICE_BLOCK))
-                    return target;
+            Unit* target = m_creature->GetMap()->GetUnit((*iter)->getUnitGuid());
+            if (target && target->HasAura(SPELL_ICE_BLOCK))
+                return target;
         }
         return NULL;
     }
@@ -2115,9 +2109,9 @@ struct MANGOS_DLL_DECL  mob_toc_rogueAI : public boss_faction_championsAI
 
         if (m_uiBlindTimer <= uiDiff)
         {
-            if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1))
+            if (m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1))
             {
-                if(Unit *target = SelectTargetWithinDist())
+                if (Unit *target = SelectTargetWithinDist())
                 {
                     DoCastSpellIfCan(target, SPELL_BLIND);
                     m_uiBlindTimer = 2*MINUTE*IN_MILLISECONDS;

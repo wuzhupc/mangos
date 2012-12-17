@@ -40,6 +40,7 @@ extern void AddSC_spell_scripts();
 extern void AddSC_pet_scripts();
 
 extern void AddSC_world_map_scripts();
+extern void AddSC_world_map_ebon_hold();
 
 // eastern kingdoms
 extern void AddSC_ascendant_council();                      // bastion_of_twilight
@@ -425,7 +426,7 @@ extern void AddSC_boss_sartharion();                        // obsidian_sanctum
 extern void AddSC_instance_obsidian_sanctum();
 extern void AddSC_boss_baltharus();                         // ruby_sanctum
 extern void AddSC_boss_halion();
-extern void AddSC_boss_ragefire();
+extern void AddSC_boss_saviana();
 extern void AddSC_boss_zarithrian();
 extern void AddSC_instance_ruby_sanctum();
 extern void AddSC_ruby_sanctum();
@@ -611,6 +612,7 @@ void AddScripts()
     AddSC_spell_scripts();
     AddSC_pet_scripts();
     AddSC_world_map_scripts();
+    AddSC_world_map_ebon_hold();
 
     // eastern kingdoms
     AddSC_ascendant_council();                              // bastion_of_twilight
@@ -996,7 +998,7 @@ void AddScripts()
     AddSC_instance_obsidian_sanctum();
     AddSC_boss_baltharus();                                 // ruby_sanctum
     AddSC_boss_halion();
-    AddSC_boss_ragefire();
+    AddSC_boss_saviana();
     AddSC_boss_zarithrian();
     AddSC_instance_ruby_sanctum();
     AddSC_ruby_sanctum();

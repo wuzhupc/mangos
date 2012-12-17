@@ -177,9 +177,9 @@ struct MANGOS_DLL_DECL boss_bronjahmAI : public BSWScriptedAI
     }
 };
 
-struct MANGOS_DLL_DECL mob_soul_fragmentAI : public ScriptedAI
+struct MANGOS_DLL_DECL npc_corrupted_soul_fragmentAI : public ScriptedAI
 {
-    mob_soul_fragmentAI(Creature *pCreature) : ScriptedAI(pCreature)
+    npc_corrupted_soul_fragmentAI(Creature *pCreature) : ScriptedAI(pCreature)
     {
         m_pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         Reset();
@@ -233,9 +233,9 @@ CreatureAI* GetAI_boss_bronjahm(Creature* pCreature)
     return new boss_bronjahmAI(pCreature);
 }
 
-CreatureAI* GetAI_mob_soul_fragment(Creature* pCreature)
+CreatureAI* GetAI_npc_corrupted_soul_fragment(Creature* pCreature)
 {
-    return new mob_soul_fragmentAI (pCreature);
+    return new npc_corrupted_soul_fragmentAI (pCreature);
 }
 
 
@@ -248,8 +248,8 @@ void AddSC_boss_bronjahm()
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name = "mob_soul_fragment";
-    newscript->GetAI = &GetAI_mob_soul_fragment;
+    newscript->Name = "npc_corrupted_soul_fragment";
+    newscript->GetAI = &GetAI_npc_corrupted_soul_fragment;
     newscript->RegisterSelf();
 
 }

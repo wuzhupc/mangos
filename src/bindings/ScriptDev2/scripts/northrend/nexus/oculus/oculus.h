@@ -74,9 +74,9 @@ enum
     // Achievements
     ACHIEV_START_EREGOS_ID          = 18153,            // eregos timed kill achiev
 
-    ACHIEV_CRITERIA_RUBY_VOID       = 7323,
+    ACHIEV_CRITERIA_AMBER_VOID      = 7323,
     ACHIEV_CRITERIA_EMERALD_VOID    = 7324,
-    ACHIEV_CRITERIA_AMBER_VOID      = 7325,
+    ACHIEV_CRITERIA_RUBY_VOID       = 7325,
 
     ACHIEV_RUBY_VOID                = 0,
     ACHIEV_EMERALD_VOID             = 1,

@@ -317,30 +317,30 @@ struct MANGOS_DLL_DECL npc_highlord_saurfang_iccAI : public base_icc_bossAI
                 }
                 case 9:
                 {
-                    float x, y, z;
-                    if (Creature *pSaurfang = GetSaurfang())
+                    if (Creature* pSaurfang = GetSaurfang())
+                    {
+                        float x, y, z;
                         pSaurfang->GetPosition(x, y, z);
 
-                    DoScriptText(SAY_INTRO_HORDE_8, m_creature);
-                    m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-                    m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PASSIVE);
-                    m_creature->SetWalk(false);
-                    m_creature->GetMotionMaster()->MovePoint(0, x, y, z);
+                        DoScriptText(SAY_INTRO_HORDE_8, m_creature);
+                        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PASSIVE);
+                        m_creature->SetWalk(false);
+                        m_creature->GetMotionMaster()->MovePoint(0, x, y, z);
 
-                    // move guards
-                    for (GuidList::iterator i = m_lGuards.begin(); i != m_lGuards.end(); ++i)
-                    {
-                        if (Creature *pTmp = m_creature->GetMap()->GetCreature(*i))
+                        // move guards
+                        for (GuidList::iterator i = m_lGuards.begin(); i != m_lGuards.end(); ++i)
                         {
-                            pTmp->SetWalk(false);
-                            pTmp->GetMotionMaster()->MovePoint(0, x, y, z);
-                            pTmp->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-                            pTmp->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PASSIVE);
+                            if (Creature* pTmp = m_creature->GetMap()->GetCreature(*i))
+                            {
+                                pTmp->SetWalk(false);
+                                pTmp->GetMotionMaster()->MovePoint(0, x, y, z);
+                                pTmp->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                                pTmp->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PASSIVE);
+                            }
                         }
-                    }
-
-                    if (Creature *pSaurfang = GetSaurfang())
                         pSaurfang->CastSpell(pSaurfang, SPELL_GRIP_OF_AGONY, true);
+                    }
 
                     NextStep(1500);
                     break;

@@ -26,18 +26,18 @@ EndScriptData */
 
 enum
 {
-    SAY_GENERAL_TRASH                   = -1658051,
-    SAY_PREFIGHT_1                      = -1658053,
-    SAY_PREFIGHT_2                      = -1658054,
-    SAY_AGGRO                           = -1658055,
-    SAY_SLAY_1                          = -1658056,
-    SAY_SLAY_2                          = -1658057,
-    SAY_DEATH                           = -1658058,
-    SAY_MARK                            = -1658059,
-    SAY_SMASH                           = -1658061,
+    SAY_GENERAL_TRASH                   = -1658051, //Not used
+    SAY_PREFIGHT_1                      = -1658053, //Not used
+    SAY_PREFIGHT_2                      = -1658054, //Not used
+    SAY_AGGRO                           = -1658053,
+    SAY_SLAY_1                          = -1658054,
+    SAY_SLAY_2                          = -1658055,
+    SAY_DEATH                           = -1658056,
+    SAY_MARK                            = -1658057,
+    SAY_SMASH                           = -1658058,
 
-    EMOTE_RIMEFANG_ICEBOLT              = -1658060,
-    EMOTE_SMASH                         = -1658062,
+    EMOTE_RIMEFANG_ICEBOLT              = -1658059,
+    EMOTE_SMASH                         = -1658060,
 
     SPELL_FORCEFUL_SMASH                = 69155,
     SPELL_FORCEFUL_SMASH_H              = 69627,
@@ -51,14 +51,13 @@ enum
     SPELL_ICY_BLAST_SLOW                = 69238,
     SPELL_ICY_BLAST_SLOW_H              = 69628,
 
-    SAY_OUTRO1_SLAVE_HORDE              = -1658061,
+    SAY_OUTRO1_SLAVE_HORDE              = -1658062,
     SAY_OUTRO1_SLAVE_ALLY               = -1658061,
-    SAY_OUTRO2_SLAVE                    = -1658062,
-    SAY_OUTRO3_HORDE                    = -1658064,
-    SAY_OUTRO3_ALY                      = -1658063,
-    SAY_OUTRO4_HORDE                    = -1658067,
-    SAY_OUTRO4_ALY                      = -1658065,
-    SAY_OUTRO5_ALY                      = -1658066,
+    SAY_OUTRO2_HORDE                    = -1658064,
+    SAY_OUTRO2_ALY                      = -1658063,
+    SAY_OUTRO3_HORDE                    = -1658067,
+    SAY_OUTRO3_ALY                      = -1658065,
+    SAY_OUTRO4_ALY                      = -1658066,
 
     SPELL_FROST_BOMB                    = 70521,
 
@@ -67,8 +66,6 @@ enum
     SPELL_ICY_BLAST_AURA_H              = 69628,
 
     EQUIP_ID                            = 51796,
-
-    NPC_DAILY_DUNGEON                   = 22852,
 };
 
 const float RimefangSummon[4] = {1013.827f, 169.71f, 628.157f, 5.31f};
@@ -267,8 +264,6 @@ struct MANGOS_DLL_DECL boss_tyrannusAI : public ScriptedAI
 
     void JustDied(Unit* pKiller)
     {
-        m_creature->SummonCreature(NPC_DAILY_DUNGEON, 1032.35f, 198.31f, 628.15f, 4.73f, TEMPSUMMON_MANUAL_DESPAWN, 5000);
-
         DoScriptText(SAY_DEATH, m_creature);
 
         // Temp hack until outro is implemented
@@ -633,16 +628,6 @@ struct MANGOS_DLL_DECL npc_sylvanas_jaina_pos_endAI: public ScriptedAI
                         m_uiSindragosaGuid = pSindragosa->GetObjectGuid();
                     }
                     switch (creatureEntry)
-                    {
-                    case NPC_JAINA_PART2:
-                        if(Creature* pMartin = m_pInstance->instance->GetCreature(m_uiMartinGuid))
-                            DoScriptText(SAY_OUTRO2_SLAVE, pMartin);
-                        break;
-                    case NPC_SYLVANAS_PART2:
-                        if(Creature* pGorkun = m_pInstance->instance->GetCreature(m_uiGorkunGuid))
-                            DoScriptText(SAY_OUTRO2_SLAVE, pGorkun);
-                        break;
-                    }
                     ++m_uiOutro_Phase;
                     m_uiSpeech_Timer = 13000;
                     break;
@@ -657,7 +642,7 @@ struct MANGOS_DLL_DECL npc_sylvanas_jaina_pos_endAI: public ScriptedAI
                                 pSindragosa->CastSpell(pMartin, SPELL_FROST_BOMB, false);
                             }
                         }
-                        DoScriptText(SAY_OUTRO3_ALY, m_creature);
+                        DoScriptText(SAY_OUTRO2_ALY, m_creature);
                         break;
                     case NPC_SYLVANAS_PART2:
                         if(Creature* pGorkun = m_pInstance->instance->GetCreature(m_uiGorkunGuid))
@@ -667,7 +652,7 @@ struct MANGOS_DLL_DECL npc_sylvanas_jaina_pos_endAI: public ScriptedAI
                                 pSindragosa->CastSpell(pGorkun, SPELL_FROST_BOMB, false);
                             }
                         }
-                        DoScriptText(SAY_OUTRO3_HORDE, m_creature);
+                        DoScriptText(SAY_OUTRO2_HORDE, m_creature);
                         break;
                     }
                     TeleportPlayers();
@@ -698,7 +683,7 @@ struct MANGOS_DLL_DECL npc_sylvanas_jaina_pos_endAI: public ScriptedAI
                             pMartin->SetStandFlags(UNIT_STAND_STATE_DEAD);
                             pMartin->DealDamage(pMartin, pMartin->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                         }
-                        DoScriptText(SAY_OUTRO4_ALY, m_creature);
+                        DoScriptText(SAY_OUTRO3_ALY, m_creature);
                         m_creature->GetMotionMaster()->MovePoint(0, 1068.709f, 208.378f, 628.156f);
                         SummonAlyAssist();
                         m_uiSpeech_Timer = 7000;
@@ -711,7 +696,7 @@ struct MANGOS_DLL_DECL npc_sylvanas_jaina_pos_endAI: public ScriptedAI
                             pGorkun->SetStandFlags(UNIT_STAND_STATE_DEAD);
                             pGorkun->DealDamage(pGorkun, pGorkun->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                         }
-                        DoScriptText(SAY_OUTRO4_HORDE, m_creature);
+                        DoScriptText(SAY_OUTRO3_HORDE, m_creature);
                         m_creature->GetMotionMaster()->MovePoint(0, 1068.709f, 208.378f, 628.156f);
                         SummonHordeAssist();
                         m_bIsOutro = false;
@@ -723,7 +708,7 @@ struct MANGOS_DLL_DECL npc_sylvanas_jaina_pos_endAI: public ScriptedAI
                     switch (creatureEntry)
                     {
                     case NPC_JAINA_PART2:
-                        DoScriptText(SAY_OUTRO5_ALY, m_creature);
+                        DoScriptText(SAY_OUTRO4_ALY, m_creature);
                         break;
                     case NPC_SYLVANAS_PART2:
                         break;

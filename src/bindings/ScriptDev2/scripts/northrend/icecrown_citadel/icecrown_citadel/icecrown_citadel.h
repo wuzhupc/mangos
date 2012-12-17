@@ -29,6 +29,7 @@ enum
     TYPE_ICECROWN_QUESTS,
     TYPE_STINKY,
     TYPE_PRECIOUS,
+    MAX_ENCOUNTERS_2,
 
     NPC_LORD_MARROWGAR          = 36612,
     NPC_LADY_DEATHWHISPER       = 36855,
@@ -280,7 +281,7 @@ private:
     std::string strSaveData;
 
     //Creatures GUID
-    uint32 m_auiEncounter[MAX_ENCOUNTERS+1];
+    uint32 m_auiEncounter[MAX_ENCOUNTERS_2];
 
     bool m_bAchievCriteria[ACHIEVE_MAX_COUNT];
 

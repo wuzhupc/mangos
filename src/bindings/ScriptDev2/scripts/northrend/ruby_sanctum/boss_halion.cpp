@@ -1311,7 +1311,7 @@ struct MANGOS_DLL_DECL mob_halion_controlAI : public ScriptedAI
                 -
                 (p_TwilightCorp / (m_bIs25Man ? (m_bIsHeroic ? 585690 : 404400) : (m_bIsHeroic ? 153390 : 111560)));
 
-            uint8 buffnum;
+            uint8 buffnum = 0;
             if (m_uiDiff <= Buff[0].uiDiff)
             {
                 buffnum = 0;
@@ -1585,8 +1585,9 @@ struct MANGOS_DLL_DECL mob_halion_orbAI : public ScriptedAI
         if (m_direction > 2.0f*M_PI_F)
             m_direction = m_direction - 2.0f*M_PI_F;
 
-        if (focus = m_pInstance->GetSingleCreatureFromStorage(NPC_ORB_ROTATION_FOCUS))  
-        {        
+        focus = m_pInstance->GetSingleCreatureFromStorage(NPC_ORB_ROTATION_FOCUS);
+        if (focus)
+        {
             focus->GetNearPoint2D(x, y, FR_RADIUS, m_direction);
         }
         else 

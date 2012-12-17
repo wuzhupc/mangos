@@ -21,9 +21,9 @@ enum
 
 FollowerAI::FollowerAI(Creature* pCreature) : ScriptedAI(pCreature),
     m_leaderGuid(),
-    m_pQuestForFollow(NULL),
     m_uiUpdateFollowTimer(2500),
-    m_uiFollowState(STATE_FOLLOW_NONE)
+    m_uiFollowState(STATE_FOLLOW_NONE),
+    m_pQuestForFollow(NULL)
 {}
 
 void FollowerAI::AttackStart(Unit* pWho)
@@ -153,9 +153,6 @@ void FollowerAI::JustRespawned()
     if (!IsCombatMovement())
         SetCombatMovement(true);
 
-    if (m_creature->getFaction() != m_creature->GetCreatureInfo()->faction_A)
-        m_creature->setFaction(m_creature->GetCreatureInfo()->faction_A);
-
     Reset();
 }
 
@@ -283,7 +280,7 @@ void FollowerAI::StartFollow(Player* pLeader, uint32 uiFactionForFollower, const
 
     if (HasFollowState(STATE_FOLLOW_INPROGRESS))
     {
-        error_log("SD2: FollowerAI attempt to StartFollow while already following.");
+        script_error_log("FollowerAI attempt to StartFollow while already following.");
         return;
     }
 
@@ -291,7 +288,7 @@ void FollowerAI::StartFollow(Player* pLeader, uint32 uiFactionForFollower, const
     m_leaderGuid = pLeader->GetObjectGuid();
 
     if (uiFactionForFollower)
-        m_creature->setFaction(uiFactionForFollower);
+        m_creature->SetFactionTemporary(uiFactionForFollower, TEMPFACTION_RESTORE_RESPAWN);
 
     m_pQuestForFollow = pQuest;
 

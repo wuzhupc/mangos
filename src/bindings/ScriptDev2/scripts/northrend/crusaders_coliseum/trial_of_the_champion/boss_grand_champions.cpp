@@ -548,7 +548,7 @@ struct MANGOS_DLL_DECL mob_toc5_hunterAI : public ScriptedAI
         Multi_Shot_Timer = m_bIsRegularMode ? 15000 : 8000;
         Disengage_Cooldown = 0;
         enemy_check = 1000;
-        disengage_check;
+        disengage_check = 1000;
         m_creature->GetMotionMaster()->MovePoint(0, 746, 614, m_creature->GetPositionZ());
         m_creature->SetWalk(true);
     }
@@ -767,7 +767,7 @@ struct MANGOS_DLL_DECL mob_toc5_rogueAI : public ScriptedAI
 
         if (Poison_Timer < diff)
         {
-            if (Unit* target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
+            if (m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
                 DoCast(m_creature, SPELL_POISON_BOTTLE);
 
             Poison_Timer = m_bIsRegularMode ? 10000 : 5000;

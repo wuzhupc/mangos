@@ -63,9 +63,6 @@ bool instance_trial_of_the_crusader::IsEncounterInProgress() const
         if (m_auiEncounter[i] == IN_PROGRESS)
             return true;
 
-    if (m_auiEncounter[TYPE_NORTHREND_BEASTS] == SNAKES_SPECIAL)
-        return true;
-
     return false;
 }
 
@@ -203,22 +200,25 @@ void instance_trial_of_the_crusader::SetData(uint32 uiType, uint32 uiData)
             m_auiEncounter[TYPE_CRUSADERS] = uiData;
         if (uiData == DONE)
         {
-            if (Creature* pTirion = GetSingleCreatureFromStorage(NPC_TIRION))
+            if (GetSingleCreatureFromStorage(NPC_TIRION))
                 DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_ACHIEV_FACTION_CHAMPIONS_DEFEAT);
 
             uint32 uiCacheEntry = GO_CRUSADERS_CACHE_10;
 
             switch (instance->GetDifficulty())
             {
-            case RAID_DIFFICULTY_10MAN_HEROIC:
-                uiCacheEntry = GO_CRUSADERS_CACHE_10_H;
-                break;
-            case RAID_DIFFICULTY_25MAN_NORMAL:
-                uiCacheEntry = GO_CRUSADERS_CACHE_25;
-                break;
-            case RAID_DIFFICULTY_25MAN_HEROIC:
-                uiCacheEntry = GO_CRUSADERS_CACHE_25_H;
-                break;
+                case RAID_DIFFICULTY_10MAN_HEROIC:
+                    uiCacheEntry = GO_CRUSADERS_CACHE_10_H;
+                    break;
+                case RAID_DIFFICULTY_25MAN_NORMAL:
+                    uiCacheEntry = GO_CRUSADERS_CACHE_25;
+                    break;
+                case RAID_DIFFICULTY_25MAN_HEROIC:
+                    uiCacheEntry = GO_CRUSADERS_CACHE_25_H;
+                    break;
+                default:
+                    uiCacheEntry = GO_CRUSADERS_CACHE_10;
+                    break;
             }
             if (GameObject* pChest = GetSingleGameObjectFromStorage(uiCacheEntry))
                 if (!pChest->isSpawned())

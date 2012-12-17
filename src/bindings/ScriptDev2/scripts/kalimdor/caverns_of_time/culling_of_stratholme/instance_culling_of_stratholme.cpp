@@ -30,7 +30,7 @@ struct MANGOS_DLL_DECL instance_culling_of_stratholme : public ScriptedInstance
     instance_culling_of_stratholme(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 
     uint8 m_uiCratesCount;
-    uint32 m_auiEncounter[7];
+    uint32 m_auiEncounter[MAX_ENCOUNTERS];
     uint32 m_uiHeroicTimer;
     uint32 m_uiLastTimer;
 
@@ -39,15 +39,10 @@ struct MANGOS_DLL_DECL instance_culling_of_stratholme : public ScriptedInstance
 
     void Initialize()
     {
+        memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
+
         m_uiHeroicTimer = 1500000;
         m_uiLastTimer = 1500000;
-        m_auiEncounter[0] = NOT_STARTED;
-        m_auiEncounter[1] = NOT_STARTED;
-        m_auiEncounter[2] = 0;
-        m_auiEncounter[3] = NOT_STARTED;
-        m_auiEncounter[4] = 0;
-        m_auiEncounter[5] = NOT_STARTED;
-        m_auiEncounter[6] = NOT_STARTED;
 
         DoUpdateWorldState(WORLD_STATE_COS_CRATE_COUNT, 0);
         DoUpdateWorldState(WORLD_STATE_COS_CRATE_ON, 0);

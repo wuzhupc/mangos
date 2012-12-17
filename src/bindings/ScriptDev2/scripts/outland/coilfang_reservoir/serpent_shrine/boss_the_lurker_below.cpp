@@ -268,6 +268,8 @@ struct MANGOS_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
                     m_uiPhaseChangeTimer -= uiDiff;
 
                 break;
+            default:
+                break;
         }
     }
 };

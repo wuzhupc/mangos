@@ -7,7 +7,6 @@
 
 enum
 {
-    MAX_ENCOUNTER               = 9,
 
     TYPE_SKERAM                 = 0,
     TYPE_BUG_TRIO               = 1,
@@ -18,6 +17,7 @@ enum
     TYPE_TWINS                  = 6,
     TYPE_OURO                   = 7,
     TYPE_CTHUN                  = 8,
+    MAX_ENCOUNTER,
 
     NPC_SKERAM                  = 15263,
     //NPC_KRI                   = 15511,

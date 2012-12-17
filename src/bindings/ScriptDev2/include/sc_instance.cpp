@@ -18,7 +18,7 @@ void ScriptedInstance::DoUseDoorOrButton(ObjectGuid guid, uint32 uiWithRestoreTi
 
     if (GameObject* pGo = instance->GetGameObject(guid))
     {
-        if (pGo->GetGoType() == GAMEOBJECT_TYPE_DOOR || pGo->GetGoType() == GAMEOBJECT_TYPE_BUTTON)
+        if (pGo->GetGoType() == GAMEOBJECT_TYPE_DOOR || pGo->GetGoType() == GAMEOBJECT_TYPE_BUTTON || pGo->GetGoType() == GAMEOBJECT_TYPE_TRAPDOOR)
         {
             if (pGo->getLootState() == GO_READY)
                 pGo->UseDoorOrButton(uiWithRestoreTime, bUseAlternativeState);
@@ -26,7 +26,7 @@ void ScriptedInstance::DoUseDoorOrButton(ObjectGuid guid, uint32 uiWithRestoreTi
                 pGo->ResetDoorOrButton();
         }
         else
-            error_log("SD2: Script call DoUseDoorOrButton, but gameobject entry %u is type %u.", pGo->GetEntry(), pGo->GetGoType());
+            script_error_log("Script call DoUseDoorOrButton, but gameobject entry %u is type %u.", pGo->GetEntry(), pGo->GetGoType());
     }
 }
 
@@ -237,7 +237,7 @@ GameObject* ScriptedInstance::GetSingleGameObjectFromStorage(uint32 uiEntry)
         return instance->GetGameObject(find->second);
 
     // Output log, possible reason is not added GO to map, or not yet loaded;
-    debug_log("SD2: Script requested gameobject with entry %u, but no gameobject of this entry was created yet, or it was not stored by script for map %u.", uiEntry, instance->GetId());
+    script_error_log("Script requested gameobject with entry %u, but no gameobject of this entry was created yet, or it was not stored by script for map %u.", uiEntry, instance->GetId());
 
     return NULL;
 }
@@ -251,7 +251,7 @@ Creature* ScriptedInstance::GetSingleCreatureFromStorage(uint32 uiEntry, bool bS
 
     // Output log, possible reason is not added GO to map, or not yet loaded;
     if (!bSkipDebugLog)
-        debug_log("SD2: Script requested creature with entry %u, but no npc of this entry was created yet, or it was not stored by script for map %u.", uiEntry, instance->GetId());
+        script_error_log("Script requested creature with entry %u, but no npc of this entry was created yet, or it was not stored by script for map %u.", uiEntry, instance->GetId());
 
     return NULL;
 }
@@ -284,10 +284,10 @@ void ScriptedInstance::DoStartTimedAchievement(AchievementCriteriaTypes criteria
    @param   pDialogueArray The static const array of DialogueEntry holding the information about the dialogue. This array MUST be terminated by {0,0,0}
  */
 DialogueHelper::DialogueHelper(DialogueEntry const* pDialogueArray) :
-    m_pDialogueArray(pDialogueArray),
-    m_pDialogueTwoSideArray(NULL),
     m_pInstance(NULL),
+    m_pDialogueArray(pDialogueArray),
     m_pCurrentEntry(NULL),
+    m_pDialogueTwoSideArray(NULL),
     m_pCurrentEntryTwoSide(NULL),
     m_uiTimer(0),
     m_bCanSimulate(false),
@@ -306,8 +306,8 @@ DialogueHelper::DialogueHelper(DialogueEntryTwoSide const* pDialogueTwoSideArray
     m_pCurrentEntry(NULL),
     m_pCurrentEntryTwoSide(NULL),
     m_uiTimer(0),
-    m_bCanSimulate(false),
-    m_bIsFirstSide(true)
+    m_bIsFirstSide(true),
+    m_bCanSimulate(false)
 {}
 
 /**
@@ -347,7 +347,7 @@ void DialogueHelper::StartNextDialogueText(int32 iTextEntry)
 
     if (!bFound)
     {
-        error_log("SD2: Script call DialogueHelper::StartNextDialogueText, but textEntry %i is not in provided dialogue (on map id %u)", iTextEntry, m_pInstance ? m_pInstance->instance->GetId() : 0);
+        script_error_log("Script call DialogueHelper::StartNextDialogueText, but textEntry %i is not in provided dialogue (on map id %u)", iTextEntry, m_pInstance ? m_pInstance->instance->GetId() : 0);
         return;
     }
 
@@ -358,7 +358,7 @@ void DialogueHelper::StartNextDialogueText(int32 iTextEntry)
 void DialogueHelper::DoNextDialogueStep()
 {
     // Last Dialogue Entry done?
-    if (m_pCurrentEntry && !m_pCurrentEntry->iTextEntry || m_pCurrentEntryTwoSide && !m_pCurrentEntryTwoSide->iTextEntry)
+    if ((m_pCurrentEntry && !m_pCurrentEntry->iTextEntry) || (m_pCurrentEntryTwoSide && !m_pCurrentEntryTwoSide->iTextEntry))
     {
         m_uiTimer = 0;
         return;

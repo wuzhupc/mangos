@@ -94,7 +94,8 @@ struct MANGOS_DLL_DECL boss_baltharusAI : public ScriptedAI
         m_uiSaberLashTimer = 5000;
         m_bInCombat = false;
         m_bIntro = false;
-        if (pDummyTarget = m_pInstance->GetSingleCreatureFromStorage(NPC_BALTHARUS_TARGET))
+        pDummyTarget = m_pInstance->GetSingleCreatureFromStorage(NPC_BALTHARUS_TARGET);
+        if (pDummyTarget)
         {
             if (!pDummyTarget->isAlive())
                 pDummyTarget->Respawn();
@@ -102,10 +103,14 @@ struct MANGOS_DLL_DECL boss_baltharusAI : public ScriptedAI
             pDummyTarget->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             pDummyTarget->GetMotionMaster()->MoveIdle();
         }
-        else if (pDummyTarget = m_creature->SummonCreature(NPC_BALTHARUS_TARGET, SpawnLoc[0].x, SpawnLoc[0].y, SpawnLoc[0].z, 0.0f, TEMPSUMMON_MANUAL_DESPAWN, 1000))
+        else
         {
-            pDummyTarget->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            pDummyTarget->GetMotionMaster()->MoveIdle();
+            pDummyTarget = m_creature->SummonCreature(NPC_BALTHARUS_TARGET, SpawnLoc[0].x, SpawnLoc[0].y, SpawnLoc[0].z, 0.0f, TEMPSUMMON_MANUAL_DESPAWN, 1000);
+            if (pDummyTarget)
+            {
+                pDummyTarget->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                pDummyTarget->GetMotionMaster()->MoveIdle();
+            }
         }
 
         if (Creature* pTarget = m_pInstance->GetSingleCreatureFromStorage(NPC_XERESTRASZA))

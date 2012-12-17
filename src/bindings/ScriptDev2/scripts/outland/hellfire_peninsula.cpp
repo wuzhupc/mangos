@@ -74,7 +74,7 @@ struct MANGOS_DLL_DECL npc_aeranasAI : public ScriptedAI
         {
             if (m_uiFactionTimer <= uiDiff)
             {
-                m_creature->setFaction(FACTION_HOSTILE);
+                m_creature->SetFactionTemporary(FACTION_HOSTILE, TEMPFACTION_RESTORE_RESPAWN | TEMPFACTION_RESTORE_COMBAT_STOP);
                 m_uiFactionTimer = 0;
             }
             else
@@ -86,7 +86,6 @@ struct MANGOS_DLL_DECL npc_aeranasAI : public ScriptedAI
 
         if (m_creature->GetHealthPercent() < 30.0f)
         {
-            m_creature->setFaction(FACTION_FRIENDLY);
             m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
             m_creature->RemoveAllAuras();
             m_creature->DeleteThreatList();
@@ -142,7 +141,7 @@ struct MANGOS_DLL_DECL npc_ancestral_wolfAI : public npc_escortAI
         if (pCreature->GetOwner() && pCreature->GetOwner()->GetTypeId() == TYPEID_PLAYER)
             Start(false, (Player*)pCreature->GetOwner());
         else
-            error_log("SD2: npc_ancestral_wolf can not obtain owner or owner is not a player.");
+            script_error_log("npc_ancestral_wolf can not obtain owner or owner is not a player.");
 
         Reset();
     }
@@ -432,7 +431,7 @@ bool QuestAccept_npc_wounded_blood_elf(Player* pPlayer, Creature* pCreature, con
     if (pQuest->GetQuestId() == QUEST_ROAD_TO_FALCON_WATCH)
     {
         // Change faction so mobs attack
-        pCreature->setFaction(FACTION_ESCORT_H_PASSIVE);
+        pCreature->SetFactionTemporary(FACTION_ESCORT_H_PASSIVE, TEMPFACTION_RESTORE_RESPAWN);
 
         if (npc_wounded_blood_elfAI* pEscortAI = dynamic_cast<npc_wounded_blood_elfAI*>(pCreature->AI()))
             pEscortAI->Start(false, pPlayer, pQuest);

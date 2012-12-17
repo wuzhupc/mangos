@@ -459,7 +459,7 @@ class Spell
         bool CheckTargetBeforeLimitation(Unit* target, SpellEffectIndex eff);
         SpellCastResult CanAutoCast(Unit* target);
 
-        static void MANGOS_DLL_SPEC SendCastResult(Player* caster, SpellEntry const* spellInfo, uint8 cast_count, SpellCastResult result);
+        static void MANGOS_DLL_SPEC SendCastResult(Player* caster, SpellEntry const* spellInfo, uint8 cast_count, SpellCastResult result, bool isPetCastResult = false);
         void SendCastResult(SpellCastResult result);
         void SendSpellStart();
         void SendSpellGo();
@@ -892,8 +892,8 @@ namespace MaNGOS
 
                         if (!itr->getSource()->IsVisibleTargetForSpell(i_originalCaster, i_spell.m_spellInfo, &i_center))
                             continue;
+                        break;
                     }
-                    break;
                     case SPELL_TARGETS_ALL:
                         break;
                     default: continue;

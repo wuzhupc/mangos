@@ -115,11 +115,13 @@ struct MANGOS_DLL_DECL boss_moorabiAI : public ScriptedAI
         if (m_pInstance)
             m_pInstance->SetData(TYPE_MOORABI, DONE);
 
-        if (!m_bIsRegularMode)
-        if (m_bMammothPhase)
-            return;
-        else
-            m_pInstance->DoCompleteAchievement(2040);
+        if  (!m_bIsRegularMode)
+        {
+            if (m_bMammothPhase)
+                return;
+            else
+                m_pInstance->DoCompleteAchievement(2040);
+        }
     }
 
     void UpdateAI(const uint32 uiDiff)

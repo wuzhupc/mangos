@@ -75,12 +75,19 @@ void instance_ulduar::OnCreatureCreate(Creature* pCreature)
         case NPC_RAZORSCALE:
         case NPC_COMMANDER:
         case NPC_XT002:
+            break;
+        case NPC_XT_TOY_PILE:
+            m_lXtToyPileGuids.push_back(pCreature->GetObjectGuid());
+            return;
         // Assembly of Iron
         case NPC_STEELBREAKER:
-        case NPC_MOLGEIM:
-        case NPC_BRUNDIR:
+        case NPC_RUNEMASTER_MOLGEIM:
+        case NPC_STORMCALLER_BRUNDIR:
+            break;
         // Kologarn
         case NPC_KOLOGARN:
+            if (GetData(TYPE_KOLOGARN) == DONE)
+                pCreature->SummonCreature(NPC_KOLOGARN_BRIDGE_DUMMY, pCreature->GetPositionX(), pCreature->GetPositionY(), pCreature->GetPositionZ(), pCreature->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN, 0);
         case NPC_KOLOGARN_BRIDGE_DUMMY:
         // Auriaya
         case NPC_AURIAYA:
@@ -201,9 +208,10 @@ void instance_ulduar::OnObjectCreate(GameObject* pGo)
         case GO_IRON_ENTRANCE_DOOR:
             break;
         case GO_ARCHIVUM_DOOR:
-            pGo->SetGoState(GO_STATE_READY);
-            if (m_auiEncounter[TYPE_ASSEMBLY])
+            if (GetData(TYPE_ASSEMBLY) == DONE)
                 pGo->SetGoState(GO_STATE_ACTIVE);
+            else
+                pGo->SetGoState(GO_STATE_READY);
             break;
         case GO_ARCHIVUM_CONSOLE:
         case GO_UNIVERSE_FLOOR_ARCHIVUM:
@@ -215,7 +223,10 @@ void instance_ulduar::OnObjectCreate(GameObject* pGo)
             break;
             // Shattered Hallway
         case GO_KOLOGARN_BRIDGE:
-            pGo->SetGoState(GO_STATE_ACTIVE);
+            if (GetData(TYPE_KOLOGARN) == DONE)
+                pGo->SetGoState(GO_STATE_READY);
+            else
+                pGo->SetGoState(GO_STATE_ACTIVE);
             break;
         case GO_SHATTERED_DOOR:
             break;
@@ -402,7 +413,7 @@ void instance_ulduar::SetData(uint32 uiType, uint32 uiData)
                 DoStartTimedAchievement(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE, ACHIEV_START_IGNIS_ID);
             }
             // Add respawn and kill
-            if (uiData == FAIL)
+            if (uiData == FAIL || uiData == IN_PROGRESS)
             {
                 for (GuidList::iterator itr = m_lIronConstructsGuids.begin(); itr != m_lIronConstructsGuids.end(); ++itr)
                 {
@@ -455,12 +466,12 @@ void instance_ulduar::SetData(uint32 uiType, uint32 uiData)
             }
             else if (uiData == FAIL)
             {
-                if (Creature* pBrundir = GetSingleCreatureFromStorage(NPC_BRUNDIR))
+                if (Creature* pBrundir = GetSingleCreatureFromStorage(NPC_STORMCALLER_BRUNDIR))
                 {
                     if (!pBrundir->isAlive())
                         pBrundir->Respawn();
                 }
-                if (Creature* pMolgeim = GetSingleCreatureFromStorage(NPC_MOLGEIM))
+                if (Creature* pMolgeim = GetSingleCreatureFromStorage(NPC_RUNEMASTER_MOLGEIM))
                 {
                     if (!pMolgeim->isAlive())
                         pMolgeim->Respawn();
@@ -476,24 +487,20 @@ void instance_ulduar::SetData(uint32 uiType, uint32 uiData)
         case TYPE_KOLOGARN:
             if (uiData == DONE)
             {
+                // Summon loot box
                 if (instance->IsRegularDifficulty())
-                {
                     DoRespawnGameObject(GO_CACHE_OF_LIVING_STONE, 30*MINUTE);
-                }
                 else
-                {
                     DoRespawnGameObject(GO_CACHE_OF_LIVING_STONE_H, 30*MINUTE);
-                }
+
                 if (GameObject* pGo = GetSingleGameObjectFromStorage(GO_KOLOGARN_BRIDGE))
-                {
-                    pGo->SetUInt32Value(GAMEOBJECT_LEVEL, 0);
                     pGo->SetGoState(GO_STATE_READY);
-                }
             }
             if (uiData == IN_PROGRESS)
             {
                 SetSpecialAchievementCriteria(TYPE_ACHIEV_DISARMED, false);
                 SetSpecialAchievementCriteria(TYPE_ACHIEV_OPEN_ARMS, true);
+                SetSpecialAchievementCriteria(TYPE_ACHIEV_IF_LOOKS_COULD_KILL, true);
                 SetSpecialAchievementCriteria(TYPE_ACHIEV_RUBBLE_AND_ROLL, false);
             }
             break;
@@ -798,7 +805,7 @@ void instance_ulduar::SetData(uint32 uiType, uint32 uiData)
             << m_auiEncounter[TYPE_AURIAYA] << " " << m_auiEncounter[TYPE_MIMIRON] << " " << m_auiEncounter[TYPE_HODIR] << " "
             << m_auiEncounter[TYPE_THORIM] << " " << m_auiEncounter[TYPE_FREYA] << " " << m_auiEncounter[TYPE_VEZAX] << " "
             << m_auiEncounter[TYPE_YOGGSARON] << " " << m_auiEncounter[TYPE_ALGALON] << " " << m_auiEncounter[TYPE_LEVIATHAN_DIFFICULTY] << " "
-            << m_auiEncounter[TYPE_XT002_HARD] << " " << m_auiEncounter[TYPE_ASSEMBLY_HARD] << " " << m_auiEncounter[TYPE_ASSEMBLY_HARD] << " "
+            << m_auiEncounter[TYPE_MIMIRON_HARD] << " "
             << m_auiEncounter[TYPE_HODIR_HARD] << " " << m_auiEncounter[TYPE_THORIM_HARD] << " " << m_auiEncounter[TYPE_FREYA_HARD] << " "
             << m_auiEncounter[TYPE_VEZAX_HARD] << " " << m_auiEncounter[TYPE_YOGGSARON_HARD] << " " << m_auiEncounter[TYPE_KEEPER_HODIR] << " "
             << m_auiEncounter[TYPE_KEEPER_THORIM] << " " << m_auiEncounter[TYPE_KEEPER_FREYA] << " " << m_auiEncounter[TYPE_KEEPER_MIMIRON] << " "
@@ -864,6 +871,9 @@ bool instance_ulduar::CheckAchievementCriteriaMeet(uint32 uiCriteriaId, Player c
         case ACHIEV_CRIT_OPEN_ARMS:
         case ACHIEV_CRIT_OPEN_ARMS_H:
             return m_abAchievCriteria[TYPE_ACHIEV_OPEN_ARMS];
+        case ACHIEV_IF_LOOKS_COULD_KILL:
+        case ACHIEV_IF_LOOKS_COULD_KILL_H:
+            return m_abAchievCriteria[TYPE_ACHIEV_IF_LOOKS_COULD_KILL];
         case ACHIEV_CRIT_RUBBLE_AND_ROLL:
         case ACHIEV_CRIT_RUBBLE_AND_ROLL_H:
             return m_abAchievCriteria[TYPE_ACHIEV_RUBBLE_AND_ROLL];
@@ -1049,8 +1059,8 @@ void instance_ulduar::Load(const char* strIn)
     loadStream >> m_auiEncounter[TYPE_LEVIATHAN] >> m_auiEncounter[TYPE_IGNIS] >> m_auiEncounter[TYPE_RAZORSCALE] >> m_auiEncounter[TYPE_XT002]
     >> m_auiEncounter[TYPE_ASSEMBLY] >> m_auiEncounter[TYPE_KOLOGARN] >> m_auiEncounter[TYPE_AURIAYA] >> m_auiEncounter[TYPE_MIMIRON]
     >> m_auiEncounter[TYPE_HODIR] >> m_auiEncounter[TYPE_THORIM] >> m_auiEncounter[TYPE_FREYA] >> m_auiEncounter[TYPE_VEZAX]
-    >> m_auiEncounter[TYPE_YOGGSARON] >> m_auiEncounter[TYPE_ALGALON] >> m_auiEncounter[TYPE_LEVIATHAN_DIFFICULTY] >> m_auiEncounter[TYPE_XT002_HARD]
-    >> m_auiEncounter[TYPE_ASSEMBLY_HARD] >> m_auiEncounter[TYPE_MIMIRON_HARD] >> m_auiEncounter[TYPE_HODIR_HARD] >> m_auiEncounter[TYPE_THORIM_HARD]
+    >> m_auiEncounter[TYPE_YOGGSARON] >> m_auiEncounter[TYPE_ALGALON] >> m_auiEncounter[TYPE_LEVIATHAN_DIFFICULTY]
+    >> m_auiEncounter[TYPE_MIMIRON_HARD] >> m_auiEncounter[TYPE_HODIR_HARD] >> m_auiEncounter[TYPE_THORIM_HARD]
     >> m_auiEncounter[TYPE_FREYA_HARD] >> m_auiEncounter[TYPE_VEZAX_HARD] >> m_auiEncounter[TYPE_YOGGSARON_HARD] >> m_auiEncounter[TYPE_KEEPER_HODIR]
     >> m_auiEncounter[TYPE_KEEPER_THORIM] >> m_auiEncounter[TYPE_KEEPER_FREYA] >> m_auiEncounter[TYPE_KEEPER_MIMIRON] >> m_auiEncounter[TYPE_LEVIATHAN_TP]
     >> m_auiEncounter[TYPE_XT002_TP] >> m_auiEncounter[TYPE_MIMIRON_TP];

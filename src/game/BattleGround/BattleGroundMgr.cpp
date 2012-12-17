@@ -17,8 +17,8 @@
  */
 
 #include "Common.h"
-#include "..\SharedDefines.h"
-#include "..\Player.h"
+#include "../SharedDefines.h"
+#include "../Player.h"
 #include "BattleGroundMgr.h"
 #include "BattleGroundAV.h"
 #include "BattleGroundAB.h"
@@ -33,17 +33,17 @@
 #include "BattleGroundRV.h"
 #include "BattleGroundIC.h"
 #include "BattleGroundRB.h"
-#include "..\MapManager.h"
-#include "..\Map.h"
-#include "..\ObjectMgr.h"
+#include "../MapManager.h"
+#include "../Map.h"
+#include "../ObjectMgr.h"
 #include "ProgressBar.h"
-#include "..\Chat.h"
-#include "..\ArenaTeam.h"
-#include "..\World.h"
+#include "../Chat.h"
+#include "../ArenaTeam.h"
+#include "../World.h"
 #include "WorldPacket.h"
-#include "..\GameEventMgr.h"
-#include "..\Formulas.h"
-#include "..\WorldObjectEvents.h"
+#include "../GameEventMgr.h"
+#include "../Formulas.h"
+#include "../WorldObjectEvents.h"
 
 #include "Policies/SingletonImp.h"
 
@@ -768,8 +768,9 @@ void BattleGroundQueue::Update(BattleGroundTypeId bgTypeId, BattleGroundBracketI
     // battleground with free slot for player should be always in the beggining of the queue
     // maybe it would be better to create bgfreeslotqueue for each bracket_id
     BGFreeSlotQueueType::iterator itr, next;
-    for (itr = sBattleGroundMgr.BGFreeSlotQueue[bgTypeId].begin(); itr != sBattleGroundMgr.BGFreeSlotQueue[bgTypeId].end(); itr = next)
+    for (itr = sBattleGroundMgr.BGFreeSlotQueue[bgTypeId].begin(); itr != sBattleGroundMgr.BGFreeSlotQueue[bgTypeId].end() && !sBattleGroundMgr.BGFreeSlotQueue[bgTypeId].empty(); itr = next)
     {
+
         next = itr;
         ++next;
         // DO NOT allow queue manager to invite new player to arena

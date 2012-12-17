@@ -6,6 +6,7 @@
 #define SC_PRECOMPILED_H
 
 #include "../ScriptMgr.h"
+#include "../config.h"
 #include "Object.h"
 #include "Vehicle.h"
 #include "Unit.h"

@@ -27,7 +27,7 @@ EndScriptData */
 
 enum
 {
-    //yells
+    // Yells
     SAY_AGGRO           = -1603090,
     SAY_SHOCKWEAVE      = -1603091,
     SAY_GRAB            = -1603092,
@@ -41,7 +41,8 @@ enum
     EMOTE_LEFT_ARM      = -1603100,
     EMOTE_STONE_GRIP    = -1603101,
 
-    //kologarn
+    // Kologarn
+    SPELL_INSTAKILL_KOLOGARN_ARM= 63628,
     SPELL_OVERHEAD_SMASH        = 63356,
     SPELL_OVERHEAD_SMASH_H      = 64003,
     SPELL_ONE_ARMED_SMASH       = 63573,
@@ -51,61 +52,50 @@ enum
     SPELL_PETRIFYING_BREATH     = 62030,
     SPELL_PETRIFYING_BREATH_H   = 63980,
     // Focused Eyebeam
-    SPELL_FOCUSED_EYEBEAM       = 63342,
+    SPELL_FOCUSED_EYEBEAM_SUMMON= 63342, // Trigger for 63343 and 63701
     NPC_FOCUSED_EYEBEAM_RIGHT   = 33802,
     NPC_FOCUSED_EYEBEAM_LEFT    = 33632,
     SPELL_EYEBEAM_PERIODIC      = 63347,
     SPELL_EYEBEAM_PERIODIC_H    = 63977,
     SPELL_EYEBEAM_PERIODIC_VIS  = 63369,
-    SPELL_EYEBEAM_SUMMON_LEFT   = 63343,
-    SPELL_EYEBEAM_SUMMON_RIGHT  = 63701,
-    SPELL_EYEBEAM_VISUAL_LEFT   = 63352,
-    SPELL_EYEBEAM_VISUAL_LEFT_2 = 63702,
+    SPELL_EYEBEAM_VISUAL_LEFT   = 63348,
     SPELL_EYEBEAM_VISUAL_RIGHT  = 63676,
 
-    SPELL_ENRAGE                = 26662,
-    //left arm
+    SPELL_BERSERK               = 47008,
+    // Left arm
     SPELL_ARM_SWEEP             = 63766,
     SPELL_ARM_SWEEP_H           = 63983,
     SPELL_SHOCKWAVE             = 63783,
     SPELL_SHOCKWAVE_H           = 63982,
-    //right arm
-    SPELL_STONE_GRIP_GRAB       = 62166,
-    SPELL_STONE_GRIP_GRAB_H     = 63981,
+    // Right arm
+    SPELL_STONE_GRIP_GRAB       = 62166, // Trigger for 62056, 64290, 63962
+    SPELL_STONE_GRIP_GRAB_H     = 63981, // Trigger for 63985, 64292, 63962
     SPELL_STONE_GRIP            = 64290,
     SPELL_STONE_GRIP_H          = 64292,
     SPELL_STONE_GRIP_VEH        = 62056,
     SPELL_STONE_GRIP_VEH_H      = 63985,
-    //both
-    SPELL_ARM_VISUAL            = 64753,
-    //rubble
+    // Both
+    SPELL_ARM_VISUAL                 = 64753,
+    SPELL_ARM_DEAD_DAMAGE_KOLOGARN   = 63629,
+    SPELL_ARM_DEAD_DAMAGE_KOLOGARN_H = 63979,
+    // rubble
+    SPELL_SUMMON_RUBBLE         = 63633,
     SPELL_RUMBLE                = 63818,    // on 10 man
     SPELL_STONE_NOVA            = 63978,    // on 25 man
-    //NPC ids
-    MOB_RUBBLE                  = 33768,
+    // NPC ids
+    NPC_RUBBLE                  = 33768,
 
+    // Kologarn Vehicle seats
     RIGHT_ARM_SLOT              = 1,
-    LEFT_ARM_SLOT               = 0,
-
-
-    ACHIEV_RUBBLE_AND_ROLL      = 2959,
-    ACHIEV_RUBBLE_AND_ROLL_H    = 2960,
-    ACHIEV_WITH_OPEN_ARMS       = 2951,
-    ACHIEV_WITH_OPEN_ARMS_H     = 2952,
-    ACHIEV_DISARMED             = 2953,
-    ACHIEV_DISARMED_H           = 2954,
-    ACHIEV_IF_LOOKS_COULD_KILL  = 2955,
-    ACHIEV_IF_LOOKS_COULD_KILL_H= 2956,
+    LEFT_ARM_SLOT               = 0
 };
 
-float LeftArm[3] = {1784.742f, -39.962f, 448.805f}; 
-float RightArm[3] = {1785.615f, -5.516f, 448.810f};
 const float KoloFront[3] = {1771.683f, -24.230f, 448.806f};
 
 // Rubble
 struct MANGOS_DLL_DECL mob_ulduar_rubbleAI : public ScriptedAI
 {
-    mob_ulduar_rubbleAI(Creature* pCreature) : ScriptedAI(pCreature) 
+    mob_ulduar_rubbleAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
         m_pInstance = (instance_ulduar*)pCreature->GetInstanceData();
         m_bIsRegularMode = pCreature->GetMap()->IsRegularDifficulty();
@@ -115,12 +105,17 @@ struct MANGOS_DLL_DECL mob_ulduar_rubbleAI : public ScriptedAI
     instance_ulduar* m_pInstance;
     bool m_bIsRegularMode;
 
-    uint32 m_uiStone_Nova_Timer;
+    uint32 m_uiSpellTimer;
 
     void Reset()
     {
-        m_uiStone_Nova_Timer = urand(8000, 12000);
-        m_creature->SetRespawnDelay(DAY);
+        m_uiSpellTimer = urand(8000, 12000);
+        m_creature->SetInCombatWithZone();
+    }
+
+    void JustDied(Unit* pKiller)
+    {
+        m_creature->ForcedDespawn(1000);
     }
 
     void UpdateAI(const uint32 diff)
@@ -131,11 +126,13 @@ struct MANGOS_DLL_DECL mob_ulduar_rubbleAI : public ScriptedAI
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
 
-        if (m_uiStone_Nova_Timer < diff)
+        if (m_uiSpellTimer <= diff)
         {
             DoCast(m_creature, m_bIsRegularMode ? SPELL_RUMBLE : SPELL_STONE_NOVA);
-            m_uiStone_Nova_Timer = urand(7000, 9000);
-        }else m_uiStone_Nova_Timer -= diff;
+            m_uiSpellTimer = urand(7000, 9000);
+        }
+        else
+            m_uiSpellTimer -= diff;
 
         DoMeleeAttackIfReady();
     }
@@ -149,102 +146,118 @@ CreatureAI* GetAI_mob_ulduar_rubble(Creature* pCreature)
 // Kologarn
 struct MANGOS_DLL_DECL boss_kologarnAI : public ScriptedAI
 {
-    boss_kologarnAI(Creature* pCreature) : ScriptedAI(pCreature) 
+    boss_kologarnAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
         m_pInstance = (instance_ulduar*)pCreature->GetInstanceData();
         m_bIsRegularMode = pCreature->GetMap()->IsRegularDifficulty();
-        vehicle = m_creature->GetVehicleKit();
+        m_pVehicleKit = m_creature->GetVehicleKit();
         SetCombatMovement(false);
         Reset();
     }
 
     instance_ulduar* m_pInstance;
-    VehicleKitPtr vehicle;
     bool m_bIsRegularMode;
 
-    uint32 m_uiSpell_Timer;
-    uint32 m_uiRange_Timer;
-    uint32 m_uiEyebeam_Timer;
+    VehicleKitPtr m_pVehicleKit;
+
+    uint32 m_uiOverheadSmashTimer;
+    uint32 m_uiStoneShoutTimer;
+    uint32 m_uiEyebeamTimer;
     uint32 m_uiRespawnRightTimer;
     uint32 m_uiRespawnLeftTimer;
+    uint32 m_uiPetrifyingBreathTimer;
     uint32 m_uiEnrageTimer;
-
-    uint32 m_uiRubbleNo;
-    bool m_bHasLeftDied;
-    bool m_bHasRightDied;
     uint32 m_uiDisarmedTimer;
-    bool m_bOpenArms;
-    bool m_bReset;
+    uint32 m_uiRubbleCount;
 
     bool m_bIsRightDead;
     bool m_bIsLeftDead;
-
-    ObjectGuid m_uiRightArmGuid;
-    ObjectGuid m_uiLeftArmGuid;
 
     void Reset()
     {
         if (m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
             m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
-        m_uiSpell_Timer     = 10000;
-        m_uiRange_Timer     = 1000;
-        m_uiEnrageTimer     = 600000;
-        m_uiEyebeam_Timer   = 10000 + urand(1000, 5000);
+        m_uiOverheadSmashTimer    = urand(10000, 15000);
+        m_uiStoneShoutTimer       = 0;
+        m_uiEnrageTimer           = 480000;
+        m_uiEyebeamTimer          = 10000 + urand(1000, 5000);
+        m_uiPetrifyingBreathTimer = 4000;
+        m_uiDisarmedTimer         = 0;
 
-        m_bIsRightDead      = false;
-        m_bIsLeftDead       = false;
+        m_bIsRightDead = false;
+        m_bIsLeftDead  = false;
 
-        m_bReset            = false;
+        m_uiRubbleCount = 0;
+    }
 
-
-        m_uiRubbleNo        = 0;
-        m_bHasLeftDied      = false;
-        m_bHasRightDied     = false;
-        m_bOpenArms         = true;
-        m_uiDisarmedTimer   = 0;
-
-        if (Unit* pRightArm = vehicle->GetPassenger(RIGHT_ARM_SLOT))
-        {
-            pRightArm->SetVisibility(VISIBILITY_OFF);
-            pRightArm->DealDamage(pRightArm, pRightArm->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NONE, NULL, false);
-        }
-        if (Unit *pLeftArm = vehicle->GetPassenger(LEFT_ARM_SLOT))
-        {
-            pLeftArm->SetVisibility(VISIBILITY_OFF);
-            pLeftArm->DealDamage(pLeftArm, pLeftArm->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NONE, NULL, false);
-        }
-        InstallLeftArm();
-        InstallRightArm();
+    void EnterEvadeMode()
+    {
+        if (m_pInstance)
+            m_pInstance->SetData(TYPE_KOLOGARN, FAIL);
+        ScriptedAI::EnterEvadeMode();
     }
 
     void JustDied(Unit* pKiller)
     {
         DoScriptText(SAY_DEATH, m_creature);
+        // kill Arms
+        DoCast(m_creature, SPELL_INSTAKILL_KOLOGARN_ARM);
+        DoCast(m_creature, SPELL_INSTAKILL_KOLOGARN_ARM);
 
         if (m_pInstance)
-            m_pInstance->SetData(TYPE_KOLOGARN, DONE);
+        {
+            // For Disarmed Achievement, Kologarn must be kill by players
+            if (m_uiDisarmedTimer > 12000 || pKiller->GetEntry() == m_creature->GetEntry())
+                m_pInstance->SetSpecialAchievementCriteria(TYPE_ACHIEV_DISARMED, false);
 
+            if (m_uiRubbleCount >= 25)
+                m_pInstance->SetSpecialAchievementCriteria(TYPE_ACHIEV_RUBBLE_AND_ROLL, true);
+
+            m_pInstance->SetData(TYPE_KOLOGARN, DONE);
+        }
+
+    }
+
+    void JustSummoned(Creature* pSummoned)
+    {
+        switch(pSummoned->GetEntry())
+        {
+            case NPC_RUBBLE:
+                ++m_uiRubbleCount;
+                break;
+            case NPC_FOCUSED_EYEBEAM_RIGHT:
+                pSummoned->CastSpell(pSummoned, SPELL_EYEBEAM_VISUAL_RIGHT, true);
+                break;
+            case NPC_FOCUSED_EYEBEAM_LEFT:
+                pSummoned->CastSpell(pSummoned, SPELL_EYEBEAM_VISUAL_LEFT, true);
+                break;
+            case NPC_RIGHT_ARM:
+            case NPC_LEFT_ARM:
+                pSummoned->CastSpell(pSummoned, SPELL_ARM_VISUAL, true);
+            default:
+                break;
+        }
+    }
+
+    void SummonedCreatureDespawn(Creature* pSummoned)
+    {
+        if (m_uiRubbleCount && pSummoned->GetEntry() == NPC_RUBBLE)
+            --m_uiRubbleCount;
     }
 
     void LeftArmDead()
     {
         DoScriptText(SAY_LEFT_ARM_LOST, m_creature);
-        m_uiRespawnLeftTimer = 48000;
+        m_uiRespawnLeftTimer = urand(40000, 50000);
         m_bIsLeftDead = true;
-        for(uint8 i = 0; i < 5; i ++)
-        {
-            if(Creature* pRubble = m_creature->SummonCreature(MOB_RUBBLE, LeftArm[0] - urand(0, 5), LeftArm[1] + urand(0, 10), LeftArm[2], 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000))
-                if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
-                    pRubble->AddThreat(pTarget,0.0f);
-        }
-        m_uiRubbleNo = m_uiRubbleNo +5;
+        DoCast(m_creature, m_bIsRegularMode ? SPELL_ARM_DEAD_DAMAGE_KOLOGARN : SPELL_ARM_DEAD_DAMAGE_KOLOGARN_H);
+        DoCast(m_creature, SPELL_SUMMON_RUBBLE, true);
         if (m_pInstance)
         {
             m_pInstance->SetSpecialAchievementCriteria(TYPE_ACHIEV_OPEN_ARMS, false);
-            if (m_uiRubbleNo >= 25)
-                m_pInstance->SetSpecialAchievementCriteria(TYPE_ACHIEV_RUBBLE_AND_ROLL, true);
-            if (m_bIsRightDead)
+
+            if (m_bIsRightDead && m_uiDisarmedTimer <= 12000)
                 m_pInstance->SetSpecialAchievementCriteria(TYPE_ACHIEV_DISARMED, true);
             else
                 m_uiDisarmedTimer = 0;
@@ -254,22 +267,15 @@ struct MANGOS_DLL_DECL boss_kologarnAI : public ScriptedAI
     void RightArmDead()
     {
         DoScriptText(SAY_RIGHT_ARM_LOST, m_creature);
-        m_uiRespawnRightTimer = 48000;
+        m_uiRespawnRightTimer = urand(40000, 50000);
         m_bIsRightDead = true;
-        m_bOpenArms = false;
-        for(uint8 i = 0; i < 5; i ++)
-        {
-            if(Creature* pRubble = m_creature->SummonCreature(MOB_RUBBLE, RightArm[0] - urand(0, 5), RightArm[1] + urand(0, 10), RightArm[2], 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000))
-                if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
-                    pRubble->AddThreat(pTarget,0.0f);
-        }
-        m_uiRubbleNo = m_uiRubbleNo +5;
+        DoCast(m_creature, m_bIsRegularMode ? SPELL_ARM_DEAD_DAMAGE_KOLOGARN : SPELL_ARM_DEAD_DAMAGE_KOLOGARN_H);
+        DoCast(m_creature, SPELL_SUMMON_RUBBLE, true);
         if (m_pInstance)
         {
             m_pInstance->SetSpecialAchievementCriteria(TYPE_ACHIEV_OPEN_ARMS, false);
-            if (m_uiRubbleNo >= 25)
-                m_pInstance->SetSpecialAchievementCriteria(TYPE_ACHIEV_RUBBLE_AND_ROLL, true);
-            if (m_bIsLeftDead)
+
+            if (m_bIsLeftDead && m_uiDisarmedTimer <= 12000)
                 m_pInstance->SetSpecialAchievementCriteria(TYPE_ACHIEV_DISARMED, true);
             else
                 m_uiDisarmedTimer = 0;
@@ -282,204 +288,121 @@ struct MANGOS_DLL_DECL boss_kologarnAI : public ScriptedAI
             m_pInstance->SetData(TYPE_KOLOGARN, IN_PROGRESS);
         //aggro yell
         DoScriptText(SAY_AGGRO, m_creature);
-        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
     }
 
     void KilledUnit(Unit* pVictim)
     {
-        DoScriptText(urand(0,1) ? SAY_SLAY1 : SAY_SLAY2, m_creature);
+        DoScriptText(urand(0, 1) ? SAY_SLAY1 : SAY_SLAY2, m_creature);
     }
 
-    void JustReachedHome()
+    void InstallArm(uint32 uiEntry)
     {
         if (m_pInstance)
-            m_pInstance->SetData(TYPE_KOLOGARN, FAIL);
-    }
-
-    void InstallRightArm()
-    {
-        if (vehicle->HasEmptySeat(RIGHT_ARM_SLOT))
+            m_pInstance->SetSpecialAchievementCriteria(TYPE_ACHIEV_DISARMED, false);
+        int8 iSeat;
+        switch(uiEntry)
         {
-            if (Creature *pRightArm = DoSpawnCreature(NPC_RIGHT_ARM, 0, 0, 0, 0, TEMPSUMMON_DEAD_DESPAWN, 30000))
-            {
-                pRightArm->SetCreatorGuid(m_creature->GetObjectGuid());
-                pRightArm->EnterVehicle(vehicle, RIGHT_ARM_SLOT);
-                pRightArm->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-                pRightArm->SendHeartBeat();
-                m_uiRightArmGuid = pRightArm->GetObjectGuid();
-            }
+            case NPC_RIGHT_ARM:
+                iSeat = RIGHT_ARM_SLOT;
+                m_bIsRightDead = false;
+                DoScriptText(EMOTE_RIGHT_ARM, m_creature);
+                break;
+            case NPC_LEFT_ARM:
+                iSeat = LEFT_ARM_SLOT;
+                DoScriptText(EMOTE_LEFT_ARM, m_creature);
+                m_bIsLeftDead = false;
+                break;
+            default:
+                return;
         }
-        DoScriptText(EMOTE_RIGHT_ARM, m_creature);
-        m_uiRespawnRightTimer = 48000;
-        m_bIsRightDead = false;
+        if (!m_pVehicleKit || m_pVehicleKit->GetPassenger(iSeat))
+            return;
+        m_pVehicleKit->InstallAccessory(iSeat);
     }
     
-    void InstallLeftArm()
-    {
-        if (vehicle->HasEmptySeat(LEFT_ARM_SLOT))
-        {
-            if (Creature *pLeftArm = DoSpawnCreature(NPC_LEFT_ARM, 0, 0, 0, 0, TEMPSUMMON_DEAD_DESPAWN, 30000))
-            {
-                pLeftArm->SetCreatorGuid(m_creature->GetObjectGuid());
-                pLeftArm->EnterVehicle(vehicle, LEFT_ARM_SLOT);
-                pLeftArm->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-                pLeftArm->SendHeartBeat();
-                m_uiLeftArmGuid = pLeftArm->GetObjectGuid();
-            }
-        }
-        DoScriptText(EMOTE_LEFT_ARM, m_creature);
-        m_uiRespawnLeftTimer = 48000;
-        m_bIsLeftDead = false;
-    }
-
-    void DamageTaken(Unit* pDoneBy, uint32& uiDamage)
-    {
-        if (pDoneBy->GetObjectGuid() == m_creature->GetObjectGuid())
-            uiDamage = 0;
-    }
-
-
     void UpdateAI(const uint32 uiDiff)
     {
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
 
         // disarmed achiev check
-        if (m_bHasLeftDied || m_bHasRightDied)
+        if (m_bIsLeftDead || m_bIsRightDead)
             m_uiDisarmedTimer += uiDiff;
 
-        if (m_uiDisarmedTimer > 12 * IN_MILLISECONDS)
+        if (m_bIsRightDead && m_bIsLeftDead)
         {
-            if (m_pInstance)
-                m_pInstance->SetSpecialAchievementCriteria(TYPE_ACHIEV_DISARMED, false);
-        }
-
-        if (m_uiRange_Timer < uiDiff)
-        {
-            m_bReset = true;
-            if (Map* pMap = m_creature->GetMap())
+            if (m_uiStoneShoutTimer <= uiDiff)
             {
-                Map::PlayerList const& pPlayers = pMap->GetPlayers();
-                if (!pPlayers.isEmpty())
-                {
-                    for (Map::PlayerList::const_iterator itr = pPlayers.begin(); itr != pPlayers.end(); ++itr)
-                    {
-                        Player* pTarget = itr->getSource();
-                        if (pTarget && pTarget->isAlive() && pTarget->IsWithinDistInMap(m_creature, 45))
-                        {
-                            m_bReset = false;
-                            break;
-                        }
-                    }
-                }
-            }
-            if (m_bReset)
-                EnterEvadeMode();
-            m_uiRange_Timer = 1000;
-        }else
-            m_uiRange_Timer -= uiDiff;
-
-        // Hack for unexpected lose of one arm; often the right arm
-        if (!vehicle->GetPassenger(LEFT_ARM_SLOT))
-        {
-            if (Map* pMap = m_creature->GetMap())
-                if (Creature* pLeftArm = pMap->GetCreature(m_uiLeftArmGuid))
-                    if (pLeftArm->isAlive())
-                        pLeftArm->EnterVehicle(vehicle, LEFT_ARM_SLOT);
-        }
-
-        if (!vehicle->GetPassenger(RIGHT_ARM_SLOT))
-        {
-            if (Map* pMap = m_creature->GetMap())
-                if (Creature* pRightArm = pMap->GetCreature(m_uiRightArmGuid))
-                    if (pRightArm->isAlive())
-                        pRightArm->EnterVehicle(vehicle, RIGHT_ARM_SLOT);
-        }
-
-        if (m_uiSpell_Timer < uiDiff)
-        {
-            if (!m_bIsRightDead && !m_bIsLeftDead)
-            {
-                DoCast(m_creature->getVictim(), m_bIsRegularMode ? SPELL_OVERHEAD_SMASH : SPELL_OVERHEAD_SMASH_H);
-                m_uiSpell_Timer = 20000;
-            }
-            else if (m_bIsRightDead && m_bIsLeftDead)
-            {
-                DoCast(m_creature->getVictim(), m_bIsRegularMode ? SPELL_STONE_SHOUT : SPELL_STONE_SHOUT_H);
-                m_uiSpell_Timer = 2000;
+                DoCast(m_creature, m_bIsRegularMode ? SPELL_STONE_SHOUT : SPELL_STONE_SHOUT_H);
+                m_uiStoneShoutTimer = 2000;
             }
             else
-            {
-                DoCast(m_creature->getVictim(), m_bIsRegularMode ? SPELL_ONE_ARMED_SMASH : SPELL_ONE_ARMED_SMASH_H);
-                m_uiSpell_Timer = 20000;
-            }
-        }else
-            m_uiSpell_Timer -= uiDiff;   
-
-        if (m_uiEyebeam_Timer < uiDiff)
+                m_uiStoneShoutTimer -= uiDiff;
+        }
+        else if (m_uiOverheadSmashTimer <= uiDiff)
         {
-            if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, m_bIsRegularMode ? 4 : 10))
-            {
-                if (pTarget->GetTypeId() == TYPEID_PLAYER)
-                {
-                    //DoCast(m_creature->getVictim(), SPELL_FOCUSED_EYEBEAM, true);
-                    if (Creature *pLeft = m_creature->SummonCreature(NPC_FOCUSED_EYEBEAM_LEFT, pTarget->GetPositionX(), pTarget->GetPositionY()-4.0f, pTarget->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 10000))
-                    {
-                        pLeft->SetInCombatWithZone();
-                        pLeft->SetDisplayId(11686);
-                        pLeft->SetSpeedRate(MOVE_RUN, 1.0);
-                        pLeft->CastSpell(pLeft, m_bIsRegularMode ? SPELL_EYEBEAM_PERIODIC : SPELL_EYEBEAM_PERIODIC_H, true);
-                        pLeft->CastSpell(pLeft, SPELL_EYEBEAM_VISUAL_LEFT_2, true);
-                        pLeft->AI()->AttackStart(pTarget);
-                    }
-                    if (Creature *pRight = m_creature->SummonCreature(NPC_FOCUSED_EYEBEAM_RIGHT, pTarget->GetPositionX(), pTarget->GetPositionY()+4.0f, pTarget->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 10000))
-                    {
-                        pRight->SetInCombatWithZone();
-                        pRight->SetDisplayId(11686);
-                        pRight->SetSpeedRate(MOVE_RUN, 1.0);
-                        pRight->CastSpell(pRight, SPELL_EYEBEAM_PERIODIC_VIS, true);
-                        pRight->CastSpell(pRight, SPELL_EYEBEAM_VISUAL_RIGHT, true);
-                        pRight->AI()->AttackStart(pTarget);
-                    }
-                    m_uiEyebeam_Timer = 10000 + urand(1000, 5000);
-                }
-            }
-        }else
-            m_uiEyebeam_Timer -= uiDiff;
+            if (!m_bIsRightDead && !m_bIsLeftDead)
+                DoCast(m_creature->getVictim(), m_bIsRegularMode ? SPELL_OVERHEAD_SMASH : SPELL_OVERHEAD_SMASH_H);
+            else
+                DoCast(m_creature->getVictim(), m_bIsRegularMode ? SPELL_ONE_ARMED_SMASH : SPELL_ONE_ARMED_SMASH_H);
+            m_uiOverheadSmashTimer = urand(10000, 15000);
+        }
+        else
+            m_uiOverheadSmashTimer -= uiDiff;
+
+        if (m_uiEyebeamTimer <= uiDiff)
+        {
+            DoCast(m_creature, SPELL_FOCUSED_EYEBEAM_SUMMON, true);
+            m_uiEyebeamTimer = 20000;
+        }
+        else
+            m_uiEyebeamTimer -= uiDiff;
 
         // respawn arms
         if (m_bIsLeftDead)
         {
-            if (m_uiRespawnLeftTimer < uiDiff && m_bIsLeftDead)
-            {
-                InstallLeftArm();
-            }else
+            if (m_uiRespawnLeftTimer <= uiDiff)
+                InstallArm(NPC_LEFT_ARM);
+            else
                 m_uiRespawnLeftTimer -= uiDiff;
         }
+
         if (m_bIsRightDead)
         {
-            if (m_uiRespawnRightTimer < uiDiff)
-            {
-                InstallRightArm();
-            }else
-                m_uiRespawnRightTimer -= uiDiff; 
+            if (m_uiRespawnRightTimer <= uiDiff)
+                InstallArm(NPC_RIGHT_ARM);
+            else
+                m_uiRespawnRightTimer -= uiDiff;
         }
         
-        //Petrifying breath
-        if (m_creature->GetCombatDistance(m_creature->getVictim()) >= ATTACK_DISTANCE)
-            DoCast(m_creature->getVictim(), m_bIsRegularMode ? SPELL_PETRIFYING_BREATH : SPELL_PETRIFYING_BREATH_H);
+        if (m_uiPetrifyingBreathTimer <= uiDiff)
+        {
+            if (m_creature->CanReachWithMeleeAttack(m_creature->getVictim()))
+                m_uiPetrifyingBreathTimer = 4000;
+            else
+            {
+                DoCast(m_creature->getVictim(), m_bIsRegularMode ? SPELL_PETRIFYING_BREATH : SPELL_PETRIFYING_BREATH_H);
+                m_uiPetrifyingBreathTimer = 1000;
+            }
+        }
+        else
+            m_uiPetrifyingBreathTimer -= uiDiff;
 
-        if(m_uiEnrageTimer < uiDiff)
+        if (m_uiEnrageTimer <= uiDiff)
         {
             DoScriptText(SAY_BERSERK, m_creature);
-            DoCast(m_creature, SPELL_ENRAGE);
+            DoCast(m_creature, SPELL_BERSERK);
+            if (Creature* pRightArm = m_pInstance->GetSingleCreatureFromStorage(NPC_RIGHT_ARM))
+                pRightArm->CastSpell(pRightArm, SPELL_BERSERK, false);
+            if (Creature* pLeftArm = m_pInstance->GetSingleCreatureFromStorage(NPC_LEFT_ARM))
+                pLeftArm->CastSpell(pLeftArm, SPELL_BERSERK, false);
             m_uiEnrageTimer = 30000;
         }
         else
             m_uiEnrageTimer -= uiDiff;
 
-        DoMeleeAttackIfReady();
+        if (!m_bIsLeftDead || !m_bIsRightDead) // TODO: Do direct attack by arms ?!
+            DoMeleeAttackIfReady();
     }
 };
 
@@ -496,19 +419,17 @@ struct MANGOS_DLL_DECL boss_left_armAI : public ScriptedAI
         m_pInstance = (instance_ulduar*)pCreature->GetInstanceData();
         m_bIsRegularMode = pCreature->GetMap()->IsRegularDifficulty();
         pCreature->SetRespawnDelay(7*DAY);
-        SetCombatMovement(false);
         Reset();
     }
 
     instance_ulduar* m_pInstance;
     bool m_bIsRegularMode;
 
-    uint32 m_uiShockwave_Timer;
+    uint32 m_uiShockwaveTimer;
 
     void Reset()
     {
-        m_uiShockwave_Timer = 30000;
-        DoCast(m_creature, SPELL_ARM_VISUAL);
+        m_uiShockwaveTimer = urand(10000, 25000);
     }
 
     void JustDied(Unit* pKiller)
@@ -518,14 +439,9 @@ struct MANGOS_DLL_DECL boss_left_armAI : public ScriptedAI
 
         if (Creature* pKologarn = m_pInstance->GetSingleCreatureFromStorage(NPC_KOLOGARN))
         {
-            if (pKologarn->isAlive())
-                pKologarn->DealDamage(pKologarn, m_creature->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-
             boss_kologarnAI* KologarnAI = (boss_kologarnAI*)pKologarn->AI();
-            if(KologarnAI)
-            {
-                KologarnAI->LeftArmDead();    
-            }
+            if (KologarnAI)
+                KologarnAI->LeftArmDead();
         }
     }
 
@@ -534,14 +450,16 @@ struct MANGOS_DLL_DECL boss_left_armAI : public ScriptedAI
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
 
-        if (m_uiShockwave_Timer < uiDiff)
+        if (m_uiShockwaveTimer <= uiDiff)
         {
             if (Creature* pKologarn = m_pInstance->GetSingleCreatureFromStorage(NPC_KOLOGARN))
                 DoScriptText(SAY_SHOCKWEAVE, pKologarn);
 
-            DoCast(m_creature, m_bIsRegularMode ? SPELL_ARM_SWEEP : SPELL_ARM_SWEEP_H);
-            m_uiShockwave_Timer = 17000;
-        }else m_uiShockwave_Timer -= uiDiff;
+            DoCast(m_creature, m_bIsRegularMode ? SPELL_ARM_SWEEP : SPELL_ARM_SWEEP_H, true);
+            m_uiShockwaveTimer = urand(10000, 25000);
+        }
+        else
+            m_uiShockwaveTimer -= uiDiff;
     }
 };
 
@@ -557,49 +475,58 @@ struct MANGOS_DLL_DECL boss_right_armAI : public ScriptedAI
     {
         m_pInstance = (instance_ulduar*)pCreature->GetInstanceData();
         m_bIsRegularMode = pCreature->GetMap()->IsRegularDifficulty();
-        vehicle = m_creature->GetVehicleKit();
-        pCreature->SetRespawnDelay(7*DAY);
-        SetCombatMovement(false);
+        m_pVehicleKit = m_creature->GetVehicleKit();
         Reset();
     }
 
     instance_ulduar* m_pInstance;
-    VehicleKitPtr vehicle;
+    VehicleKitPtr m_pVehicleKit;
     bool m_bIsRegularMode;
+    bool m_bIsDead;
 
-    uint32 m_uiStone_Grip_Timer;
+    uint32 m_uiStoneGripTimer;
+    uint32 m_uiTeleportTimer;
     uint32 m_uiFreeDamage;
     uint32 m_uiMaxDamage;
-    std::list<ObjectGuid> m_lGripTargetGuidList;
 
     void Reset()
     {
-        m_uiStone_Grip_Timer    = 20000;
+        m_bIsDead = false;
+
+        m_uiTeleportTimer       = 0;
+        m_uiStoneGripTimer      = urand (10000, 30000);
         m_uiFreeDamage          = 0;
         m_uiMaxDamage           = m_bIsRegularMode ? 80000 : 380000;
-        m_lGripTargetGuidList.clear();
-        DoCast(m_creature, SPELL_ARM_VISUAL);
     }
 
     void DamageTaken(Unit* pDoneBy, uint32& uiDamage)
     {
+        if (m_bIsDead)
+            return;
         m_uiFreeDamage += uiDamage;
-        if (m_uiFreeDamage > m_uiMaxDamage)
+        if (m_pVehicleKit)
         {
-            if (!m_lGripTargetGuidList.empty())
+            if (m_creature->GetHealth() <= uiDamage)
             {
-                for(std::list<ObjectGuid>::iterator itr = m_lGripTargetGuidList.begin(); itr != m_lGripTargetGuidList.end(); ++itr)
-                    if (Unit* pTemp = m_creature->GetMap()->GetUnit(*itr))
-                    {
-                        pTemp->RemoveAurasDueToSpell(m_bIsRegularMode ? SPELL_STONE_GRIP : SPELL_STONE_GRIP_H);
-                        //pTemp->RemoveAurasDueToSpell(m_bIsRegularMode ? SPELL_STONE_GRIP_VEH : SPELL_STONE_GRIP_VEH_H);
-                        pTemp->RemoveAurasDueToSpell(54661); //HACK
-                        pTemp->ExitVehicle();
-                        DoTeleportPlayer(pTemp,KoloFront[0],KoloFront[1],KoloFront[2],0.0f);
-                    }
+                m_pVehicleKit->RemoveAllPassengers();
+                m_bIsDead = true;
+                uiDamage = 0;
             }
-            m_lGripTargetGuidList.clear();
+            else if (m_uiFreeDamage > m_uiMaxDamage || m_creature->GetHealth() <= uiDamage)
+                m_pVehicleKit->RemoveAllPassengers();
         }
+    }
+
+    void PassengerBoarded(Unit* pWho, int8 seatId, bool apply)
+    {
+        if (!apply)
+        {
+            pWho->RemoveAurasDueToSpell(m_bIsRegularMode ? SPELL_STONE_GRIP : SPELL_STONE_GRIP_H);
+            pWho->RemoveAurasDueToSpell(m_bIsRegularMode ? SPELL_STONE_GRIP_VEH : SPELL_STONE_GRIP_VEH_H);
+            m_uiTeleportTimer = 1000;
+        }
+        else
+            m_uiTeleportTimer = 16000; // After 15sec kill players
     }
 
     void JustDied(Unit* pKiller)
@@ -609,67 +536,55 @@ struct MANGOS_DLL_DECL boss_right_armAI : public ScriptedAI
 
         if (Creature* pKologarn = m_pInstance->GetSingleCreatureFromStorage(NPC_KOLOGARN))
         {
-            if (pKologarn->isAlive())
-                pKologarn->DealDamage(pKologarn, m_creature->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-
             boss_kologarnAI* KologarnAI = (boss_kologarnAI*)pKologarn->AI();
-            if(KologarnAI)
-            {
-                KologarnAI->RightArmDead();    
-            }
+            if (KologarnAI)
+                KologarnAI->RightArmDead();
         }
-
-        if (!m_lGripTargetGuidList.empty())
-        {
-            for(std::list<ObjectGuid>::iterator itr = m_lGripTargetGuidList.begin(); itr != m_lGripTargetGuidList.end(); ++itr)
-                if (Unit* pTemp = m_creature->GetMap()->GetUnit(*itr))
-                {
-                    pTemp->RemoveAurasDueToSpell(m_bIsRegularMode ? SPELL_STONE_GRIP : SPELL_STONE_GRIP_H);
-                    //pTemp->RemoveAurasDueToSpell(m_bIsRegularMode ? SPELL_STONE_GRIP_VEH : SPELL_STONE_GRIP_VEH_H);
-                    pTemp->RemoveAurasDueToSpell(54661); //HACK
-                    pTemp->ExitVehicle();
-                    DoTeleportPlayer(pTemp,KoloFront[0],KoloFront[1],KoloFront[2],0.0f);
-                }
-        }
-        m_lGripTargetGuidList.clear();
     }
-
-    /*void SpellHitTarget(Unit* victim, const SpellEntry* spell)
-    {
-        if (spell->Id == SPELL_STONE_GRIP_GRAB || spell->Id == SPELL_STONE_GRIP_GRAB_H)
-        {
-            victim->CastSpell(victim, 54661 , true); //HACK
-            m_lGripTargetGuidList.push_back(victim->GetObjectGuid());
-            victim->EnterVehicle(vehicle);
-        }
-    }*/ 
 
     void UpdateAI(const uint32 uiDiff)
     {
+        if (m_uiTeleportTimer)
+        {
+            if (m_uiTeleportTimer <= uiDiff)
+            {
+                Map::PlayerList const& pPlayers = m_creature->GetMap()->GetPlayers();
+                if (!pPlayers.isEmpty())
+                {
+                    for (Map::PlayerList::const_iterator itr = pPlayers.begin(); itr != pPlayers.end(); ++itr)
+                    {
+                        Player* pPlayer = itr->getSource();
+                        if (pPlayer && pPlayer->GetPositionX() > 1790.0f && pPlayer->GetDistance(m_creature) < 20.0f)
+                            DoTeleportPlayer(pPlayer, KoloFront[0], KoloFront[1], KoloFront[2], 0.0f);
+                    }
+                }
+                if (m_bIsDead)
+                    m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NONE, NULL, false);
+                m_uiTeleportTimer = 0;
+            }
+            else
+                m_uiTeleportTimer -= uiDiff;
+        }
+
+        if (m_bIsDead)
+            return;
+
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
 
-        if (m_uiStone_Grip_Timer < uiDiff)
+        if (m_uiStoneGripTimer <= uiDiff)
         {
-            if (Creature* pKologarn = m_pInstance->GetSingleCreatureFromStorage(NPC_KOLOGARN))
+            Creature* pKologarn = m_pInstance->GetSingleCreatureFromStorage(NPC_KOLOGARN);
+            if (pKologarn && DoCastSpellIfCan(pKologarn, m_bIsRegularMode ? SPELL_STONE_GRIP_GRAB : SPELL_STONE_GRIP_GRAB_H, CAST_TRIGGERED, pKologarn->GetObjectGuid()) == CAST_OK)
             {
                 DoScriptText(SAY_GRAB, pKologarn);
-                DoScriptText(EMOTE_STONE_GRIP, m_creature);
-                for (int i = 0; i < (m_bIsRegularMode ? 1 : 3); ++i)
-                {
-                    if (Unit* pTarget = pKologarn->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
-                    {
-                        pTarget->CastSpell(pTarget, 54661 , true);//HACK
-                        pTarget->CastSpell(pTarget, m_bIsRegularMode ? SPELL_STONE_GRIP : SPELL_STONE_GRIP_H, true, 0, 0, pKologarn->GetObjectGuid());
-                        m_lGripTargetGuidList.push_back(pTarget->GetObjectGuid());
-                        pTarget->EnterVehicle(vehicle, i+1);
-                    }
-                }
+                //DoScriptText(EMOTE_STONE_GRIP, m_creature);
                 m_uiFreeDamage = 0;
-                m_uiStone_Grip_Timer = 30000;
-            //DoCast(m_creature, m_bIsRegularMode ? SPELL_STONE_GRIP_GRAB : SPELL_STONE_GRIP_GRAB_H, true);
+                m_uiStoneGripTimer = urand (20000, 30000);
             }
-        }else m_uiStone_Grip_Timer -= uiDiff;
+        }
+        else
+            m_uiStoneGripTimer -= uiDiff;
     }
 };
 
@@ -681,10 +596,63 @@ CreatureAI* GetAI_boss_right_arm(Creature* pCreature)
 // Focused Eyebeam trigger mobs - just make them not attack in melee
 struct MANGOS_DLL_DECL mob_eyebeam_triggerAI : public ScriptedAI
 {
-    mob_eyebeam_triggerAI(Creature* pCreature) : ScriptedAI(pCreature){}
-    void Reset(){}
-    void UpdateAI(const uint32 uiDiff){}
+    mob_eyebeam_triggerAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        m_pInstance = (instance_ulduar*)pCreature->GetInstanceData();
+        m_bIsRegularMode = pCreature->GetMap()->IsRegularDifficulty();
+        Reset();
+    }
+
+    instance_ulduar* m_pInstance;
+    bool m_bIsRegularMode;
+
+    uint32 m_uiStartMoveTimer;
+
+    void Reset()
+    {
+        SetCombatMovement(false);
+        m_uiStartMoveTimer = 1000;
+
+        m_creature->SetDisplayId(11686);
+        m_creature->SetSpeedRate(MOVE_RUN, 1.0);
+        m_creature->ForcedDespawn(10000);
+
+        if (m_creature->GetEntry() == NPC_FOCUSED_EYEBEAM_LEFT)
+            m_creature->CastSpell(m_creature, m_bIsRegularMode ? SPELL_EYEBEAM_PERIODIC : SPELL_EYEBEAM_PERIODIC_H, true);
+        else
+            m_creature->CastSpell(m_creature, SPELL_EYEBEAM_PERIODIC_VIS, true);
+    }
+
+    void SpellHitTarget(Unit* pTarget, const SpellEntry* spell)
+    {
+        if (m_pInstance && pTarget->GetTypeId() == TYPEID_PLAYER)
+            m_pInstance->SetSpecialAchievementCriteria(TYPE_ACHIEV_IF_LOOKS_COULD_KILL, false);
+    }
+
+    void MovementInform(uint32 uiMotionType, uint32 uiPointId)
+    {
+        if (uiMotionType != POINT_MOTION_TYPE)
+            return;
+
+        m_uiStartMoveTimer = 0;
+    }
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if (m_uiStartMoveTimer <= uiDiff)
+        {
+            Unit* pTarget = m_creature->GetCreator();
+            if (pTarget)
+            {
+                m_creature->GetMotionMaster()->MovePoint(0, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), false, false);
+                m_uiStartMoveTimer = 2000;
+            }
+        }
+        else
+            m_uiStartMoveTimer -= uiDiff;
+    }
 };
+
 CreatureAI* GetAI_mob_eyebeam_trigger(Creature* pCreature)
 {
     return new mob_eyebeam_triggerAI(pCreature);
@@ -695,43 +663,20 @@ struct MANGOS_DLL_DECL mob_kologarn_pit_kill_bunnyAI : public ScriptedAI
 {
     mob_kologarn_pit_kill_bunnyAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = (instance_ulduar*)pCreature->GetInstanceData();
         m_fPositionZ = m_creature->GetPositionZ();
-        m_bBridgeLocked = false;
     }
-    instance_ulduar *m_pInstance;
     float m_fPositionZ;
     bool m_bBridgeLocked;
     void Reset(){}
-    void UpdateAI(const uint32 uiDiff)
-    {
-        if (!m_bBridgeLocked)
-        {
-            if (m_pInstance)
-            {
-                if (Creature *pKolo = m_pInstance->GetSingleCreatureFromStorage(NPC_KOLOGARN))
-                {
-                    if (!pKolo->isAlive())
-                    {  
-                        if (GameObject *pGo = m_pInstance->GetSingleGameObjectFromStorage(GO_KOLOGARN_BRIDGE))
-                        {
-                            pGo->SetUInt32Value(GAMEOBJECT_LEVEL, 0);
-                            pGo->SetGoState(GO_STATE_READY);
-                        }
-                        if (Creature *pBridge = m_pInstance->GetSingleCreatureFromStorage(NPC_KOLOGARN_BRIDGE_DUMMY))
-                            pBridge->SetVisibility(VISIBILITY_ON);
-                        m_bBridgeLocked = true;
-                    }
-                }
-            }
-        }
-    }
+    void UpdateAI(const uint32 uiDiff){}
 
-    void MoveInLineOfSight(Unit *pWho)
+    void MoveInLineOfSight(Unit* pWho)
     {
-        if (pWho->GetTypeId() == TYPEID_PLAYER && !pWho->GetVehicle())
+        if (pWho->GetTypeId() == TYPEID_PLAYER && !pWho->GetVehicle() && !((Player*)pWho)->isGameMaster())
+        {
             if (m_creature->IsWithinLOSInMap(pWho) && pWho->GetPositionZ() - m_fPositionZ <= 15.0f)
                 pWho->DealDamage(pWho, pWho->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NONE, NULL, false);
+        }
     }
 };
 CreatureAI* GetAI_mob_kologarn_pit_kill_bunny(Creature* pCreature)

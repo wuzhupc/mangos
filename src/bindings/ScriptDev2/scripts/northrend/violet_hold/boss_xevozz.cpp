@@ -187,12 +187,14 @@ struct MANGOS_DLL_DECL boss_xevozzAI : public ScriptedAI
         else m_uiArcaneBarrageVolley_Timer -= uiDiff;
 
         if (m_uiArcaneBuffet_Timer)
+        {
             if (m_uiArcaneBuffet_Timer < uiDiff)
             {
                 DoCast(m_creature->getVictim(), m_bIsRegularMode ? SPELL_ARCANE_BUFFET : SPELL_ARCANE_BUFFET_H);
                 m_uiArcaneBuffet_Timer = 0;
             }
             else m_uiArcaneBuffet_Timer -= uiDiff;
+        }
 
         if (m_uiSummonEtherealSphere_Timer < uiDiff)
         {

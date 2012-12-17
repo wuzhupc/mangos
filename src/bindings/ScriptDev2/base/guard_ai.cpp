@@ -78,42 +78,37 @@ void guardAI::JustDied(Unit *pKiller)
 
 void guardAI::SummonGuardsHelpers()
 {
-       int entry = 0;
-       float x;
-       float y;
-       float z;
-       float X;
-       float Y;
-       float Z;
-       Creature* pHelper;
-       m_creature->GetPosition(x,y,z);
-       m_creature->getVictim()->GetPosition(X,Y,Z);
-       if(x > X)
-           X = x + urand(20, 30);
-       else
-           X = x - urand(20, 30);
-       if(y > Y)
-           Y = y + urand(20, 30);
-       else
-           Y = y - urand(20, 30);
-       m_creature->GetRespawnCoord(x,y,z);
-       if (m_creature->getFaction() == F_ORGRIMMAR)
-           entry = NPC_ORGRIMMAR_GRUNT;
-       if (m_creature->getFaction() == F_DARNASSUS)
-           entry = NPC_DARNASSUS_SENTINEL;
-       if (m_creature->getFaction() == F_STORMWIND)
-           entry = NPC_STORMWIND_GUARD;
-       if (m_creature->getFaction() == F_UNDERCITY)
-           entry = NPC_UNDERCITY_GUARD;
-       if (m_creature->getFaction() == F_IRONFORGE)
-           entry = NPC_IRONFORGE_GUARD;
-       if (m_creature->getFaction() == F_THUNDER_BLUFF)
-           entry = NPC_BLUFF_WATCHERS;
-       if (m_creature->getFaction() == F_EXODAR)
-           entry = NPC_EXODAR_PEACEKEEPER;
-       if (m_creature->getFaction() == F_SILVERMOON)
-           entry = NPC_SILVERMOON_CITYGUARD;
-       pHelper = DoSpawnCreature(entry, (float) (X - x), (float) (Y - y), (float) (Z - z), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+    int entry = 0;
+    float x,y,z,X,Y,Z;
+    // Creature* pHelper;
+    m_creature->GetPosition(x,y,z);
+    m_creature->getVictim()->GetPosition(X,Y,Z);
+    if (x > X)
+        X = x + urand(20, 30);
+    else
+        X = x - urand(20, 30);
+    if (y > Y)
+        Y = y + urand(20, 30);
+    else
+        Y = y - urand(20, 30);
+    m_creature->GetRespawnCoord(x,y,z);
+    if (m_creature->getFaction() == F_ORGRIMMAR)
+        entry = NPC_ORGRIMMAR_GRUNT;
+    if (m_creature->getFaction() == F_DARNASSUS)
+        entry = NPC_DARNASSUS_SENTINEL;
+    if (m_creature->getFaction() == F_STORMWIND)
+        entry = NPC_STORMWIND_GUARD;
+    if (m_creature->getFaction() == F_UNDERCITY)
+        entry = NPC_UNDERCITY_GUARD;
+    if (m_creature->getFaction() == F_IRONFORGE)
+        entry = NPC_IRONFORGE_GUARD;
+    if (m_creature->getFaction() == F_THUNDER_BLUFF)
+        entry = NPC_BLUFF_WATCHERS;
+    if (m_creature->getFaction() == F_EXODAR)
+        entry = NPC_EXODAR_PEACEKEEPER;
+    if (m_creature->getFaction() == F_SILVERMOON)
+        entry = NPC_SILVERMOON_CITYGUARD;
+    DoSpawnCreature(entry, (float) (X - x), (float) (Y - y), (float) (Z - z), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
 }
 
 void guardAI::UpdateAI(const uint32 uiDiff)

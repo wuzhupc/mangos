@@ -32,8 +32,6 @@ go_tele_to_violet_stand
 go_andorhal_tower
 go_scourge_enclosure
 go_lab_work_reagents
-go_org_portal
-go_sw_portal
 EndContentData */
 
 #include "precompiled.h"
@@ -111,7 +109,7 @@ bool GOUse_go_ethereum_prison(Player* pPlayer, GameObject* pGo)
                 if (uiSpell)
                     pCreature->CastSpell(pPlayer,uiSpell,false);
                 else
-                    error_log("SD2: go_ethereum_prison summoned creature (entry %u) but faction (%u) are not expected by script.",pCreature->GetEntry(),pCreature->getFaction());
+                    script_error_log("go_ethereum_prison summoned creature (entry %u) but faction (%u) are not expected by script.", pCreature->GetEntry(), pCreature->getFaction());
             }
         }
     }
@@ -359,32 +357,6 @@ bool GOUse_go_lab_work_reagents(Player* pPlayer, GameObject* pGo)
     return false;
 }
 
-
-/*######
-## go_org_portal
-######*/
-
-bool GOUse_go_org_portal(Player* pPlayer, GameObject* pGo)
-{
-    if (pPlayer->GetQuestStatus(13189) == QUEST_STATUS_COMPLETE || pPlayer->GetQuestStatus(13189) == QUEST_STATUS_INCOMPLETE)
-         pPlayer->CastSpell(pPlayer, 17609, true);
-
-    return true;
-}
-
-/*######
-## go_sw_portal
-######*/
-
-bool GOUse_go_sw_portal(Player* pPlayer, GameObject* pGo)
-{
-    if (pPlayer->GetQuestStatus(13188) == QUEST_STATUS_COMPLETE || pPlayer->GetQuestStatus(13188) == QUEST_STATUS_INCOMPLETE)
-         pPlayer->CastSpell(pPlayer, 17334, true);
-
-    return true;
-}
-
-
 void AddSC_go_scripts()
 {
     Script* pNewScript;
@@ -442,15 +414,5 @@ void AddSC_go_scripts()
     pNewScript = new Script;
     pNewScript->Name = "go_lab_work_reagents";
     pNewScript->pGOUse =          &GOUse_go_lab_work_reagents;
-    pNewScript->RegisterSelf();
-
-    pNewScript = new Script;
-    pNewScript->Name = "go_org_portal";
-    pNewScript->pGOUse =          &GOUse_go_org_portal;
-    pNewScript->RegisterSelf();
-
-    pNewScript = new Script;
-    pNewScript->Name = "go_sw_portal";
-    pNewScript->pGOUse =          &GOUse_go_sw_portal;
     pNewScript->RegisterSelf();
 }

@@ -201,7 +201,8 @@ void instance_halls_of_stone::SortFaces()
     GameObject* pFace = NULL;
 
     // FACE_MARNAK
-    if (pFace = instance->GetGameObject(m_aFaces[FACE_MARNAK].m_goFaceGuid))
+    pFace = instance->GetGameObject(m_aFaces[FACE_MARNAK].m_goFaceGuid);
+    if (pFace)
     {
         // Find Marnak NPCs
         GetValidNPCsOfList(instance, m_lMarnakGUIDs, lPossibleEyes);
@@ -223,7 +224,8 @@ void instance_halls_of_stone::SortFaces()
     }
 
     // FACE_ABEDNEUM
-    if (pFace = instance->GetGameObject(m_aFaces[FACE_ABEDNEUM].m_goFaceGuid))
+    pFace = instance->GetGameObject(m_aFaces[FACE_ABEDNEUM].m_goFaceGuid);
+    if (pFace)
     {
         // Find Abedneum NPCs
         GetValidNPCsOfList(instance, m_lAbedneumGUIDs, lPossibleEyes);
@@ -245,7 +247,8 @@ void instance_halls_of_stone::SortFaces()
     }
 
     // FACE_KADDRAK
-    if (pFace = instance->GetGameObject(m_aFaces[FACE_KADDRAK].m_goFaceGuid))
+    pFace = instance->GetGameObject(m_aFaces[FACE_KADDRAK].m_goFaceGuid);
+    if (pFace)
     {
         // Find Marnak NPCs
         GetValidNPCsOfList(instance, m_lKaddrakGUIDs, lPossibleEyes);

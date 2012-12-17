@@ -48,7 +48,8 @@ void WorldSession::HandleMoveWorldportAckOpcode()
         _player->GetVehicleKit()->RemoveAllPassengers();
 
     // get start teleport coordinates (will used later in fail case)
-    WorldLocation old_loc = GetPlayer()->GetPosition();
+    WorldLocation old_loc;
+    GetPlayer()->GetPosition(old_loc);
 
     // get the teleport destination
     WorldLocation &loc = GetPlayer()->GetTeleportDest();
@@ -323,7 +324,7 @@ void WorldSession::HandleForceSpeedChangeAckOpcodes(WorldPacket &recv_data)
     recv_data >> movementInfo;
     recv_data >> newspeed;
 
-    DEBUG_LOG("WORLD: Recvd %s (%u, 0x%X) opcode, unit %s new speed %u ", LookupOpcodeName(opcode), opcode, opcode,
+    DEBUG_LOG("WORLD: Recvd %s (%u, 0x%X) opcode, unit %s new speed %f ", LookupOpcodeName(opcode), opcode, opcode,
         guid ? guid.GetString().c_str() : "<none>", newspeed);
 
     // now can skip not our packet

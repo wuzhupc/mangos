@@ -308,7 +308,7 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>
         void AddAttackerFor(ObjectGuid targetGuid, ObjectGuid attackerGuid);
         void RemoveAttackerFor(ObjectGuid targetGuid, ObjectGuid attackerGuid);
         void RemoveAllAttackersFor(ObjectGuid targetGuid);
-        GuidSet GetAttackersFor(ObjectGuid targetGuid);
+        GuidSet& GetAttackersFor(ObjectGuid targetGuid);
         void CreateAttackersStorageFor(ObjectGuid targetGuid);
         void RemoveAttackersStorageFor(ObjectGuid targetGuid);
 
@@ -323,8 +323,8 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>
         void SetBroken( bool _value = true ) { m_broken = _value; };
         void ForcedUnload();
 
-        // dynamic VMaps
-        float GetHeight(uint32 phasemask, float x, float y, float z, bool pCheckVMap=true, float maxSearchDist=DEFAULT_HEIGHT_SEARCH) const;
+        // Dynamic VMaps
+        float GetHeight(uint32 phasemask, float x, float y, float z) const;
         bool IsInLineOfSight(float x1, float y1, float z1, float x2, float y2, float z2, uint32 phasemask) const;
         bool GetHitPosition(float srcX, float srcY, float srcZ, float& destX, float& destY, float& destZ, uint32 phasemask, float modifyDist) const;
 
@@ -353,15 +353,15 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>
 
         void SendInitSelf( Player * player );
 
-        void SendInitTransports( Player * player );
-        void SendRemoveTransports( Player * player );
+        void SendInitTransports(Player* player);
+        void SendRemoveTransports(Player* player);
 
-        bool CreatureCellRelocation(Creature *creature, Cell new_cell);
+        bool CreatureCellRelocation(Creature* creature, Cell new_cell);
 
-        bool loaded(const GridPair &) const;
-        void EnsureGridCreated(const GridPair &);
-        bool EnsureGridLoaded(Cell const&);
-        void EnsureGridLoadedAtEnter(Cell const&, Player* player = NULL);
+        bool loaded(GridPair const& p) const;
+        void EnsureGridCreated(GridPair const& p);
+        bool EnsureGridLoaded(Cell const& c);
+        void EnsureGridLoadedAtEnter(Cell const& c, Player* player = NULL);
 
         void buildNGridLinkage(NGridType* pNGridType) { pNGridType->link(this); }
 
@@ -379,8 +379,8 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>
         template<class T> void setUnitCell(T* /*obj*/) {}
         void setUnitCell(Creature* obj);
 
-        bool isGridObjectDataLoaded(uint32 x, uint32 y) const { return getNGrid(x,y) ? getNGrid(x,y)->isGridObjectDataLoaded() : false; }
-        void setGridObjectDataLoaded(bool pLoaded, uint32 x, uint32 y) { getNGrid(x,y)->setGridObjectDataLoaded(pLoaded); }
+        bool IsGridObjectDataLoaded(NGridType const* grid) const;
+        void SetGridObjectDataLoaded(bool pLoaded, NGridType* grid);
 
         void setNGrid(NGridType* grid, uint32 x, uint32 y);
         void ScriptsProcess();
@@ -402,7 +402,7 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>
         MapRefManager m_mapRefManager;
         MapRefManager::iterator m_mapRefIter;
 
-        typedef std::set<WorldObject*> ActiveNonPlayers;
+        typedef UNORDERED_SET<WorldObject*> ActiveNonPlayers;
         ActiveNonPlayers m_activeNonPlayers;
         ActiveNonPlayers::iterator m_activeNonPlayersIter;
         MapStoredObjectTypesContainer m_objectsStore;
@@ -420,7 +420,7 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>
 
         std::bitset<TOTAL_NUMBER_OF_CELLS_PER_MAP*TOTAL_NUMBER_OF_CELLS_PER_MAP> marked_cells;
 
-        std::set<WorldObject *> i_objectsToRemove;
+        UNORDERED_SET<WorldObject*> i_objectsToRemove;
 
         typedef std::multimap<time_t, ScriptAction> ScriptScheduleMap;
         ScriptScheduleMap m_scriptSchedule;

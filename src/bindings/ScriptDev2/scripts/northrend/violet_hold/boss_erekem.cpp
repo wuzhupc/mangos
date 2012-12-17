@@ -261,9 +261,9 @@ struct MANGOS_DLL_DECL boss_erekemAI : public ScriptedAI
     }
 };
 
-struct MANGOS_DLL_DECL mob_erekem_guardAI : public ScriptedAI
+struct MANGOS_DLL_DECL npc_erekem_guardAI : public ScriptedAI
 {
-    mob_erekem_guardAI(Creature *pCreature) : ScriptedAI(pCreature)
+    npc_erekem_guardAI(Creature *pCreature) : ScriptedAI(pCreature)
     {
         m_pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         Reset();
@@ -408,9 +408,9 @@ CreatureAI* GetAI_boss_erekem(Creature* pCreature)
     return new boss_erekemAI (pCreature);
 }
 
-CreatureAI* GetAI_mob_erekem_guard(Creature* pCreature)
+CreatureAI* GetAI_npc_erekem_guard(Creature* pCreature)
 {
-    return new mob_erekem_guardAI (pCreature);
+    return new npc_erekem_guardAI (pCreature);
 }
 
 void AddSC_boss_erekem()
@@ -423,7 +423,7 @@ void AddSC_boss_erekem()
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name = "mob_erekem_guard";
-    newscript->GetAI = &GetAI_mob_erekem_guard;
+    newscript->Name = "npc_erekem_guard";
+    newscript->GetAI = &GetAI_npc_erekem_guard;
     newscript->RegisterSelf();
 }

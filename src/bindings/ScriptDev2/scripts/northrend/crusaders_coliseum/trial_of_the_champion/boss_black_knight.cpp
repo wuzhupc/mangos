@@ -266,7 +266,7 @@ struct MANGOS_DLL_DECL boss_black_knightAI : public ScriptedAI
 
         if (Choke_Timer < diff && phase1)
         {
-            if (Unit* target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,1))
+            if (m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,1))
                 DoCast(m_creature->getVictim(), SPELL_CHOKE);
             Choke_Timer = m_bIsRegularMode ? 15000 : 10000;
         }

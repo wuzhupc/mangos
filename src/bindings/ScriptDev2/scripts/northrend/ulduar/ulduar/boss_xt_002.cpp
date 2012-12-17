@@ -26,7 +26,7 @@ EndScriptData */
 
 enum
 {
-    //xt yells
+    // xt yells
     
     SAY_DEATH               = -1603040,
     SAY_BERSERK             = -1603041,
@@ -40,15 +40,14 @@ enum
     EMOTE_HEART             = -1603049,
     EMOTE_REPAIR            = -1603050,
 
-    //xt-002
-    SPELL_TANCTRUM          = 62776,
+    // xt-002
+    SPELL_TYMPANIC_TANTRUM  = 62776,
     SPELL_LIGHT_BOMB_TRIG   = 65598,
-    SPELL_LIGHT_BOMB        = 63018,
-    SPELL_LIGHT_BOMB_H      = 65121,
+    SPELL_SEARING_LIGHT     = 63018,
+    SPELL_SEARING_LIGHT_H   = 65121,
     SPELL_GRAVITY_BOMB      = 63024,
     SPELL_GRAVITY_BOMB_H    = 64234,
     SPELL_ENRAGE            = 47008,
-    SPELL_STUN              = 3618,
     SPELL_ENERGY_ORB        = 62790,
 
     // hard mode
@@ -58,7 +57,7 @@ enum
     SPELL_VOIDZONE_H        = 64235,
     SPELL_VOIDZONE_EFFECT   = 46264,
     SPELL_LIFE_SPARK        = 64210,
-        
+
     // Life Spark
     SPELL_SHOCK             = 64230,
     SPELL_STATIC_CHARGED    = 64227,
@@ -66,49 +65,33 @@ enum
 
     // Aura Void Zone!?
 
-    //heart of the deconstructor
+    // heart of the deconstructor
     SPELL_EXPOSED_HEART     = 63849,
 
-    //XS-013 Scrapbot
+    // XS-013 Scrapbot
     SPELL_SCRAP_REPAIR      = 62832,
     
-    //XE-321 Boombot
-    SPELL_BOOM              = 38831,            // right spell 62834
+    // XE-321 Boombot
+    SPELL_BOOM              = 62834,
 
-    //XM-024 Pummeller
+    // XM-024 Pummeller
     SPELL_CLEAVE            = 8374,
     SPELL_TRAMPLE           = 5568,
     SPELL_UPPERCUT          = 10966,
 
-    //NPC ids
+    // NPC ids
     NPC_HEART               = 33329,
     NPC_SCRAPBOT            = 33343,
     NPC_BOOMBOT             = 33346,
     NPC_PUMMELER            = 33344,
     NPC_VOIDZONE            = 34001,
-    NPC_LIFESPARK           = 34004,
+    NPC_LIFESPARK           = 34004
 };
 
 enum XT002Phase
 {
     PHASE_NORMAL        = 1,
-    PHASE_ADDS          = 2,
-};
-
-
-//Positional defines 
-struct LocationsXY
-{
-    float x, y, z, o;
-    uint32 id;
-};
-
-static LocationsXY SummonLoc[]=
-{
-    {792.706f, 64.033f, 409.632f},  // lower left
-    {879.750f, 64.815f, 409.804f},  // upper left
-    {896.488f, -93.018f, 409.731f}, // upper right
-    {791.016f, -83.516f, 409.804f}, // lower right
+    PHASE_HEART         = 2
 };
 
 // void zone
@@ -124,31 +107,31 @@ struct MANGOS_DLL_DECL mob_voidzoneAI : public ScriptedAI
         Reset();
     }
 
-    uint32 Spell_Timer;
+    uint32 m_uiSpellTimer;
     bool m_bIsRegularMode;
-    SpellEntry const *spellInfo;
+    SpellEntry const* m_SpellInfo;
 
     void Reset()
     {
-        spellInfo = (SpellEntry*)GetSpellStore()->LookupEntry(m_bIsRegularMode ? SPELL_VOIDZONE : SPELL_VOIDZONE_H);
-        Spell_Timer = 1000;
+        m_SpellInfo = (SpellEntry*)GetSpellStore()->LookupEntry(m_bIsRegularMode ? SPELL_VOIDZONE : SPELL_VOIDZONE_H);
+        m_uiSpellTimer = 1000;
     }
 
     void UpdateAI(const uint32 diff)
     {
         // should be an aura here. Couldn't find it
         // hacky way, needs fixing!
-        if (Spell_Timer < diff)
+        if (m_uiSpellTimer <= diff)
         {
-            if (spellInfo)
+            if (m_SpellInfo)
             {
-                int32 damage = spellInfo->CalculateSimpleValue(EFFECT_INDEX_1);
+                int32 damage = m_SpellInfo->CalculateSimpleValue(EFFECT_INDEX_1);
                 m_creature->CastCustomSpell(m_creature, SPELL_VOIDZONE_EFFECT, &damage, 0, 0, true);
             }
-            Spell_Timer = 1000;
+            m_uiSpellTimer = 1000;
         }
         else
-            Spell_Timer -= diff;
+            m_uiSpellTimer -= diff;
     }
 };
 
@@ -167,12 +150,13 @@ struct MANGOS_DLL_DECL mob_lifesparkAI : public ScriptedAI
     }
 
     bool m_bIsRegularMode;
-    uint32 m_uiSpell_Timer;
+    uint32 m_uiShockTimer;
 
     void Reset()
     {  
         DoCast(m_creature, m_bIsRegularMode ? SPELL_STATIC_CHARGED : SPELL_STATIC_CHARGED_H);
-        m_uiSpell_Timer = 1000;
+        m_creature->SetInCombatWithZone();
+        m_uiShockTimer = 1000;
     }
 
     void UpdateAI(const uint32 uidiff)
@@ -180,15 +164,13 @@ struct MANGOS_DLL_DECL mob_lifesparkAI : public ScriptedAI
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
 
-        if (m_uiSpell_Timer < uidiff)
+        if (m_uiShockTimer <= uidiff)
         {
             DoCast(m_creature->getVictim(), SPELL_SHOCK);
-            m_uiSpell_Timer = urand(4000, 7000);
+            m_uiShockTimer = urand(4000, 7000);
         }
         else
-            m_uiSpell_Timer -= uidiff;
-
-        DoMeleeAttackIfReady();
+            m_uiShockTimer -= uidiff;
     }
 };
 
@@ -207,11 +189,12 @@ struct MANGOS_DLL_DECL mob_pummelerAI : public ScriptedAI
     }
 
     instance_ulduar* m_pInstance;
-    uint32 Spell_Timer;
+    uint32 m_uiSpellTimer;
 
     void Reset()
     {        
-        Spell_Timer = urand(5000, 10000);
+        m_uiSpellTimer = urand(5000, 10000);
+        m_creature->SetInCombatWithZone();
     }
     
     void UpdateAI(const uint32 diff)
@@ -219,7 +202,7 @@ struct MANGOS_DLL_DECL mob_pummelerAI : public ScriptedAI
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
 
-        if (Spell_Timer < diff)
+        if (m_uiSpellTimer <= diff)
         {
             switch(urand(0, 2))
             {
@@ -233,10 +216,10 @@ struct MANGOS_DLL_DECL mob_pummelerAI : public ScriptedAI
                     DoCast(m_creature->getVictim(), SPELL_UPPERCUT);
                     break;
             }
-            Spell_Timer = urand(5000, 10000);
+            m_uiSpellTimer = urand(5000, 10000);
         }
         else
-            Spell_Timer -= diff;
+            m_uiSpellTimer -= diff;
 
         DoMeleeAttackIfReady();
     }
@@ -259,37 +242,92 @@ struct MANGOS_DLL_DECL mob_boombotAI : public ScriptedAI
     instance_ulduar* m_pInstance;
 
     void Reset()
-    {        
+    {
+        SetCombatMovement(false);
+        m_creature->SetInCombatWithZone();
+        if (m_pInstance)
+        {
+            if (Creature* pXT002 = m_pInstance->GetSingleCreatureFromStorage(NPC_XT002))
+                m_creature->GetMotionMaster()->MoveFollow(pXT002, 0.0f, 0.0f);
+        }
     }
 
     void DamageTaken(Unit* pDoneBy, uint32& uiDamage)
     {
-        if (uiDamage > m_creature->GetHealth())
-        {
-            uiDamage = 0;
-            DoCast(m_creature, SPELL_BOOM);
-        }
+        if (m_creature->GetHealth() - uiDamage > m_creature->GetMaxHealth() * 0.5f)
+            return;
+        DoCast(m_creature, SPELL_BOOM);
+        uiDamage = 0;
     }
 
-    void DoMeleeAttackIfReady()
+    void MoveInLineOfSight(Unit* pWho)
     {
-        //If we are within range melee the target
-        if (m_creature->IsWithinDistInMap(m_creature->getVictim(), ATTACK_DISTANCE))
+        // If we are within range melee the target
+        if (pWho->GetTypeId() == TYPEID_PLAYER && m_creature->IsWithinDistInMap(pWho, 5.0f) && m_creature->IsWithinLOSInMap(pWho))
             DoCast(m_creature, SPELL_BOOM);
     }
 
     void UpdateAI(const uint32 diff)
     {
-        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
-            return;
-
-        DoMeleeAttackIfReady();
     }
 };
 
 CreatureAI* GetAI_mob_boombot(Creature* pCreature)
 {
     return new mob_boombotAI(pCreature);
+}
+
+// XS-013 Scrapbot
+struct MANGOS_DLL_DECL npc_scrapbotAI : public ScriptedAI
+{
+    npc_scrapbotAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        m_pInstance = (instance_ulduar*)pCreature->GetInstanceData();
+        Reset();
+    }
+
+    instance_ulduar* m_pInstance;
+    uint32 m_uiTimer;
+
+    void Reset()
+    {
+        SetCombatMovement(false);
+        m_creature->SetInCombatWithZone();
+        if (m_pInstance)
+        {
+            if (Creature* pXT002 = m_pInstance->GetSingleCreatureFromStorage(NPC_XT002))
+                m_creature->GetMotionMaster()->MoveFollow(pXT002, 0.0f, 0.0f);
+        }
+        m_uiTimer = 1000;
+    }
+
+    void UpdateAI(const uint32 diff)
+    {
+        if (m_uiTimer <= diff)
+        {
+            if (m_pInstance)
+            {
+                Creature* pXT002 = m_pInstance->GetSingleCreatureFromStorage(NPC_XT002);
+                if (pXT002 && pXT002->isAlive() && m_creature->IsWithinDistInMap(pXT002, 10.0f))
+                {
+                    pXT002->CastSpell(m_creature, SPELL_SCRAP_REPAIR, true);
+                    m_pInstance->SetSpecialAchievementCriteria(TYPE_ACHIEV_NERF_ENGINEERING, false);
+                    DoScriptText(EMOTE_REPAIR, pXT002);
+                    m_creature->ForcedDespawn(1000);
+                    m_uiTimer = 2000;
+                }
+                else
+                    m_uiTimer = 500;
+            }
+        }
+        else
+            m_uiTimer -= diff;
+    }
+};
+
+CreatureAI* GetAI_npc_scrapbot(Creature* pCreature)
+{
+    return new npc_scrapbotAI(pCreature);
 }
 
 // Heart of the Deconstructor
@@ -304,16 +342,19 @@ struct MANGOS_DLL_DECL mob_xtheartAI : public ScriptedAI
 
     instance_ulduar* m_pInstance;
 
+    uint32 m_uiEnergyOrbTimer;
     uint32 m_uiDeathTimer;
     uint32 m_uiTotalDamage;
 
     void Reset()
     {
         DoCast(m_creature, SPELL_EXPOSED_HEART);
+        m_creature->SetLevitate(true); // TODO: vehicle system not work properly
         m_creature->SetRespawnDelay(DAY);
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-        m_uiTotalDamage = 0;
-        m_uiDeathTimer = 30000;
+        m_uiEnergyOrbTimer  = 0;
+        m_uiDeathTimer      = 30000;
+        m_uiTotalDamage     = 0;
     }
 
     void DamageTaken(Unit* pDoneBy, uint32& uiDamage)
@@ -326,20 +367,44 @@ struct MANGOS_DLL_DECL mob_xtheartAI : public ScriptedAI
         // used for hard mode loot only when hard mode loot is within the heart's corpse
         // remove this for revision
         m_creature->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
-        if(m_pInstance)
+        if (m_pInstance)
             m_pInstance->SetData(TYPE_XT002_HARD, IN_PROGRESS);
+    }
+
+    ObjectGuid SelectRandomXtToyPile()
+    {
+        if (!m_pInstance || m_pInstance->m_lXtToyPileGuids.empty())
+            return ObjectGuid((uint64)0);
+
+        GuidList::iterator iter = m_pInstance->m_lXtToyPileGuids.begin();
+        advance(iter, urand(0, m_pInstance->m_lXtToyPileGuids.size() - 1));
+
+        return *iter;
     }
 
     void UpdateAI(const uint32 diff)
     {
+        if (m_uiEnergyOrbTimer <= diff)
+        {
+            if (Creature* pXtToyPile = m_creature->GetMap()->GetCreature(SelectRandomXtToyPile()))
+                m_creature->CastSpell(pXtToyPile, SPELL_ENERGY_ORB, false); // TODO: Arcane must be effect in target but effect in caster, disable by false triggered
+
+            m_uiEnergyOrbTimer = urand(500, 2000);
+        }
+        else
+            m_uiEnergyOrbTimer -= diff;
+
         // despawns the creature if not killed in 30 secs
-        if(m_uiDeathTimer < diff)
+        if (m_uiDeathTimer <= diff)
         {
             // pass damage to boss
-            if (Creature* pTemp = m_pInstance->GetSingleCreatureFromStorage(NPC_XT002))
+            if (m_pInstance)
             {
-                if (pTemp->isAlive())
-                    pTemp->DealDamage(pTemp, m_uiTotalDamage, NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                if (Creature* pXT002 = m_pInstance->GetSingleCreatureFromStorage(NPC_XT002))
+                {
+                    if (pXT002->isAlive())
+                        pXT002->DealDamage(pXT002, m_uiTotalDamage, NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                }
             }
             m_creature->ForcedDespawn();
         }
@@ -353,7 +418,7 @@ CreatureAI* GetAI_mob_xtheart(Creature* pCreature)
     return new mob_xtheartAI(pCreature);
 }
 
-//XT-002 Deconstructor
+// XT-002 Deconstructor
 struct MANGOS_DLL_DECL boss_xt_002AI : public ScriptedAI
 {
     boss_xt_002AI(Creature* pCreature) : ScriptedAI(pCreature) 
@@ -374,22 +439,20 @@ struct MANGOS_DLL_DECL boss_xt_002AI : public ScriptedAI
     uint32 m_uiGravityBombTimer;
     uint32 m_uiTanctrumTimer;
     uint32 m_uiEnrageTimer;
-    uint32 m_uiRangeCheckTimer;
     uint32 m_uiVoidZoneTimer;
     uint32 m_uiLifeSparkTimer;
 
     // Summon
-    uint32 m_uiSummonTimer;
-    bool   m_bSayAdds;
-    GuidList m_lScrapbotsGuidList;
-    GuidList m_lBoombotsGuidList;
-    GuidList m_lPummelerGuidList;
+    uint32 m_uiSpawnScrapbotGroupsTimer;
+    uint8  m_uiScrapbotSpawnedGroups;
+    uint8  m_uiScrapbotMaxGroups;
+    uint32 m_uiSpawnPummelerTimer;
+    GuidList m_lAddsGuidList;
 
-    // health timers
     float   m_fHealthPercent;
     bool    m_bIsEnrage;
 
-    ObjectGuid m_uiXtHeartGUID;
+    ObjectGuid m_XtHeartGUID;
 
     bool m_bIsHardMode;
 
@@ -403,18 +466,9 @@ struct MANGOS_DLL_DECL boss_xt_002AI : public ScriptedAI
         m_uiGravityBombTimer  = 30000;    // 11 seconds first 18 secs all after(11 secs in 25man)
         m_uiTanctrumTimer     = 35000;    // 38 seconds first 40 secs all after
         m_uiEnrageTimer       = 600000;   // 10 min
-        m_uiRangeCheckTimer   = 1000;
         m_uiVoidZoneTimer     = 60000;
         m_uiLifeSparkTimer    = 60000;
 
-        // Summon
-        m_uiSummonTimer         = 5000;
-        m_bSayAdds              = false;
-        m_lScrapbotsGuidList.clear();
-        m_lBoombotsGuidList.clear();
-        m_lPummelerGuidList.clear();
-
-        // health timers
         m_fHealthPercent       = 75.0f;
 
 
@@ -427,31 +481,32 @@ struct MANGOS_DLL_DECL boss_xt_002AI : public ScriptedAI
         if (m_pInstance)
         {
             m_pInstance->SetData(TYPE_XT002, DONE);
-            if(m_bIsHardMode)
+            if (m_bIsHardMode)
+            {
                 m_pInstance->SetData(TYPE_XT002_HARD, DONE);
+                // Looting Heart instead XT-002
+                if (Creature* pHeart = m_creature->GetMap()->GetCreature(m_XtHeartGUID))
+                {
+                    pHeart->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
+                    m_creature->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
+                }
+            }
         }
 
         DoScriptText(SAY_DEATH, m_creature);
-        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        DespawnSummonedCreatures();
+    }
 
-        if (!m_lScrapbotsGuidList.empty())
+    void DespawnSummonedCreatures()
+    {
+        if (!m_lAddsGuidList.empty())
         {
-            for(GuidList::iterator itr = m_lScrapbotsGuidList.begin(); itr != m_lScrapbotsGuidList.end(); ++itr)
-                if (Creature* pTemp = m_creature->GetMap()->GetCreature(*itr))
-                    pTemp->ForcedDespawn();
-        }
-        if (!m_lBoombotsGuidList.empty())
-        {
-            for(GuidList::iterator itr = m_lBoombotsGuidList.begin(); itr != m_lBoombotsGuidList.end(); ++itr)
-                if (Creature* pTemp = m_creature->GetMap()->GetCreature(*itr))
-                    pTemp->ForcedDespawn();
-        }
-        if (!m_lPummelerGuidList.empty())
-        {
-            for(GuidList::iterator itr = m_lPummelerGuidList.begin(); itr != m_lPummelerGuidList.end(); ++itr)
-                if (Creature* pTemp = m_creature->GetMap()->GetCreature(*itr))
-                    pTemp->ForcedDespawn();
+            for (GuidList::iterator iter = m_lAddsGuidList.begin(); iter != m_lAddsGuidList.end(); ++iter)
+            {
+                if (Creature* pSummoned = m_creature->GetMap()->GetCreature(*iter))
+                    pSummoned->ForcedDespawn();
+            }
+            m_lAddsGuidList.clear();
         }
     }
 
@@ -460,11 +515,12 @@ struct MANGOS_DLL_DECL boss_xt_002AI : public ScriptedAI
         if (m_pInstance)
         {
             m_pInstance->SetData(TYPE_XT002, IN_PROGRESS);
-            if(m_pInstance->GetData(TYPE_XT002_TP) != DONE)
+            if (m_pInstance->GetData(TYPE_XT002_TP) != DONE)
                 m_pInstance->SetData(TYPE_XT002_TP, DONE);
         }
 
         DoScriptText(SAY_AGGRO, m_creature);
+        m_creature->SetInCombatWithZone();
     }
 
     void JustReachedHome()
@@ -478,71 +534,51 @@ struct MANGOS_DLL_DECL boss_xt_002AI : public ScriptedAI
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
         m_creature->SetStandState(UNIT_STAND_STATE_STAND);
 
-        if (!m_lScrapbotsGuidList.empty())
-        {
-            for(GuidList::iterator itr = m_lScrapbotsGuidList.begin(); itr != m_lScrapbotsGuidList.end(); ++itr)
-                if (Creature* pTemp = m_creature->GetMap()->GetCreature(*itr))
-                    pTemp->ForcedDespawn();
-        }
-        if (!m_lBoombotsGuidList.empty())
-        {
-            for(GuidList::iterator itr = m_lBoombotsGuidList.begin(); itr != m_lBoombotsGuidList.end(); ++itr)
-                if (Creature* pTemp = m_creature->GetMap()->GetCreature(*itr))
-                    pTemp->ForcedDespawn();
-        }
-        if (!m_lPummelerGuidList.empty())
-        {
-            for(GuidList::iterator itr = m_lPummelerGuidList.begin(); itr != m_lPummelerGuidList.end(); ++itr)
-                if (Creature* pTemp = m_creature->GetMap()->GetCreature(*itr))
-                    pTemp->ForcedDespawn();
-        }
+        DespawnSummonedCreatures();
+        if (Creature* pHeart = m_creature->GetMap()->GetCreature(m_XtHeartGUID))
+            pHeart->ForcedDespawn();
     }
 
     void KilledUnit(Unit* pVictim)
     {
-        DoScriptText(urand(0,1) ? SAY_SLAY_01 : SAY_SLAY_02, m_creature);
+        DoScriptText(urand(0, 1) ? SAY_SLAY_01 : SAY_SLAY_02, m_creature);
     }
 
-    void SummonAdds()
+    void JustSummoned(Creature* pCreature)
     {
-        if (m_bSayAdds == false)
+        switch(pCreature->GetEntry())
         {
-            DoScriptText(SAY_ADDS, m_creature);
-            m_bSayAdds = true;
+            case NPC_SCRAPBOT:
+            case NPC_BOOMBOT:
+            case NPC_PUMMELER:
+            case NPC_VOIDZONE:
+            case NPC_LIFESPARK:
+                m_lAddsGuidList.push_back(pCreature->GetObjectGuid());
+                break;
         }
-        
-        for (int j = 0; j < (m_bIsRegularMode ? 3 : 5); ++j)
+    }
+
+    ObjectGuid SelectRandomXtToyPile()
+    {
+        if (!m_pInstance || m_pInstance->m_lXtToyPileGuids.empty())
+            return ObjectGuid((uint64)0);
+
+        GuidList lXtToyPileGuids;
+        for (GuidList::iterator iter = m_pInstance->m_lXtToyPileGuids.begin(); iter != m_pInstance->m_lXtToyPileGuids.end(); ++iter)
         {
-            uint32 addentry = 0;
-            switch(urand(0,5))
+            if (Creature* pToyPile = m_creature->GetMap()->GetCreature(*iter))
             {
-                case 0:
-                case 1: addentry = NPC_SCRAPBOT; break;
-                case 2: 
-                case 3: addentry = NPC_BOOMBOT;  break;
-                case 4: addentry = NPC_PUMMELER; break;
-                default:addentry = NPC_SCRAPBOT;
-            }
-            uint8 i = urand(0, 3);
-            if (Creature* pTemp = m_creature->SummonCreature(addentry, SummonLoc[i].x + urand(0, 10), SummonLoc[i].y + urand(0, 10), SummonLoc[i].z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 180000))
-            {
-                DoCast(pTemp, SPELL_ENERGY_ORB, true);
-                pTemp->SetInCombatWithZone();
-                switch (addentry)
-                {
-                    case NPC_SCRAPBOT:
-                        m_lScrapbotsGuidList.push_back(pTemp->GetObjectGuid());
-                        pTemp->GetMotionMaster()->MoveChase(m_creature);
-                        break;
-                    case NPC_BOOMBOT:
-                        m_lBoombotsGuidList.push_back(pTemp->GetObjectGuid());
-                        break;
-                    case NPC_PUMMELER:
-                        m_lPummelerGuidList.push_back(pTemp->GetObjectGuid());
-                        break;
-                }
+                if (pToyPile->GetPositionX() < 850.0f) // Toys only spawn in two location!
+                    lXtToyPileGuids.push_back(*iter);
             }
         }
+        if (lXtToyPileGuids.empty())
+            return ObjectGuid((uint64)0);
+
+        GuidList::iterator iter = lXtToyPileGuids.begin();
+        advance(iter, urand(0, lXtToyPileGuids.size() - 1));
+
+        return *iter;
     }
 
     void SwitchIntoPhaseOne()
@@ -550,10 +586,10 @@ struct MANGOS_DLL_DECL boss_xt_002AI : public ScriptedAI
         m_Phase = PHASE_NORMAL;
         DoScriptText(SAY_HEART_CLOSE, m_creature);
         m_creature->SetStandState(UNIT_STAND_STATE_STAND);
-        m_creature->RemoveAurasDueToSpell(SPELL_STUN);
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-        
+        if (m_creature->getVictim())
+            m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
         m_uiLightBombTimer  = 7000;
         m_uiGravityBombTimer= 11000;
         m_uiTanctrumTimer   = 38000;
@@ -562,79 +598,54 @@ struct MANGOS_DLL_DECL boss_xt_002AI : public ScriptedAI
     void UpdateAI(const uint32 uiDiff)
     {
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
-            return;
-
-        // enrage timer
-        if (m_uiEnrageTimer < uiDiff && !m_bIsEnrage)
         {
-            if (DoCastSpellIfCan(m_creature, SPELL_ENRAGE) == CAST_OK)
+            if (m_Phase != PHASE_NORMAL)
             {
-                m_bIsEnrage = true;
-                DoScriptText(SAY_BERSERK, m_creature);
+                m_Phase = PHASE_NORMAL;
+                m_creature->SetStandState(UNIT_STAND_STATE_STAND);
+                m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             }
+            return;
         }
-        else
-            m_uiEnrageTimer -= uiDiff;
 
-        
-        // adds range check
-        if (m_uiRangeCheckTimer < uiDiff)
+        if (!m_bIsEnrage)
         {
-            if (!m_lScrapbotsGuidList.empty())
+            if (m_uiEnrageTimer <= uiDiff)
             {
-                for(GuidList::iterator itr = m_lScrapbotsGuidList.begin(); itr != m_lScrapbotsGuidList.end(); ++itr)
+                if (DoCastSpellIfCan(m_creature, SPELL_ENRAGE) == CAST_OK)
                 {
-                    if (Creature* pTemp = m_creature->GetMap()->GetCreature(*itr))
-                    {
-                        if (pTemp->isAlive() && m_creature->IsWithinDistInMap(pTemp, 10.0f))
-                        {
-                            DoCast(pTemp, SPELL_SCRAP_REPAIR, true);
-                            pTemp->DealDamage(pTemp, pTemp->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-                            DoScriptText(EMOTE_REPAIR, m_creature);
-                            if (m_pInstance)
-                                m_pInstance->SetSpecialAchievementCriteria(TYPE_ACHIEV_NERF_ENGINEERING, false);
-                        }
-                    }
+                    m_bIsEnrage = true;
+                    DoScriptText(SAY_BERSERK, m_creature);
                 }
             }
-            m_uiRangeCheckTimer = 1000;
-        }else 
-            m_uiRangeCheckTimer -= uiDiff;
+            else
+                m_uiEnrageTimer -= uiDiff;
+        }
 
-        switch (m_Phase)
+        switch(m_Phase)
         {
             case PHASE_NORMAL:
             {
-                if (m_uiLightBombTimer < uiDiff)
+                if (m_uiLightBombTimer <= uiDiff)
                 {
-                    if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
-                    {
-                        if (DoCastSpellIfCan(pTarget, m_bIsRegularMode ? SPELL_LIGHT_BOMB : SPELL_LIGHT_BOMB_H) == CAST_OK)
-                        {
-                            m_uiLightBombTimer = urand(10000, 14000);
-                        }
-                    }
+                    if (DoCastSpellIfCan(m_creature, m_bIsRegularMode ? SPELL_SEARING_LIGHT : SPELL_SEARING_LIGHT_H) == CAST_OK)
+                        m_uiLightBombTimer = urand(10000, 14000);
                 }
                 else
                     m_uiLightBombTimer -= uiDiff;
 
-                if (m_uiGravityBombTimer < uiDiff)
+                if (m_uiGravityBombTimer <= uiDiff)
                 {
-                    if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
-                    {
-                        if (DoCastSpellIfCan(pTarget, m_bIsRegularMode ? SPELL_GRAVITY_BOMB : SPELL_GRAVITY_BOMB_H) == CAST_OK)
-                        {
-                            m_uiGravityBombTimer = urand(25000, 30000); 
-                        }
-                    }
-                    
+                    if (DoCastSpellIfCan(m_creature, m_bIsRegularMode ? SPELL_GRAVITY_BOMB : SPELL_GRAVITY_BOMB_H) == CAST_OK)
+                        m_uiGravityBombTimer = urand(25000, 30000);
                 }
                 else
                     m_uiGravityBombTimer -= uiDiff;
 
-                if (m_uiTanctrumTimer < uiDiff)
+                if (m_uiTanctrumTimer <= uiDiff)
                 {
-                    if (DoCastSpellIfCan(m_creature, SPELL_TANCTRUM) == CAST_OK)
+                    if (DoCastSpellIfCan(m_creature, SPELL_TYMPANIC_TANTRUM) == CAST_OK)
                     {
                         DoScriptText(SAY_TANCTRUM, m_creature);
                         m_uiTanctrumTimer = 60000;
@@ -643,55 +654,89 @@ struct MANGOS_DLL_DECL boss_xt_002AI : public ScriptedAI
                 else
                     m_uiTanctrumTimer -= uiDiff;
 
-                if (m_creature->GetHealthPercent() < m_fHealthPercent && !m_bIsHardMode)
+                if (!m_bIsHardMode && m_creature->GetHealthPercent() < m_fHealthPercent)
                 {
-                    m_fHealthPercent = m_fHealthPercent - 25;
+                    m_fHealthPercent -= 25.0f;
                     m_uiHeartTimer = 30000;
-                    m_creature->CastStop();                    
-                    m_Phase = PHASE_ADDS;
+                    m_creature->CastStop();
+                    m_Phase = PHASE_HEART;
+
+                    m_creature->StopMoving();
+                    m_creature->GetMotionMaster()->MoveIdle();
+                    m_creature->SetStandState(UNIT_STAND_STATE_CUSTOM);
+                    m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
 
                     DoScriptText(SAY_HEART_OPEN, m_creature);
-                    DoCast(m_creature, SPELL_STUN);
                     DoScriptText(EMOTE_HEART, m_creature);
-                    m_creature->SetStandState(UNIT_STAND_STATE_KNEEL);
-                    m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+
+                    m_uiScrapbotMaxGroups     = urand(7, 10);
+                    m_uiScrapbotSpawnedGroups = 0;
 
                     // timers
-                    m_uiSummonTimer         = 5000;
-                    m_bSayAdds              = false;
+                    m_uiSpawnScrapbotGroupsTimer  = urand(0, 4000);
+                    m_uiSpawnPummelerTimer        = urand(1, 29);
 
-                    if(Creature* Heart = m_creature->SummonCreature(NPC_HEART, 0.0f, 0.0f, 0.0f, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 900000))
-                        m_uiXtHeartGUID = Heart->GetObjectGuid();
+                    float x, y, z;
+                    m_creature->GetPosition(x, y, z);
+                    if (Creature* pHeart = m_creature->SummonCreature(NPC_HEART, x, y, z + 2.0f, m_creature->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN, 0))
+                        m_XtHeartGUID = pHeart->GetObjectGuid();
                 }
 
                 DoMeleeAttackIfReady();
                 break;
             }
-            case PHASE_ADDS:
+            case PHASE_HEART:
             {
-                if (m_uiSummonTimer < uiDiff)
+                if (m_uiScrapbotSpawnedGroups < m_uiScrapbotMaxGroups)
                 {
-                    SummonAdds();
-                    m_uiSummonTimer = urand(3000, 5000);
+                    if (m_uiSpawnScrapbotGroupsTimer <= uiDiff)
+                    {
+                        if (Creature* pXtToyPile = m_creature->GetMap()->GetCreature(SelectRandomXtToyPile()))
+                        {
+                            if (m_uiScrapbotSpawnedGroups == 0)
+                                DoScriptText(SAY_ADDS, m_creature);
+                            ++m_uiScrapbotSpawnedGroups;
+                            float x, y, z;
+                            pXtToyPile->GetPosition(x, y, z);
+                            for (uint8 i = 0; i < 5; ++i)
+                                m_creature->SummonCreature(i ? NPC_SCRAPBOT : NPC_BOOMBOT, x + frand(-5.0f, 5.0f) , y + frand(-5.0f, 5.0f), z, 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                        }
+                        m_uiSpawnScrapbotGroupsTimer = urand(0, 4000);
+                    }
+                    else
+                        m_uiSpawnScrapbotGroupsTimer -= uiDiff;
                 }
-                else
-                    m_uiSummonTimer -= uiDiff;
+
+                if (m_uiSpawnPummelerTimer)
+                {
+                    if (m_uiSpawnPummelerTimer <= uiDiff)
+                    {
+                        if (Creature* pXtToyPile = m_creature->GetMap()->GetCreature(SelectRandomXtToyPile()))
+                        {
+                            float x, y, z;
+                            pXtToyPile->GetPosition(x, y, z);
+                            m_creature->SummonCreature(NPC_PUMMELER, x, y, z, 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                            m_uiSpawnPummelerTimer = 0;
+                        }
+                    }
+                    else
+                        m_uiSpawnPummelerTimer -= uiDiff;
+                }
+
 
                 // Switch into Phase 1
-                if (m_uiHeartTimer < uiDiff)
+                if (m_uiHeartTimer <= uiDiff)
                 {
                     SwitchIntoPhaseOne();
                 }
                 else
                     m_uiHeartTimer -= uiDiff;
 
-                if (m_pInstance->GetData(TYPE_XT002_HARD) == IN_PROGRESS)
+                if (m_pInstance && m_pInstance->GetData(TYPE_XT002_HARD) == IN_PROGRESS)
                 {
                     SwitchIntoPhaseOne();
                     DoCast(m_creature, m_bIsRegularMode ? SPELL_HEARTBREAK : SPELL_HEARTBREAK_H);
-                    if (m_pInstance)
-                        m_pInstance->SetSpecialAchievementCriteria(TYPE_ACHIEV_HEARTBREAKER, true);
+                    m_pInstance->SetSpecialAchievementCriteria(TYPE_ACHIEV_HEARTBREAKER, true);
                     m_bIsHardMode = true;
                 }
 
@@ -701,6 +746,9 @@ struct MANGOS_DLL_DECL boss_xt_002AI : public ScriptedAI
                 SwitchIntoPhaseOne();
                 break;
         }
+        // Prevent exploit
+        if (m_creature->GetPositionX() < 760.0f)
+            EnterEvadeMode();
     }
 };
 
@@ -711,35 +759,40 @@ CreatureAI* GetAI_boss_xt_002(Creature* pCreature)
 
 void AddSC_boss_xt002()
 {
-    Script* NewScript;
+    Script* pNewScript;
 
-    NewScript = new Script;
-    NewScript->Name = "boss_xt_002";
-    NewScript->GetAI = GetAI_boss_xt_002;
-    NewScript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "boss_xt_002";
+    pNewScript->GetAI = GetAI_boss_xt_002;
+    pNewScript->RegisterSelf();
 
-    NewScript = new Script;
-    NewScript->Name = "mob_pummeler";
-    NewScript->GetAI = &GetAI_mob_pummeler;
-    NewScript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "mob_xtheart";
+    pNewScript->GetAI = &GetAI_mob_xtheart;
+    pNewScript->RegisterSelf();
 
-    NewScript = new Script;
-    NewScript->Name = "mob_boombot";
-    NewScript->GetAI = &GetAI_mob_boombot;
-    NewScript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "mob_pummeler";
+    pNewScript->GetAI = &GetAI_mob_pummeler;
+    pNewScript->RegisterSelf();
 
-    NewScript = new Script;
-    NewScript->Name = "mob_xtheart";
-    NewScript->GetAI = &GetAI_mob_xtheart;
-    NewScript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "mob_boombot";
+    pNewScript->GetAI = &GetAI_mob_boombot;
+    pNewScript->RegisterSelf();
 
-    NewScript = new Script;
-    NewScript->Name = "mob_voidzone";
-    NewScript->GetAI = &GetAI_mob_voidzone;
-    NewScript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "npc_scrapbot";
+    pNewScript->GetAI = &GetAI_npc_scrapbot;
+    pNewScript->RegisterSelf();
 
-    NewScript = new Script;
-    NewScript->Name = "mob_lifespark";
-    NewScript->GetAI = &GetAI_mob_lifespark;
-    NewScript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "mob_voidzone";
+    pNewScript->GetAI = &GetAI_mob_voidzone;
+    pNewScript->RegisterSelf();
+
+    pNewScript = new Script;
+    pNewScript->Name = "mob_lifespark";
+    pNewScript->GetAI = &GetAI_mob_lifespark;
+    pNewScript->RegisterSelf();
 }

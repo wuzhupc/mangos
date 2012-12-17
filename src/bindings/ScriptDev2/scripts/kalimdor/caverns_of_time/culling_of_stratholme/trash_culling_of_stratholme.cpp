@@ -129,7 +129,7 @@ struct MANGOS_DLL_DECL npc_cs_gnoulAI : public ScriptedAI
 
    void UpdateAI(const uint32 uiDiff)
    {
-        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim() && m_creature->IsTemporarySummon())
+        if ((!m_creature->SelectHostileTarget() || !m_creature->getVictim()) && m_creature->IsTemporarySummon())
         {
           if(MoveTimer < uiDiff)
           {   
@@ -316,7 +316,7 @@ struct MANGOS_DLL_DECL npc_cs_necromancerAI : public ScriptedAI
 
    void UpdateAI(const uint32 uiDiff)
    {
-        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim() && m_creature->IsTemporarySummon())
+        if ((!m_creature->SelectHostileTarget() || !m_creature->getVictim()) && m_creature->IsTemporarySummon())
         {
           if(MoveTimer < uiDiff)
           {
@@ -506,7 +506,7 @@ struct MANGOS_DLL_DECL npc_cs_fieldAI : public ScriptedAI
 
    void UpdateAI(const uint32 uiDiff)
    {
-        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim() && m_creature->IsTemporarySummon())
+        if ((!m_creature->SelectHostileTarget() || !m_creature->getVictim()) && m_creature->IsTemporarySummon())
         {
           if(MoveTimer < uiDiff)
           {   
@@ -909,7 +909,7 @@ struct MANGOS_DLL_DECL npc_cs_butcherAI : public ScriptedAI
 
    void UpdateAI(const uint32 uiDiff)
    {
-        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim() && m_creature->IsTemporarySummon())
+        if ((!m_creature->SelectHostileTarget() || !m_creature->getVictim()) && m_creature->IsTemporarySummon())
         {
           if(MoveTimer < uiDiff)
           {
