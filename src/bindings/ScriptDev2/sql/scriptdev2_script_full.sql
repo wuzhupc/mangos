@@ -3,7 +3,11 @@
 --
 
 DELETE FROM sd2_db_version;
+<<<<<<< HEAD
 INSERT INTO sd2_db_version (version) VALUES ('ScriptDev2 (for MangosR2 2473+ / C-MaNGOS 12292+) ');
+=======
+INSERT INTO sd2_db_version (version) VALUES ('ScriptDev2 (for C-MaNGOS 12308+) ');
+>>>>>>> 7d5cff4... [2773] Support hard-mode loot in Zul'Aman - Also fix compile
 
 --
 -- Below contains data for table `script_texts` mainly used in C++ parts.

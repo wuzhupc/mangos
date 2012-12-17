@@ -57,11 +57,11 @@ enum
     SAY_GARONA1                 = -1603400,
     SAY_GARONA2                 = -1603401,
     SAY_GARONA3                 = -1603402,
-    SAY_YOGG_V1_1               = -1603403,
-    SAY_YOGG_V1_2               = -1603404,
-    SAY_ILANE                   = -1603405,
-    SAY_GARONA4                 = -1603406,
-    SAY_YOGG_V1_3               = -1603407,
+    SAY_GARONA4                 = -1603403,
+    SAY_YOGG_V1_1               = -1603404,
+    SAY_YOGG_V1_2               = -1603405,
+    SAY_YOGG_V1_3               = -1603406,
+    SAY_ILANE                   = -1603407,
 
     //dragons
     SAY_NELTHARION1             = -1603390,

@@ -47,6 +47,15 @@ enum
     SAY_OUTRO_HARD1     = -1603204,
     SAY_OUTRO_HARD2     = -1603205,
     SAY_OUTRO_HARD3     = -1603206,
+//    SAY_YOGG            = -1603207,
+
+    // Sif
+    SAY_SIF_INTRO           = -1603210,
+    SAY_SIF_EVENT           = -1603211,
+    SAY_SIF_DESPAWN         = -1603212,
+
+//    EMOTE_BARRIER_1         = -1603213,
+//    EMOTE_BARRIER_2         = -1603214,
 
     // NPC's
     NPC_SIF                         = 33196,
@@ -65,11 +74,6 @@ enum
     //traps
     NPC_TRAP_BUNNY                  = 33725,
     NPC_TRAP_BUNNY2                 = 33054,
-
-    // Sif
-    SAY_SIF_INTRO           = -1603210,
-    SAY_SIF_EVENT           = -1603211,
-    SAY_SIF_DESPAWN         = -1603212,
 
     SPELL_THORIM_CREDIT     = 64985,        // custom spell in spell_dbc.sql
 

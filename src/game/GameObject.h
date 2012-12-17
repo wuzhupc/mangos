@@ -745,7 +745,6 @@ class MANGOS_DLL_SPEC GameObject : public WorldObject
 
         // Loot System
         Loot loot;
-        void getFishLoot(Loot* loot, Player* loot_owner);
         void StartGroupLoot(Group* group, uint32 timer);
 
         ObjectGuid GetLootRecipientGuid() const { return m_lootRecipientGuid; }

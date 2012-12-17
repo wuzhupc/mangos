@@ -408,11 +408,11 @@ class MANGOS_DLL_DECL instance_ulduar : public ScriptedInstance
 
         void Update(uint32 uiDiff);
 
-        // Dummy, leave till correct solution for hardmode found
-        bool CheckConditionCriteriaMeet(Player const* pSource, uint32 uiMapId, uint32 uiInstanceConditionId);
 
         void SetSpecialAchievementCriteria(uint32 uiType, bool bIsMet);
         bool CheckAchievementCriteriaMeet(uint32 uiCriteriaId, Player const* pSource, Unit const* pTarget, uint32 uiMiscValue1 /* = 0*/);
+        // Dummy, leave till correct solution for hardmode found
+        bool CheckConditionCriteriaMeet(Player const* pPlayer, uint32 uiInstanceConditionId, WorldObject const* pConditionSource, ConditionSource conditionSourceType) override;
 
         void OpenDoor(uint32 uiEntry);
         void CloseDoor(uint32 uiEntry);

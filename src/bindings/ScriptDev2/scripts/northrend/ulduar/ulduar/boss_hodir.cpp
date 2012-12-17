@@ -32,12 +32,13 @@ EndScriptData */
 
 enum
 {
-    SAY_AGGRO                   = -1603125,
-    SAY_SLAY_1                  = -1603123,
-    SAY_SLAY_2                  = -1603122,
-    SAY_FLASH_FREEZE            = -1603121,
     SAY_FROZEN_BLOWS            = -1603120,
+    SAY_FLASH_FREEZE            = -1603121,
+    SAY_SLAY_2                  = -1603122,
+    SAY_SLAY_1                  = -1603123,
     SAY_DEATH                   = -1603124,
+    SAY_AGGRO                   = -1603125,
+//    SAY_YOGG                    = -1603126,
     SAY_BERSERK                 = -1603127,
 
     EMOTE_FLASH_FREEZE          = -1603128,

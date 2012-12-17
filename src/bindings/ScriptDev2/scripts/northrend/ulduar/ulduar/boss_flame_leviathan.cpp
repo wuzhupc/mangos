@@ -27,24 +27,24 @@ EndScriptData */
 
 enum say
 {
-    SAY_AGGRO           = -1603203,
-    SAY_DEATH           = -1603202,
-    SAY_SLAY            = -1603201,
-    SAY_CHANGE1         = -1603204,
-    SAY_CHANGE2         = -1603205,
-    SAY_CHANGE3         = -1603206,
-    SAY_PLAYER_ON_TOP   = -1603207,
-    SAY_OVERLOAD1       = -1603208,
-    SAY_OVERLOAD2       = -1603209,
-    SAY_OVERLOAD3       = -1603210,
-    SAY_HARD_MODE       = -1603211,
-    SAY_TOWERS_DOWN     = -1603212,
-    SAY_FROST_TOWER     = -1603213,
-    SAY_FIRE_TOWER      = -1603214,
-    SAY_ENERGY_TOWER    = -1603215,
-    SAY_NATURE_TOWER    = -1603216,
+    SAY_SLAY            = -1603002,
+    SAY_DEATH           = -1603003,
+    SAY_AGGRO           = -1603004,
+    SAY_CHANGE1         = -1603005,
+    SAY_CHANGE2         = -1603006,
+    SAY_CHANGE3         = -1603007,
+    SAY_PLAYER_ON_TOP   = -1603008,
+    SAY_OVERLOAD1       = -1603009,
+    SAY_OVERLOAD2       = -1603010,
+    SAY_OVERLOAD3       = -1603011,
+    SAY_HARD_MODE       = -1603012,
+    SAY_TOWERS_DOWN     = -1603013,
+    SAY_FROST_TOWER     = -1603014,
+    SAY_FIRE_TOWER      = -1603015,
+    SAY_ENERGY_TOWER    = -1603016,
+    SAY_NATURE_TOWER    = -1603017,
 
-    EMOTE_PURSUE        = -1603217,
+    EMOTE_PURSUE        = -1603018,
 };
 
 enum spells
@@ -314,6 +314,10 @@ struct MANGOS_DLL_DECL boss_flame_leviathanAI : public ScriptedAI
 
     void EnterEvadeMode()
     {
+        VehicleKitPtr pVehicleKit = m_creature->GetVehicleKit();
+        if (pVehicleKit)
+            pVehicleKit->Reset();
+
         m_creature->RemoveAllAuras();
         m_creature->DeleteThreatList();
         m_creature->CombatStop(true);

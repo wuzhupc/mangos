@@ -96,7 +96,6 @@ enum InstanceZA
     GO_WOODEN_DOOR          = 186306,
     GO_FIRE_DOOR            = 186859,
 
-    // unused, expected to be possible to handle within Database!
     GO_TANZARS_TRUNK        = 186648,
     GO_KRAZS_PACKAGE        = 186667,
     GO_ASHLIS_BAG           = 186672,
@@ -171,7 +170,9 @@ class MANGOS_DLL_DECL instance_zulaman : public ScriptedInstance
         void SetBearEventProgress(bool bIsInProgress) { m_bIsBearPhaseInProgress = bIsInProgress; }
         void SendNextBearWave(Unit* pTarget);
 
-        void Update(uint32 uiDiff);
+        bool CheckConditionCriteriaMeet(Player const* pPlayer, uint32 uiInstanceConditionId, WorldObject const* pConditionSource, ConditionSource conditionSourceType) override;
+
+        void Update(uint32 uiDiff) override;
 
     private:
         uint8 GetKilledPreBosses();

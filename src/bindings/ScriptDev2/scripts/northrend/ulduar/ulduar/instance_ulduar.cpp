@@ -191,13 +191,14 @@ void instance_ulduar::OnObjectCreate(GameObject* pGo)
                 pGo->SetGoState(GO_STATE_ACTIVE);
             break;
         case GO_LEVIATHAN_GATE:
-            if (m_auiEncounter[TYPE_LEVIATHAN] == DONE)
+            if (GetData(TYPE_LEVIATHAN) == DONE)
                 pGo->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
             break;
         case GO_XT002_GATE:
-            pGo->SetGoState(GO_STATE_READY);
-            if (m_auiEncounter[TYPE_LEVIATHAN] == DONE || m_auiEncounter[TYPE_XT002] == DONE)
+            if (GetData(TYPE_IGNIS) == DONE && GetData(TYPE_RAZORSCALE) == DONE)
                 pGo->SetGoState(GO_STATE_ACTIVE);
+            else
+                pGo->SetGoState(GO_STATE_READY);
             break;
         case GO_BROKEN_HARPOON:
             m_lBrokenHarpoonGUID.push_back(pGo->GetObjectGuid());
@@ -427,9 +428,13 @@ void instance_ulduar::SetData(uint32 uiType, uint32 uiData)
                 for (GuidList::iterator itr = m_lIronConstructsGuids.begin(); itr != m_lIronConstructsGuids.end(); ++itr)
                 {
                     if (Creature* pAdd = instance->GetCreature(*itr))
+                    {
                         if (pAdd->isAlive())
                             pAdd->DealDamage(pAdd, pAdd->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NONE, NULL, false);
+                    }
                 }
+                if (GetData(TYPE_RAZORSCALE) == DONE)
+                    OpenDoor(GO_XT002_GATE);
             }
             break;
         case TYPE_RAZORSCALE:
@@ -437,6 +442,11 @@ void instance_ulduar::SetData(uint32 uiType, uint32 uiData)
             {
                 SetSpecialAchievementCriteria(TYPE_ACHIEV_QUICK_SHAVE, true);
                 SetSpecialAchievementCriteria(TYPE_ACHIEV_IRON_DWARF_MEDIUM_RARE, false);
+            }
+            else if (uiData == DONE)
+            {
+                if (GetData(TYPE_IGNIS) == DONE)
+                    OpenDoor(GO_XT002_GATE);
             }
             break;
         case TYPE_XT002:
@@ -817,11 +827,13 @@ void instance_ulduar::SetData(uint32 uiType, uint32 uiData)
         OUT_SAVE_INST_DATA_COMPLETE;
     }
 }
+
 void instance_ulduar::SetSpecialAchievementCriteria(uint32 uiType, bool bIsMet)
 {
     if (uiType < MAX_SPECIAL_ACHIEV_CRITS)
         m_abAchievCriteria[uiType] = bIsMet;
 }
+
 
 bool instance_ulduar::CheckAchievementCriteriaMeet(uint32 uiCriteriaId, Player const* pSource, Unit const* pTarget, uint32 uiMiscValue1 /* = 0*/)
 {
@@ -860,7 +872,7 @@ bool instance_ulduar::CheckAchievementCriteriaMeet(uint32 uiCriteriaId, Player c
         {
             if (GetData(TYPE_ASSEMBLY) == DONE)
             {
-                if (pSource->HasAura(SPELL_IRON_BOOT_AURA))
+                if (pSource && pSource->HasAura(SPELL_IRON_BOOT_AURA))
                     return true;
             }
             break;
@@ -929,17 +941,17 @@ bool instance_ulduar::CheckAchievementCriteriaMeet(uint32 uiCriteriaId, Player c
         case ACHIEV_CRIT_ALONE_H:
             return m_abAchievCriteria[TYPE_ACHIEV_ALONE];
     }
+
     return false;
 }
 
-bool instance_ulduar::CheckConditionCriteriaMeet(Player const* source, uint32 map_id, uint32 instance_condition_id)
+bool instance_ulduar::CheckConditionCriteriaMeet(Player const* pPlayer, uint32 uiInstanceConditionId, WorldObject const* pConditionSource, ConditionSource conditionSourceType)
 {
-    if (map_id != instance->GetId())
-        return false;
-
-    if (GetData(instance_condition_id) == DONE)
+    if (GetData(uiInstanceConditionId) == DONE)
         return true;
 
+    script_error_log("instance_ulduar::CheckConditionCriteriaMeet called with unsupported Id %u. Called with param plr %s, src %s, condition source type %u",
+                         uiInstanceConditionId, pPlayer ? pPlayer->GetGuidStr().c_str() : "NULL", pConditionSource ? pConditionSource->GetGuidStr().c_str() : "NULL", conditionSourceType);
     return false;
 }
 

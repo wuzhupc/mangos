@@ -49,7 +49,7 @@ enum
     SAY_ROBOT_DEATH     = -1603238,
 
     EMOTE_PLASMA_BLAST     = -1603240,
-    EMOTE_LASER_SLAVE      = -1603241,
+//    EMOTE_LASER_SLAVE      = -1603241,
 
     SPELL_JET_PACK          = 63341, // used by mimiron to change seats
     SPELL_SELF_REPAIR       = 64383,

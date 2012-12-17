@@ -4927,7 +4927,6 @@ void Spell::EffectTriggerMissileSpell(SpellEffectIndex effect_idx)
 
         MaNGOS::NormalizeMapCoord(x);
         MaNGOS::NormalizeMapCoord(y);
-        m_caster->UpdateAllowedPositionZ(x,y,z);
 
         DEBUG_FILTER_LOG(LOG_FILTER_SPELL_CAST, "Spell::EffectTriggerMissileSpell %s spell %u (eff %u): triggering spell %u with coords %f %f %f",
             m_CastItem ?  "Item" : "",
@@ -4936,7 +4935,7 @@ void Spell::EffectTriggerMissileSpell(SpellEffectIndex effect_idx)
             triggered_spell_id,
             x,y,z);
 
-        m_caster->CastSpell(x, y, z, spellInfo, true, m_CastItem, NULL, m_originalCasterGUID, m_spellInfo);
+        unitTarget->CastSpell(x, y, z, spellInfo, true, m_CastItem, NULL, m_originalCasterGUID, m_spellInfo);
     }
     else
     {
@@ -5749,7 +5748,7 @@ void Spell::EffectCreateItem2(SpellEffectIndex eff_idx)
         }
 
         // create some random items
-        player->AutoStoreLoot(m_spellInfo->Id, LootTemplates_Spell);
+        player->AutoStoreLoot(NULL, m_spellInfo->Id, LootTemplates_Spell);
     }
 }
 
@@ -5760,7 +5759,7 @@ void Spell::EffectCreateRandomItem(SpellEffectIndex /*eff_idx*/)
     Player* player = (Player*)m_caster;
 
     // create some random items
-    player->AutoStoreLoot(m_spellInfo->Id, LootTemplates_Spell);
+    player->AutoStoreLoot(NULL, m_spellInfo->Id, LootTemplates_Spell);
 }
 
 void Spell::EffectPersistentAA(SpellEffectIndex eff_idx)

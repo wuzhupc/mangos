@@ -37,6 +37,8 @@ enum
     SAY_SLAY2               = -1603146,
     SAY_DEATH               = -1603147,
     SAY_BERSERK             = -1603148,
+//    SAY_YOGG                = -1603149,
+
     EMOTE_ALLIES_NATURE     = -1603150,
     EMOTE_LIFEBINDERS_GIFT  = -1603151,
     EMOTE_GROUND_TREMMOR    = -1603152,

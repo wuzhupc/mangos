@@ -653,13 +653,7 @@ struct MANGOS_DLL_DECL boss_sartharionAI : public ScriptedAI
                         bNoAliveTwilightRealm = false;
 
                         // Sartharion event is in progress
-                        SpellEntry* pTempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(58835);
-                        if (pTempSpell)
-                        {
-                            pTempSpell->StackAmount = 1;
-                            pTempSpell->procCharges = 1;
-                            m_creature->CastSpell(m_creature, pTempSpell, true);
-                        }
+                        m_creature->CastSpell(m_creature, 58835, true);
                     }
                 }
                 if (!m_pInstance->m_lEggsGuidList.empty())
@@ -933,13 +927,7 @@ struct MANGOS_DLL_DECL dummy_dragonAI : public ScriptedAI
                         else
                             uiTempSpell = 57935;
 
-                        SpellEntry* pTempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(uiTempSpell);
-                        if (pTempSpell)
-                        {
-                            pTempSpell->StackAmount = 1;
-                            pTempSpell->procCharges = 1;
-                            m_creature->CastSpell(m_creature, pTempSpell, true);
-                        }
+                        m_creature->CastSpell(m_creature, uiTempSpell, true);
 
                         pAcolyte = m_pInstance->GetSingleCreatureFromStorage(NPC_ACOLYTE_OF_VESPERON);
                         if (!pAcolyte || (pAcolyte && pAcolyte->isDead()))
@@ -988,13 +976,7 @@ struct MANGOS_DLL_DECL dummy_dragonAI : public ScriptedAI
                     bNoAliveTwilightRealm = false;
 
                     // Sartharion event not in progress
-                    SpellEntry* pTempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(57935);
-                    if (pTempSpell)
-                    {
-                        pTempSpell->StackAmount = 1;
-                        pTempSpell->procCharges = 1;
-                        m_creature->CastSpell(m_creature, pTempSpell, true);
-                    }
+                    m_creature->CastSpell(m_creature, 57935, true);
                 }
 
             if (!m_pInstance->m_lEggsGuidList.empty())

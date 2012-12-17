@@ -233,17 +233,8 @@ struct MANGOS_DLL_DECL boss_varosAI : public ScriptedAI
               for(uint8 i = 1; i < 9; i++)
                  if((i <= MaxOrb && i >= MinOrb) || (MinOrb == 7 && (i <= MaxOrb || i >= MinOrb)))
                     if((*iter)->GetPositionX() > Regions[i].x1 && (*iter)->GetPositionX() < Regions[i].x2)
-                       if((*iter)->GetPositionY() > Regions[i].y1 && (*iter)->GetPositionY() < Regions[i].y2)
-                          if(SpellEntry* pTempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(SPELL_CORE_MISSILE))
-                          {
-                             pTempSpell->EffectImplicitTargetA[0] = TARGET_EFFECT_SELECT;
-                             pTempSpell->EffectImplicitTargetB[0] = 0;
-                             pTempSpell->EffectImplicitTargetA[1] = TARGET_EFFECT_SELECT;
-                             pTempSpell->EffectImplicitTargetB[1] = 0;
-                             pTempSpell->EffectImplicitTargetA[2] = TARGET_EFFECT_SELECT;
-                             pTempSpell->EffectImplicitTargetB[2] = 0;
-                             (*iter)->CastSpell(m_creature, pTempSpell, true);
-                          }
+                        if((*iter)->GetPositionY() > Regions[i].y1 && (*iter)->GetPositionY() < Regions[i].y2)
+                            (*iter)->CastSpell(m_creature, SPELL_CORE_MISSILE, true);
            }
     }
 
@@ -258,18 +249,9 @@ struct MANGOS_DLL_DECL boss_varosAI : public ScriptedAI
               for(uint8 i = 1; i < 9; i++)
                  if((i <= MaxOrb && i >= MinOrb) || (MinOrb == 7 && (i <= MaxOrb || i >= MinOrb)))
                     if((*iter)->GetPositionX() > Regions[i].x1 && (*iter)->GetPositionX() < Regions[i].x2)
-                       if((*iter)->GetPositionY() > Regions[i].y1 && (*iter)->GetPositionY() < Regions[i].y2)
-                       {
-                          if(SpellEntry* pTempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(SPELL_ENERGIZE_CORES_TRIGGER_1))
-                          {
-                             pTempSpell->EffectImplicitTargetA[0] = TARGET_EFFECT_SELECT;
-                             pTempSpell->EffectImplicitTargetB[0] = 0;
-                             pTempSpell->EffectImplicitTargetA[1] = TARGET_EFFECT_SELECT;
-                             pTempSpell->EffectImplicitTargetB[1] = 0;
-                             pTempSpell->EffectImplicitTargetA[2] = TARGET_EFFECT_SELECT;
-                             pTempSpell->EffectImplicitTargetB[2] = 0;
-                             (*iter)->CastSpell(m_creature, pTempSpell, true);
-                          }
+                        if((*iter)->GetPositionY() > Regions[i].y1 && (*iter)->GetPositionY() < Regions[i].y2)
+                        {
+                            (*iter)->CastSpell(m_creature, SPELL_ENERGIZE_CORES_TRIGGER_1, true);
 
                           if(i == MinOrb)
                              angle01 = m_creature->GetAngle((*iter));
@@ -304,17 +286,7 @@ struct MANGOS_DLL_DECL boss_varosAI : public ScriptedAI
 
     void DoEnergy(Unit* pTarget)
     {
-        if(SpellEntry* pTempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(m_bIsRegularMode ? SPELL_ENERGIZE_CORES : SPELL_ENERGIZE_CORES_2))
-        {
-            pTempSpell->EffectImplicitTargetA[0] = TARGET_EFFECT_SELECT;
-            pTempSpell->EffectImplicitTargetB[0] = 0;
-            pTempSpell->EffectImplicitTargetA[1] = TARGET_EFFECT_SELECT;
-            pTempSpell->EffectImplicitTargetB[1] = 0;
-            pTempSpell->EffectImplicitTargetA[2] = TARGET_EFFECT_SELECT;
-            pTempSpell->EffectImplicitTargetB[2] = 0;
-            m_creature->CastSpell(pTarget, pTempSpell, true);
-        }
-
+        m_creature->CastSpell(pTarget, m_bIsRegularMode ? SPELL_ENERGIZE_CORES : SPELL_ENERGIZE_CORES_2, true);
     }
 
     /*void SpellHitTarget(Unit *target, const SpellEntry *spell)
