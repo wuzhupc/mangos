@@ -350,7 +350,6 @@ struct MANGOS_DLL_DECL mob_xtheartAI : public ScriptedAI
     {
         DoCast(m_creature, SPELL_EXPOSED_HEART);
         m_creature->SetLevitate(true); // TODO: vehicle system not work properly
-        m_creature->SetRespawnDelay(DAY);
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         m_uiEnergyOrbTimer  = 0;
         m_uiDeathTimer      = 30000;
@@ -364,11 +363,9 @@ struct MANGOS_DLL_DECL mob_xtheartAI : public ScriptedAI
 
     void JustDied(Unit* pKiller)
     {
-        // used for hard mode loot only when hard mode loot is within the heart's corpse
-        // remove this for revision
-        m_creature->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
         if (m_pInstance)
             m_pInstance->SetData(TYPE_XT002_HARD, IN_PROGRESS);
+        m_creature->ForcedDespawn();
     }
 
     ObjectGuid SelectRandomXtToyPile()
@@ -482,15 +479,7 @@ struct MANGOS_DLL_DECL boss_xt_002AI : public ScriptedAI
         {
             m_pInstance->SetData(TYPE_XT002, DONE);
             if (m_bIsHardMode)
-            {
                 m_pInstance->SetData(TYPE_XT002_HARD, DONE);
-                // Looting Heart instead XT-002
-                if (Creature* pHeart = m_creature->GetMap()->GetCreature(m_XtHeartGUID))
-                {
-                    pHeart->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
-                    m_creature->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
-                }
-            }
         }
 
         DoScriptText(SAY_DEATH, m_creature);

@@ -327,7 +327,6 @@ Player* FollowerAI::GetLeaderForFollower()
                         debug_log("SD2: FollowerAI GetLeader changed and returned new leader.");
                         m_leaderGuid = pMember->GetObjectGuid();
                         return pMember;
-                        break;
                     }
                 }
             }

@@ -5,26 +5,6 @@
 -- ===================================== --
 
 -- ---------- --
--- 2012-11-26 --
--- ---------- --
-/*
-mob_erekem_guard -> npc_erekem_guard
-npc_violet_portal -> npc_teleportation_portal
-npc_door_seal_vh -> npc_door_seal
-mob_soul_fragment -> npc_corrupted_soul_fragment
-boss_ragefire -> boss_saviana
-boss_colossus -> boss_drakkari_colossus
-boss_drakari_elemental -> boss_drakkari_elemental
-*/
-UPDATE creature_template SET ScriptName = 'npc_erekem_guard' WHERE `entry`= 29395;
-UPDATE creature_template SET ScriptName = 'npc_teleportation_portal' WHERE `entry` = 31011;
-UPDATE creature_template SET ScriptName = 'npc_door_seal' WHERE `entry` = 30896;
-UPDATE creature_template SET ScriptName = 'npc_corrupted_soul_fragment' WHERE `entry` = 36535;
-UPDATE creature_template SET ScriptName = 'boss_saviana' WHERE `entry` = 39747;
-UPDATE creature_template SET ScriptName = 'boss_drakkari_colossus' WHERE `entry` = 29307;
-UPDATE creature_template SET ScriptName = 'boss_drakkari_elemental' WHERE `entry` = 29573;
-
--- ---------- --
 -- 2012-11-27 --
 -- ---------- --
 -- sd2_mr0518
@@ -67,3 +47,11 @@ UPDATE `creature_template` SET `ScriptName` = '' WHERE `entry` IN(33051, 33705);
 -- ---------- --
 -- sd2_mr0536
 UPDATE `creature_model_info` SET `bounding_radius` = 0.31, `combat_reach` = 20 WHERE `modelid` = 28638; -- temp
+
+-- ---------- --
+-- 2012-12-26 --
+-- ---------- --
+-- sd2_mr0546
+REPLACE INTO `conditions` (`condition_entry`, `type`, `value1`, `value2`) VALUES
+(1000, 24, 38622, 1), (1001, 24, 38623, 1), (1002, 24, 38624, 1), (1003, 16, 40686, 1), 
+(1004, 17, 54197, 0), (1005, 2, 33015, 1), (1006, 24, 49278, 1);

@@ -5,6 +5,9 @@
 -- --------------- --
 DELETE FROM `creature` WHERE `id` IN(33060, 33062, 33109); -- Loading vehicles by script
 UPDATE `creature_template_addon` SET `auras` = '52455' WHERE `entry` IN(33060, 33109, 33062, 34045); -- Prevent vehicles auto regen health
+UPDATE `creature_template` SET `modelid_2` = 28783 WHERE `entry` = 33189; -- Liquid Pyrite
+UPDATE `creature_template_addon` SET `mount` = 0 WHERE `entry` = 33214; -- Mechanolift 304-A
+UPDATE `creature_template` SET `unit_flags` = 0, `minlevel` = 80, `maxlevel` = 80 WHERE `entry` = 33090; -- Pool of Tar
 
 UPDATE `creature_template` SET `ScriptName` = 'boss_flame_leviathan' WHERE `entry` = 33113;
 UPDATE `creature` SET `position_x` = 432.09, `position_y` = -13.3, `position_z` = 409.9 WHERE `id` = 33113;
@@ -18,6 +21,8 @@ UPDATE `creature_template` SET `ScriptName` = 'mob_hodirs_fury' WHERE `entry` = 
 UPDATE `creature_template` SET `ScriptName` = 'mob_mimiron_inferno' WHERE `entry` = 33370;
 UPDATE `creature_template` SET `ScriptName` = 'mob_thorims_hammer' WHERE `entry` = 33365;
 UPDATE `creature_template` SET `ScriptName` = 'mob_lorekeeper' WHERE `entry` = 33686;
+UPDATE `creature_template` SET `faction_A` = 1965, `faction_H` = 1965, `unit_flags` = 2|33554432 WHERE `entry` IN (33370, 33365, 33212);
+UPDATE `creature_template` SET `movementId` = 0, `vehicle_id` = 0, `unit_flags` = `unit_flags` | 4  WHERE `entry` = 33369;
 UPDATE `creature_template` SET `InhabitType` = 4 WHERE `entry` IN (33366, 33369, 33364, 33108);
 
 DELETE FROM `spell_script_target` WHERE `entry` IN(62906, 62909, 62911, 62533);
@@ -79,30 +84,7 @@ UPDATE `creature_template` SET `ScriptName` = 'mob_boombot' WHERE `entry` = 3334
 UPDATE `creature_template` SET `ScriptName` = 'mob_voidzone' WHERE `entry` = 34001;
 UPDATE `creature_template` SET `ScriptName` = 'mob_lifespark', `minhealth` = 176400, `maxhealth` = 176400, `faction_A` = 14, `faction_H` = 14 WHERE `entry` = 34004;
 DELETE FROM `creature` WHERE `id` = 34004;
-
--- THIS IS A WORKAROUND FOR THE HARD MODE LOOT, PLEASE REMOVE IF YOU DON'T WANT TO USE IT!
--- hard loot for the heart
-UPDATE `creature_template` SET `lootid` = 33329 WHERE `entry` = 33329;
-UPDATE `creature_template` SET `lootid` = 33995 WHERE `entry` = 33995;
--- rewrite loot for XT to support hard mode: moved hard mode loot to XT heart
--- 10 man:
--- hard mode loot for the heart
-DELETE FROM `creature_loot_template` WHERE `entry` = 33329;
-INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `groupid`, `mincountOrRef`, `maxcount`) VALUES 
-(33329, 45867, 0, 1, 1, 1),
-(33329, 45868, 0, 1, 1, 1),
-(33329, 45869, 0, 1, 1, 1),
-(33329, 45870, 0, 1, 1, 1),
-(33329, 45871, 0, 1, 1, 1);
--- 25 man:
--- no hard loot on xt so moving to the heart
-DELETE FROM `creature_loot_template` WHERE `entry` = 33995;
-INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `groupid`, `mincountOrRef`, `maxcount`) VALUES 
-(33995, 45445, 0, 1, 1, 1),
-(33995, 45443, 0, 1, 1, 1),
-(33995, 45444, 0, 1, 1, 1),
-(33995, 45446, 0, 1, 1, 1),
-(33995, 45442, 0, 1, 1, 1);
+UPDATE `creature` SET `spawnMask` = 3 WHERE `id` = 33337; -- XT-Toy Pile
 
 -- ---------------- --
 -- Assembly of Iron --

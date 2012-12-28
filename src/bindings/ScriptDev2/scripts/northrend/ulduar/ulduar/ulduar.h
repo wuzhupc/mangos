@@ -400,6 +400,8 @@ class MANGOS_DLL_DECL instance_ulduar : public ScriptedInstance
         void OnCreatureDeath(Creature* pCreature);
         void OnObjectCreate(GameObject* pGo);
 
+        void OnPlayerEnterArea(Player* Player, uint32 uiNewAreaId, uint32 uiOldAreaId);
+
         void SetData(uint32 uiType, uint32 uiData);
         uint32 GetData(uint32 uiType);
 
@@ -407,7 +409,6 @@ class MANGOS_DLL_DECL instance_ulduar : public ScriptedInstance
         void Load(const char* chrIn);
 
         void Update(uint32 uiDiff);
-
 
         void SetSpecialAchievementCriteria(uint32 uiType, bool bIsMet);
         bool CheckAchievementCriteriaMeet(uint32 uiCriteriaId, Player const* pSource, Unit const* pTarget, uint32 uiMiscValue1 /* = 0*/);

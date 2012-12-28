@@ -627,7 +627,6 @@ struct MANGOS_DLL_DECL npc_sylvanas_jaina_pos_endAI: public ScriptedAI
                     {
                         m_uiSindragosaGuid = pSindragosa->GetObjectGuid();
                     }
-                    switch (creatureEntry)
                     ++m_uiOutro_Phase;
                     m_uiSpeech_Timer = 13000;
                     break;

@@ -123,6 +123,7 @@ struct MANGOS_DLL_DECL mob_iron_constructAI : public ScriptedAI
                 {
                     m_creature->ForcedDespawn(1000);
                     m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                    DoCast(m_creature, SPELL_STRENGHT_OF_CREATOR_DIE, true);
                 }
             }
         }
@@ -131,11 +132,6 @@ struct MANGOS_DLL_DECL mob_iron_constructAI : public ScriptedAI
     void JustReachedHome()
     {
         m_bIsActive = false;
-    }
-
-    void JustDied(Unit* killer)
-    {
-        DoCast(m_creature, SPELL_STRENGHT_OF_CREATOR_DIE, true);
     }
 
     void SpellHit(Unit* pCaster, const SpellEntry* spellInfo)

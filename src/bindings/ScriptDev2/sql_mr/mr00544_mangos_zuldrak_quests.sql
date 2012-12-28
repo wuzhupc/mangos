@@ -173,3 +173,6 @@ INSERT into creature_ai_scripts VALUES
 (3002204,30022,0,0,100,1,14000,14000,20000,20000,11,55977,4,6,0,0,0,0,0,0,0,0,'Vladof- Cast Whirlwind'),
 (3002305,30022,6,0,100,0,0,0,0,0,26,12948,0,0,0,0,0,0,0,0,0,0,'Vladof- Complete Quest upon death'),
 (3002306,30022,0,0,100,0,100,100,0,0,11,50689,0,1,0,0,0,0,0,0,0,0,'Vladof- Cast Blood Presence');
+
+INSERT IGNORE INTO creature_ai_scripts VALUES (3002403,30024,4,0,100,0,0,0,0,0,1,-1052,0,0,0,0,0,0,0,0,0,0,'Gargoral the Water Lord - Yell on Aggro');
+INSERT IGNORE INTO creature_ai_scripts VALUES (3002503,30025,4,0,100,0,0,0,0,0,1,-1053,0,0,0,0,0,0,0,0,0,0,'Erathius, King of Dirt - Yell on Aggro');

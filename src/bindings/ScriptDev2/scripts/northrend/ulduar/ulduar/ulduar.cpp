@@ -205,8 +205,8 @@ struct t_Locations
 static t_Locations PortalLoc[]=
 {
     {-3050001,603, -706.122f, -92.6024f, 430.176f, 4.19f, SPELL_TELEPORT_BASE_CAMP,    true,  true, TYPE_LEVIATHAN},    // base camp
-    {-3050002,603, 131.248f,  -35.3802f, 410.104f, 0,     SPELL_TELEPORT_GROUNDS,      true,  true, TYPE_LEVIATHAN_TP}, // formation ground
-    {-3050003,603, 553.233f,  -12.3247f, 409.979f, 0,     SPELL_TELEPORT_FORGE,        true,  true, TYPE_LEVIATHAN},    // temp active state for skip first boss
+    {-3050002,603, 131.248f,  -35.3802f, 410.104f, 0,     SPELL_TELEPORT_GROUNDS,      false, true, TYPE_LEVIATHAN_TP}, // formation ground
+    {-3050003,603, 553.233f,  -12.3247f, 409.979f, 0,     SPELL_TELEPORT_FORGE,        false, true, TYPE_LEVIATHAN},
     {-3050004,603, 926.292f,  -11.4635f, 418.895f, 3.19f, SPELL_TELEPORT_SCRAPYARD,    false, true, TYPE_XT002_TP},
     {-3050005,603, 1498.09f,  -24.246f,  421.267f, 0,     SPELL_TELEPORT_ANTECHAMBER,  false, true, TYPE_XT002},
     {-3050006,603, 1859.45f,  -24.1f,    449.2f,   0,     SPELL_TELEPORT_WALKWAY,      false, true, TYPE_KOLOGARN},
